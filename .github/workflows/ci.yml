@@ -45,9 +45,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-env:
-  gemc_docker_tag: 4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
-
 jobs:
 
   # info
@@ -95,7 +92,7 @@ jobs:
 
   build_gemc:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:${{ env.gemc_docker_tag }}
+    container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
     - name: clone
       run: git clone https://github.com/gemc/clas12Tags.git --branch ${{ inputs.branch_clas12Tags }}
@@ -144,7 +141,7 @@ jobs:
       - event_generation
       - build_gemc
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:${{ env.gemc_docker_tag }}
+    container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
     - uses: actions/download-artifact@v3
       with:
