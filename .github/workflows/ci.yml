@@ -121,6 +121,8 @@ jobs:
   # event generation
   #############################################################################
   event_generation:
+    needs:
+      - build_coatjava
     runs-on: ubuntu-latest
     steps:
     - name: setup java
@@ -132,8 +134,11 @@ jobs:
       uses: wtfjoke/setup-groovy@v1
       with:
         groovy-version: 4.x
-    - name: clone coatjava
-      run: git clone https://github.com/${{ inputs.fork_coatjava || env.fork_coatjava }}.git --branch ${{ inputs.branch_coatjava || env.branch_coatjava }}
+    - uses: actions/download-artifact@v3
+      with:
+        name: build
+    - name: untar build
+      run: tar xzvf *.tar.gz
     - name: event generation
       run: |
         coatjava/validation/advanced-tests/src/eb/scripts/gen.sh
