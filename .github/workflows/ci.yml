@@ -47,11 +47,11 @@ jobs:
     steps:
       - name: dispatch summary
         run: |
-          echo "| | |" >> $GITHUB_STEP_SUMMARY
-          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
-          echo "| PR URL | <${{ inputs.source_url }}> |" >> $GITHUB_STEP_SUMMARY
-          echo "| PR Title | ${{ inputs.title }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo '| | |' >> $GITHUB_STEP_SUMMARY
+          echo '| --- | --- |' >> $GITHUB_STEP_SUMMARY
+          echo '| PR URL | <${{ inputs.source_url }}> |' >> $GITHUB_STEP_SUMMARY
+          echo '| PR Title | ${{ inputs.title }} |' >> $GITHUB_STEP_SUMMARY
+          echo '| | |' >> $GITHUB_STEP_SUMMARY
 
   # build
   #############################################################################
