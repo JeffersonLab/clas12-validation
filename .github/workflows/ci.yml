@@ -52,7 +52,7 @@ jobs:
 
   # info
   #############################################################################
-  dispatch_source_info:
+  trigger_info:
     runs-on: ubuntu-latest
     steps:
       - name: dispatch summary
