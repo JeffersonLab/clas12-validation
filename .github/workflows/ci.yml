@@ -54,14 +54,13 @@ jobs:
   #############################################################################
   dispatch_source_info:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: dispatch summary
         run: |
           echo '| | |' >> $GITHUB_STEP_SUMMARY
           echo '| --- | --- |' >> $GITHUB_STEP_SUMMARY
-          echo '| PR URL | <${{ inputs.source_url }}> |' >> $GITHUB_STEP_SUMMARY
-          echo '| PR Title | ${{ inputs.title }} |' >> $GITHUB_STEP_SUMMARY
+          echo '| PR URL | <${{ inputs.source_url || github.event.pull_request.html_url }}> |' >> $GITHUB_STEP_SUMMARY
+          echo '| PR Title | ${{ inputs.title || github.event.pull_request.title }} |' >> $GITHUB_STEP_SUMMARY
           echo '| `coatjava` Branch | `${{ inputs.branch_coatjava || env.branch_coatjava }}` |' >> $GITHUB_STEP_SUMMARY
           echo '| `clas12Tags` Branch | `${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}` |' >> $GITHUB_STEP_SUMMARY
           echo '| | |' >> $GITHUB_STEP_SUMMARY
