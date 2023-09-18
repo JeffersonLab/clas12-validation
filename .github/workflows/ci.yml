@@ -23,6 +23,12 @@ on:
         required: false
         type: string
         default: "]"
+      fork_coatjava:
+        required: false
+        type: string
+      fork_clas12Tags:
+        required: false
+        type: string
       branch_coatjava:
         required: false
         type: string
@@ -44,7 +50,9 @@ defaults:
     shell: bash
 
 env:
-  # default branch names
+  # default dependency forks and branches
+  fork_coatjava: JeffersonLab/coatjava
+  fork_clas12Tags: gemc/clas12Tags
   branch_coatjava: development
   branch_clas12Tags: main
 
@@ -77,7 +85,7 @@ jobs:
         java-version: 11
         distribution: zulu
     - name: clone
-      run: git clone https://github.com/JeffersonLab/coatjava.git --branch ${{ inputs.branch_coatjava || env.branch_coatjava }}
+      run: git clone https://github.com/JeffersonLab/${{ inputs.fork_coatjava || env.fork_coatjava }} --branch ${{ inputs.branch_coatjava || env.branch_coatjava }}
     - name: build
       run: |
         cd coatjava
@@ -97,7 +105,7 @@ jobs:
     container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
     - name: clone
-      run: git clone https://github.com/gemc/clas12Tags.git --branch ${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}
+      run: git clone https://github.com/gemc/${{ inputs.fork_clas12Tags || env.fork_clas12Tags }} --branch ${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}
     - name: build
       run: |
         source /app/localSetup.sh
@@ -126,7 +134,7 @@ jobs:
       with:
         groovy-version: 4.x
     - name: clone coatjava
-      run: git clone https://github.com/JeffersonLab/coatjava.git --branch ${{ inputs.branch_coatjava || env.branch_coatjava }}
+      run: git clone https://github.com/JeffersonLab/${{ inputs.fork_coatjava || env.fork_coatjava }} --branch ${{ inputs.branch_coatjava || env.branch_coatjava }}
     - name: event generation
       run: |
         coatjava/validation/advanced-tests/src/eb/scripts/gen.sh
