@@ -67,9 +67,9 @@ jobs:
         run: |
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '| --- | --- | --- |' >> $GITHUB_STEP_SUMMARY
-          echo '| Pull Request | <${{ inputs.source_url || github.event.pull_request.html_url }}> | ${{ inputs.title || github.event.pull_request.title }} |' >> $GITHUB_STEP_SUMMARY
-          echo '| `coatjava` Fork and Branch | `${{ inputs.fork_coatjava || env.fork_coatjava }}` | [`${{ inputs.branch_coatjava || env.branch_coatjava }}`](https://github.com/${{ inputs.fork_coatjava || env.fork_coatjava }}/tree/${{ inputs.branch_coatjava || env.branch_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| `clas12Tags` Fork and Branch | `${{ inputs.fork_clas12Tags || env.fork_clas12Tags }}` | [`${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}`](https://github.com/${{ inputs.fork_clas12Tags || env.fork_clas12Tags }}/tree/${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **Pull Request** | <${{ inputs.source_url || github.event.pull_request.html_url }}> | ${{ inputs.title || github.event.pull_request.title }} |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`coatjava` Fork and Branch** | `${{ inputs.fork_coatjava || env.fork_coatjava }}` | [`${{ inputs.branch_coatjava || env.branch_coatjava }}`](https://github.com/${{ inputs.fork_coatjava || env.fork_coatjava }}/tree/${{ inputs.branch_coatjava || env.branch_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12Tags` Fork and Branch** | `${{ inputs.fork_clas12Tags || env.fork_clas12Tags }}` | [`${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}`](https://github.com/${{ inputs.fork_clas12Tags || env.fork_clas12Tags }}/tree/${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
 
   # build
