@@ -23,6 +23,14 @@ on:
         required: false
         type: string
         default: "]"
+      branch_coatjava:
+        required: false
+        type: string
+        default: "development"
+      branch_clas12Tags:
+        required: false
+        type: string
+        default: "main"
   pull_request:
   push:
     branches: [ master ]
@@ -36,6 +44,9 @@ defaults:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+env:
+  gemc_docker_tag: 4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
 
 jobs:
 
@@ -65,7 +76,7 @@ jobs:
         java-version: 11
         distribution: zulu
     - name: clone
-      run: git clone https://github.com/JeffersonLab/coatjava.git
+      run: git clone https://github.com/JeffersonLab/coatjava.git --branch ${{ inputs.branch_coatjava }}
     - name: build
       run: |
         cd coatjava
@@ -82,10 +93,10 @@ jobs:
 
   build_gemc:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
+    container: jeffersonlab/gemc:${{ env.gemc_docker_tag }}
     steps:
     - name: clone
-      run: git clone https://github.com/gemc/clas12Tags.git
+      run: git clone https://github.com/gemc/clas12Tags.git --branch ${{ inputs.branch_clas12Tags }}
     - name: build
       run: |
         source /app/localSetup.sh
@@ -99,16 +110,50 @@ jobs:
         retention-days: 1
         path: ./*.tar.gz
 
-  # test
+  # event generation
   #############################################################################
-  test:
+  event_generation:
+    runs-on: ubuntu-latest
+    steps:
+    - name: setup java
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: zulu
+    - name: setup groovy
+      uses: wtfjoke/setup-groovy@v1
+      with:
+        groovy-version: 4.x
+    - name: clone coatjava
+      run: git clone https://github.com/JeffersonLab/coatjava.git --branch ${{ inputs.branch_coatjava }}
+    - name: event generation
+      run: |
+        coatjava/validation/advanced-tests/src/eb/scripts/gen.sh
+    - uses: actions/upload-artifact@v3
+      with:
+        name: event_generation
+        retention-days: 1
+        path: ./*.txt
+
+  # simulation
+  #############################################################################
+  simulation:
     needs:
-      - build_coatjava
+      - event_generation
       - build_gemc
     runs-on: ubuntu-latest
+    container: jeffersonlab/gemc:${{ env.gemc_docker_tag }}
     steps:
     - uses: actions/download-artifact@v3
       with:
+        name: event_generation
+    - uses: actions/download-artifact@v3
+      with:
         name: build
-    - name: tree
-      run: tree
+    - name: untar build
+      run: tar xzvf *.tar.gz
+    - name: simulation
+      run: |
+        source /app/localSetup.sh
+        cd clas12Tags/source
+        ./gemc # TODO
