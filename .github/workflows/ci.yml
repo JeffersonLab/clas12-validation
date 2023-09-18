@@ -26,24 +26,27 @@ on:
       branch_coatjava:
         required: false
         type: string
-        default: "development"
       branch_clas12Tags:
         required: false
         type: string
-        default: "main"
   pull_request:
   push:
     branches: [ master ]
 
 run-name: ${{ inputs.title }} ${{ inputs.note_begin }}${{ inputs.source }} ${{ inputs.event }}${{inputs.note_end}}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+env:
+  # default branch names
+  branch_coatjava: development
+  branch_clas12Tags: main
 
 jobs:
 
@@ -55,13 +58,13 @@ jobs:
     steps:
       - name: dispatch summary
         run: |
-          echo '| | |'                                                       >> $GITHUB_STEP_SUMMARY
-          echo '| --- | --- |'                                               >> $GITHUB_STEP_SUMMARY
-          echo '| PR URL | <${{ inputs.source_url }}> |'                     >> $GITHUB_STEP_SUMMARY
-          echo '| PR Title | ${{ inputs.title }} |'                          >> $GITHUB_STEP_SUMMARY
-          echo '| `coatjava` Branch | `${{ inputs.branch_coatjava }}` |'     >> $GITHUB_STEP_SUMMARY
-          echo '| `clas12Tags` Branch | `${{ inputs.branch_clas12Tags }}` |' >> $GITHUB_STEP_SUMMARY
-          echo '| | |'                                                       >> $GITHUB_STEP_SUMMARY
+          echo '| | |' >> $GITHUB_STEP_SUMMARY
+          echo '| --- | --- |' >> $GITHUB_STEP_SUMMARY
+          echo '| PR URL | <${{ inputs.source_url }}> |' >> $GITHUB_STEP_SUMMARY
+          echo '| PR Title | ${{ inputs.title }} |' >> $GITHUB_STEP_SUMMARY
+          echo '| `coatjava` Branch | `${{ inputs.branch_coatjava || env.branch_coatjava }}` |' >> $GITHUB_STEP_SUMMARY
+          echo '| `clas12Tags` Branch | `${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}` |' >> $GITHUB_STEP_SUMMARY
+          echo '| | |' >> $GITHUB_STEP_SUMMARY
 
   # build
   #############################################################################
@@ -75,7 +78,7 @@ jobs:
         java-version: 11
         distribution: zulu
     - name: clone
-      run: git clone https://github.com/JeffersonLab/coatjava.git --branch ${{ inputs.branch_coatjava }}
+      run: git clone https://github.com/JeffersonLab/coatjava.git --branch ${{ inputs.branch_coatjava || env.branch_coatjava }}
     - name: build
       run: |
         cd coatjava
@@ -95,7 +98,7 @@ jobs:
     container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
     - name: clone
-      run: git clone https://github.com/gemc/clas12Tags.git --branch ${{ inputs.branch_clas12Tags }}
+      run: git clone https://github.com/gemc/clas12Tags.git --branch ${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}
     - name: build
       run: |
         source /app/localSetup.sh
@@ -124,7 +127,7 @@ jobs:
       with:
         groovy-version: 4.x
     - name: clone coatjava
-      run: git clone https://github.com/JeffersonLab/coatjava.git --branch ${{ inputs.branch_coatjava }}
+      run: git clone https://github.com/JeffersonLab/coatjava.git --branch ${{ inputs.branch_coatjava || env.branch_coatjava }}
     - name: event generation
       run: |
         coatjava/validation/advanced-tests/src/eb/scripts/gen.sh
