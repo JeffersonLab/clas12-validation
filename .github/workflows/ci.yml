@@ -35,6 +35,12 @@ on:
       branch_clas12Tags:
         required: false
         type: string
+      tag_config_coatjava:
+        required: false
+        type: string
+      tag_config_gemc:
+        required: false
+        type: string
   pull_request:
   push:
     branches: [ master ]
@@ -55,6 +61,9 @@ env:
   fork_clas12Tags: gemc/clas12Tags
   branch_coatjava: development
   branch_clas12Tags: main
+  # default tags for config files in `clas12-config`
+  tag_config_coatjava: latest
+  tag_config_gemc: latest
 
 jobs:
 
@@ -163,6 +172,8 @@ jobs:
     - uses: actions/download-artifact@v3
       with:
         name: build
+    - name: tree
+      run: ls -lR
     - name: untar build
       run: tar xzvf *.tar.gz
     - name: simulation
