@@ -68,10 +68,10 @@ jobs:
         run: |
           git clone https://github.com/${{ env.FORK_COATJAVA }}.git --branch ${{ env.BRANCH_COATJAVA }}
           tar czvf coatjava{.tar.gz,}
-      - name: clone clas12Tags
-        run: |
-          git clone https://github.com/${{ env.FORK_CLAS12TAGS }}.git --branch ${{ env.BRANCH_CLAS12TAGS }}
-          tar czvf clas12Tags{.tar.gz,}
+      # - name: clone clas12Tags
+      #   run: |
+      #     git clone https://github.com/${{ env.FORK_CLAS12TAGS }}.git --branch ${{ env.BRANCH_CLAS12TAGS }}
+      #     tar czvf clas12Tags{.tar.gz,}
       - uses: actions/upload-artifact@v3
         with:
           name: clones
@@ -116,11 +116,13 @@ jobs:
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: clones
-    - name: untar build
-      run: tar xzvf clas12Tags.tar.gz
+    - name: clone
+      run: git clone https://github.com/${{ env.FORK_CLAS12TAGS }}.git --branch ${{ env.BRANCH_CLAS12TAGS }}
+    # - uses: actions/download-artifact@v3
+    #   with:
+    #     name: clones
+    # - name: untar build
+    #   run: tar xzvf clas12Tags.tar.gz
     - name: build
       run: |
         source /app/localSetup.sh
