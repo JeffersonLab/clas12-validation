@@ -167,9 +167,9 @@ jobs:
       with:
         name: build
     - name: tree
-      run: ls -lR
+      run: ls -lhR
     - name: untar build
-      run: tar xzvf *.tar.gz
+      run: ls *.tar.gz | xargs -I{} tar xzvf {}
     - name: simulation
       run: |
         source /app/localSetup.sh
