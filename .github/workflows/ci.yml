@@ -51,6 +51,8 @@ env:
     "tag_config_coatjava": "latest",
     "tag_config_gemc": "latest"
   }'
+  # default number of events
+  num_events: 10
 
 jobs:
 
@@ -142,7 +144,7 @@ jobs:
   # clas12-config configuration
   #############################################################################
 
-  prepare_config:
+  config_files:
     needs:
       - dependency_info
     runs-on: ubuntu-latest
@@ -158,12 +160,15 @@ jobs:
         cd clas12-config
         tag_config_coatjava=${{ needs.dependency_info.outputs.tag_config_coatjava }}
         tag_config_gemc=${{ needs.dependency_info.outputs.tag_config_gemc }}
+        # get the 'latest' version number, if we asked for 'latest'
         [ "${{ needs.dependency_info.outputs.tag_config_coatjava }}" = "latest" ] &&  tag_config_coatjava=$(util/latest.rb coatjava)
         [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ]     && tag_config_gemc=$(util/latest.rb gemc)
+        # job summary
         echo "| Configuration Files | Version |"         >> $GITHUB_STEP_SUMMARY
         echo "| --- | --- |"                             >> $GITHUB_STEP_SUMMARY
         echo "| \`coatjava\` | ${tag_config_coatjava} |" >> $GITHUB_STEP_SUMMARY
         echo "| \`gemc\` | ${tag_config_gemc} |"         >> $GITHUB_STEP_SUMMARY
+        # output vars
         echo tag_config_coatjava=$tag_config_coatjava >> $GITHUB_OUTPUT
         echo tag_config_gemc=$tag_config_gemc         >> $GITHUB_OUTPUT
     - name: tar
@@ -210,8 +215,13 @@ jobs:
     needs:
       - event_generation
       - build_gemc
-      - prepare_config
+      - config_files
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        run_period:
+          - rga_spring2019
     container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
     - uses: actions/download-artifact@v3
@@ -227,5 +237,11 @@ jobs:
     - name: simulation
       run: |
         source /app/localSetup.sh
+        gemc_config=$(pwd -P)/clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}
         cd clas12Tags/source
-        ./gemc # TODO
+        ./gemc \
+          $gemc_config/${{ matrix.run_period }} \
+          -N=${{ env.num_events }} \
+          -USE_GUI=0
+        echo "[DONE]"
+        ls -lthR
