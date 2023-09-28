@@ -3,9 +3,6 @@ name: Validation
 on:
   workflow_dispatch:
     inputs:
-      event:
-        required: true
-        type: string
       source:
         required: true
         type: string
@@ -15,14 +12,6 @@ on:
       source_url:
         required: false
         type: string
-      note_begin:
-        required: false
-        type: string
-        default: "[FROM: "
-      note_end:
-        required: false
-        type: string
-        default: "]"
       fork_coatjava:
         required: false
         type: string
@@ -45,7 +34,7 @@ on:
   push:
     branches: [ master ]
 
-run-name: ${{ inputs.title }} ${{ inputs.note_begin }}${{ inputs.source }} ${{ inputs.event }}${{inputs.note_end}}
+run-name: "${{ inputs.title }} [FROM: ${{ inputs.source || 'local' }}]"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
