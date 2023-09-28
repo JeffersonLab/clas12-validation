@@ -158,8 +158,8 @@ jobs:
         cd clas12-config
         tag_config_coatjava=${{ needs.dependency_info.outputs.tag_config_coatjava }}
         tag_config_gemc=${{ needs.dependency_info.outputs.tag_config_gemc }}
-        [ "${{ needs.dependency_info.outputs.tag_config_coatjava }}" = "latest" ] &&  tag_config_coatjava=$(bin/latest.rb coatjava)
-        [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ]     && tag_config_gemc=$(bin/latest.rb gemc)
+        [ "${{ needs.dependency_info.outputs.tag_config_coatjava }}" = "latest" ] &&  tag_config_coatjava=$(util/latest.rb coatjava)
+        [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ]     && tag_config_gemc=$(util/latest.rb gemc)
         echo $tag_config_coatjava >> $GITHUB_OUTPUT
         echo $tag_config_gemc     >> $GITHUB_OUTPUT
         echo '| Configuration Files | Version |' >> $GITHUB_STEP_SUMMARY
