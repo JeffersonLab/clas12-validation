@@ -240,7 +240,7 @@ jobs:
         gemc_config=$(pwd -P)/clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}
         cd clas12Tags/source
         ./gemc \
-          $gemc_config/${{ matrix.run_period }} \
+          $gemc_config/${{ matrix.run_period }}.gcard \
           -N=${{ env.num_events }} \
           -USE_GUI=0
         echo "[DONE]"
