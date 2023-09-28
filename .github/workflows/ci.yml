@@ -47,7 +47,7 @@ jobs:
 
   # dependency and triggerer info
   #############################################################################
-  dependency_info:
+  test_keyword:
     runs-on: ubuntu-latest
     steps:
       - name: get dependency info
