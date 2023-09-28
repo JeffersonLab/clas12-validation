@@ -74,7 +74,7 @@ jobs:
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '${{ inputs.git_coatjava }}' >> $GITHUB_STEP_SUMMARY
+          echo '${{ inputs.git_coatjava }}' | jq '.fork' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   # build
