@@ -52,11 +52,10 @@ jobs:
     steps:
       - name: get dependency info
         run: |
-          echo FORK_COATJAVA=$(     echo "${{ inputs.git_coatjava || env.git_coatjava }}"     | jq -r '.fork'   ) >> $GITHUB_ENV
-          echo BRANCH_COATJAVA=$(   echo "${{ inputs.git_coatjava || env.git_coatjava }}"     | jq -r '.branch' ) >> $GITHUB_ENV
-          echo FORK_CLAS12TAGS=$(   echo "${{ inputs.git_clas12Tags || env.git_clas12Tags }}" | jq -r '.fork'   ) >> $GITHUB_ENV
-          echo BRANCH_CLAS12TAGS=$( echo "${{ inputs.git_clas12Tags || env.git_clas12Tags }}" | jq -r '.branch' ) >> $GITHUB_ENV
-          echo AAA=$(  echo "aa" ) >> $GITHUB_ENV
+          echo FORK_COATJAVA=$(     echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.fork'   ) >> $GITHUB_ENV
+          echo BRANCH_COATJAVA=$(   echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.branch' ) >> $GITHUB_ENV
+          echo FORK_CLAS12TAGS=$(   echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.fork'   ) >> $GITHUB_ENV
+          echo BRANCH_CLAS12TAGS=$( echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.branch' ) >> $GITHUB_ENV
       - name: dispatch summary
         run: |
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
@@ -65,7 +64,6 @@ jobs:
           echo '| **`coatjava` Fork and Branch** | `${{ env.FORK_COATJAVA }}` | [`${{ env.BRANCH_COATJAVA }}`](https://github.com/${{ env.FORK_COATJAVA }}/tree/${{ env.BRANCH_COATJAVA }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| **`clas12Tags` Fork and Branch** | `${{ env.FORK_CLAS12TAGS }}` | [`${{ env.BRANCH_CLAS12TAGS }}`](https://github.com/${{ env.FORK_CLAS12TAGS }}/tree/${{ env.BRANCH_CLAS12TAGS }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
-          echo 'TEST: ${{ env.AAA }}' >> $GITHUB_STEP_SUMMARY
 
   # build
   #############################################################################
