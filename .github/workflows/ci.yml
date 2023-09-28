@@ -139,6 +139,41 @@ jobs:
         retention-days: 1
         path: ./*.tar.gz
 
+  # clas12-config configuration
+  #############################################################################
+
+  prepare_config:
+    needs:
+      - dependency_info
+    runs-on: ubuntu-latest
+    outputs:
+      tag_config_coatjava: ${{ steps.version.outputs.tag_config_coatjava }}
+      tag_config_gemc: ${{ steps.version.outputs.tag_config_gemc }}
+    steps:
+    - name: clone
+      run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12config }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12config }}
+    - name: get version info
+      id: version
+      run: |
+        cd clas12-validation
+        tag_config_coatjava=${{ needs.dependency_info.outputs.tag_config_coatjava }}
+        tag_config_gemc=${{ needs.dependency_info.outputs.tag_config_gemc }}
+        [ "${{ needs.dependency_info.outputs.tag_config_coatjava }}" = "latest" ] &&  tag_config_coatjava=$(bin/latest.rb coatjava)
+        [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ]     && tag_config_gemc=$(bin/latest.rb gemc)
+        echo $tag_config_coatjava >> $GITHUB_OUTPUT
+        echo $tag_config_gemc     >> $GITHUB_OUTPUT
+        echo '| Configuration Files | Version |' >> $GITHUB_STEP_SUMMARY
+        echo '| --- | --- |' >> $GITHUB_STEP_SUMMARY
+        echo '| `coatjava` | ${tag_config_coatjava} |' >> $GITHUB_STEP_SUMMARY
+        echo '| `gemc` | ${tag_config_gemc} |' >> $GITHUB_STEP_SUMMARY
+    - name: tar
+      run: tar czvf clas12-config{.tar.gz,}
+    - uses: actions/upload-artifact@v3
+      with:
+        name: build
+        retention-days: 1
+        path: ./*.tar.gz
+
   # event generation
   #############################################################################
   event_generation:
@@ -175,6 +210,7 @@ jobs:
     needs:
       - event_generation
       - build_gemc
+      - prepare_config
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
