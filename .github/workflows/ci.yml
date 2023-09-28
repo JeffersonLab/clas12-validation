@@ -194,7 +194,7 @@ jobs:
       with:
         name: build
     - name: untar build
-      run: tar xzvf *.tar.gz
+      run: ls *.tar.gz | xargs -I{} tar xzvf {}
     - name: event generation
       run: |
         coatjava/validation/advanced-tests/src/eb/scripts/gen.sh
