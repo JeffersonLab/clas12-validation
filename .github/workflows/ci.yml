@@ -34,7 +34,7 @@ on:
   push:
     branches: [ master ]
 
-run-name: "${{ inputs.title }} [FROM: ${{ inputs.source || 'local' }}]"
+run-name: "[${{ inputs.source || github.repository }}] ${{ inputs.title || github.event.pull_request.title || github.event.push.head_commit.message }}"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
