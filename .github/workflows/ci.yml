@@ -49,34 +49,41 @@ jobs:
   #############################################################################
   dependency_info:
     runs-on: ubuntu-latest
+    outputs:
+      fork_coatjava: ${{ steps.info.outputs.FORK_COATJAVA }}
+      branch_coatjava: ${{ steps.info.outputs.BRANCH_COATJAVA }}
+      fork_clas12Tags: ${{ steps.info.outputs.FORK_CLAS12TAGS }}
+      branch_clas12Tags: ${{ steps.info.outputs.BRANCH_CLAS12TAGS }}
     steps:
       - name: get dependency info
+        id: info
         run: |
-          echo FORK_COATJAVA=$(     echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.fork'   ) >> $GITHUB_ENV
-          echo BRANCH_COATJAVA=$(   echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.branch' ) >> $GITHUB_ENV
-          echo FORK_CLAS12TAGS=$(   echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.fork'   ) >> $GITHUB_ENV
-          echo BRANCH_CLAS12TAGS=$( echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.branch' ) >> $GITHUB_ENV
+          echo FORK_COATJAVA=$(     echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.fork'   ) >> $GITHUB_OUTPUT
+          echo BRANCH_COATJAVA=$(   echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.branch' ) >> $GITHUB_OUTPUT
+          echo FORK_CLAS12TAGS=$(   echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.fork'   ) >> $GITHUB_OUTPUT
+          echo BRANCH_CLAS12TAGS=$( echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.branch' ) >> $GITHUB_OUTPUT
       - name: dispatch summary
         run: |
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '| --- | --- | --- |' >> $GITHUB_STEP_SUMMARY
           echo '| **Pull Request** | <${{ inputs.source_url || github.event.pull_request.html_url }}> | ${{ inputs.title || github.event.pull_request.title }} |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`coatjava` Fork and Branch** | `${{ env.FORK_COATJAVA }}` | [`${{ env.BRANCH_COATJAVA }}`](https://github.com/${{ env.FORK_COATJAVA }}/tree/${{ env.BRANCH_COATJAVA }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`clas12Tags` Fork and Branch** | `${{ env.FORK_CLAS12TAGS }}` | [`${{ env.BRANCH_CLAS12TAGS }}`](https://github.com/${{ env.FORK_CLAS12TAGS }}/tree/${{ env.BRANCH_CLAS12TAGS }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`coatjava` Fork and Branch** | `${{ steps.info.outputs.FORK_COATJAVA }}` | [`${{ steps.info.outputs.BRANCH_COATJAVA }}`](https://github.com/${{ steps.info.outputs.FORK_COATJAVA }}/tree/${{ steps.info.outputs.BRANCH_COATJAVA }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12Tags` Fork and Branch** | `${{ steps.info.outputs.FORK_CLAS12TAGS }}` | [`${{ steps.info.outputs.BRANCH_CLAS12TAGS }}`](https://github.com/${{ steps.info.outputs.FORK_CLAS12TAGS }}/tree/${{ steps.info.outputs.BRANCH_CLAS12TAGS }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
-      - name: clone coatjava
-        run: |
-          git clone https://github.com/${{ env.FORK_COATJAVA }}.git --branch ${{ env.BRANCH_COATJAVA }}
-          tar czvf coatjava{.tar.gz,}
+      # - name: clone coatjava
+      #   run: |
+      #     git clone https://github.com/${{ env.FORK_COATJAVA }}.git --branch ${{ env.BRANCH_COATJAVA }}
+      #     tar czvf coatjava{.tar.gz,}
       # - name: clone clas12Tags
       #   run: |
       #     git clone https://github.com/${{ env.FORK_CLAS12TAGS }}.git --branch ${{ env.BRANCH_CLAS12TAGS }}
       #     tar czvf clas12Tags{.tar.gz,}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: clones
-          retention-days: 1
-          path: ./*.tar.gz
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: clones
+      #     retention-days: 1
+      #     path: ./*.tar.gz
+
 
   # build
   #############################################################################
