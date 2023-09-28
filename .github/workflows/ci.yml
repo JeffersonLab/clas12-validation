@@ -47,7 +47,7 @@ jobs:
 
   # dependency and triggerer info
   #############################################################################
-  test_keyword:
+  dependency_info:
     runs-on: ubuntu-latest
     steps:
       - name: get dependency info
@@ -72,11 +72,11 @@ jobs:
         run: |
           git clone https://github.com/${{ env.FORK_CLAS12TAGS }}.git --branch ${{ env.BRANCH_CLAS12TAGS }}
           tar czvf clas12Tags{.tar.gz,}
-    - uses: actions/upload-artifact@v3
-      with:
-        name: clones
-        retention-days: 1
-        path: ./*.tar.gz
+      - uses: actions/upload-artifact@v3
+        with:
+          name: clones
+          retention-days: 1
+          path: ./*.tar.gz
 
   # build
   #############################################################################
