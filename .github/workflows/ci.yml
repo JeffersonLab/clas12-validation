@@ -24,10 +24,13 @@ on:
       branch_clas12Tags:
         required: false
         type: string
-      tag_config_coatjava:
-        required: false
-        type: string
-      tag_config_gemc:
+      # tag_config_coatjava:
+      #   required: false
+      #   type: string
+      # tag_config_gemc:
+      #   required: false
+      #   type: string
+      git_coatjava:
         required: false
         type: string
   pull_request:
@@ -69,6 +72,10 @@ jobs:
           echo '| **`coatjava` Fork and Branch** | `${{ inputs.fork_coatjava || env.fork_coatjava }}` | [`${{ inputs.branch_coatjava || env.branch_coatjava }}`](https://github.com/${{ inputs.fork_coatjava || env.fork_coatjava }}/tree/${{ inputs.branch_coatjava || env.branch_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| **`clas12Tags` Fork and Branch** | `${{ inputs.fork_clas12Tags || env.fork_clas12Tags }}` | [`${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}`](https://github.com/${{ inputs.fork_clas12Tags || env.fork_clas12Tags }}/tree/${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '${{ inputs.git_coatjava }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
   # build
   #############################################################################
