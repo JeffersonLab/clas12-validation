@@ -155,7 +155,7 @@ jobs:
     - name: get version info
       id: version
       run: |
-        cd clas12-validation
+        cd clas12-config
         tag_config_coatjava=${{ needs.dependency_info.outputs.tag_config_coatjava }}
         tag_config_gemc=${{ needs.dependency_info.outputs.tag_config_gemc }}
         [ "${{ needs.dependency_info.outputs.tag_config_coatjava }}" = "latest" ] &&  tag_config_coatjava=$(bin/latest.rb coatjava)
