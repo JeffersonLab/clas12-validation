@@ -45,9 +45,9 @@ env:
 
 jobs:
 
-  # info
+  # dependency and triggerer info
   #############################################################################
-  CI_trigger_info:
+  dependency_info:
     runs-on: ubuntu-latest
     steps:
       - name: get dependency info
@@ -64,11 +64,26 @@ jobs:
           echo '| **`coatjava` Fork and Branch** | `${{ env.FORK_COATJAVA }}` | [`${{ env.BRANCH_COATJAVA }}`](https://github.com/${{ env.FORK_COATJAVA }}/tree/${{ env.BRANCH_COATJAVA }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| **`clas12Tags` Fork and Branch** | `${{ env.FORK_CLAS12TAGS }}` | [`${{ env.BRANCH_CLAS12TAGS }}`](https://github.com/${{ env.FORK_CLAS12TAGS }}/tree/${{ env.BRANCH_CLAS12TAGS }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
+      - name: clone coatjava
+        run: |
+          git clone https://github.com/${{ env.FORK_COATJAVA }}.git --branch ${{ env.BRANCH_COATJAVA }}
+          tar czvf coatjava{.tar.gz,}
+      - name: clone clas12Tags
+        run: |
+          git clone https://github.com/${{ env.FORK_CLAS12TAGS }}.git --branch ${{ env.BRANCH_CLAS12TAGS }}
+          tar czvf clas12Tags{.tar.gz,}
+    - uses: actions/upload-artifact@v3
+      with:
+        name: clones
+        retention-days: 1
+        path: ./*.tar.gz
 
   # build
   #############################################################################
 
   build_coatjava:
+    needs:
+      - dependency_info
     runs-on: ubuntu-latest
     steps:
     - name: setup java
@@ -76,8 +91,11 @@ jobs:
       with:
         java-version: 11
         distribution: zulu
-    - name: clone
-      run: git clone https://github.com/${{ inputs.fork_coatjava || env.fork_coatjava }}.git --branch ${{ inputs.branch_coatjava || env.branch_coatjava }}
+    - uses: actions/download-artifact@v3
+      with:
+        name: clones
+    - name: untar build
+      run: tar xzvf coatjava.tar.gz
     - name: build
       run: |
         cd coatjava
@@ -93,11 +111,16 @@ jobs:
         path: ./*.tar.gz
 
   build_gemc:
+    needs:
+      - dependency_info
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
-    - name: clone
-      run: git clone https://github.com/${{ inputs.fork_clas12Tags || env.fork_clas12Tags }}.git --branch ${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}
+    - uses: actions/download-artifact@v3
+      with:
+        name: clones
+    - name: untar build
+      run: tar xzvf clas12Tags.tar.gz
     - name: build
       run: |
         source /app/localSetup.sh
