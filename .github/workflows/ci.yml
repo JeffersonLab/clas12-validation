@@ -12,25 +12,10 @@ on:
       source_url:
         required: false
         type: string
-      fork_coatjava:
-        required: false
-        type: string
-      fork_clas12Tags:
-        required: false
-        type: string
-      branch_coatjava:
-        required: false
-        type: string
-      branch_clas12Tags:
-        required: false
-        type: string
-      # tag_config_coatjava:
-      #   required: false
-      #   type: string
-      # tag_config_gemc:
-      #   required: false
-      #   type: string
       git_coatjava:
+        required: false
+        type: string
+      git_clas12Tags:
         required: false
         type: string
   pull_request:
@@ -49,13 +34,14 @@ defaults:
 
 env:
   # default dependency forks and branches
-  fork_coatjava: JeffersonLab/coatjava
-  fork_clas12Tags: gemc/clas12Tags
-  branch_coatjava: development
-  branch_clas12Tags: main
-  # default tags for config files in `clas12-config`
-  tag_config_coatjava: latest
-  tag_config_gemc: latest
+  git_coatjava: '{
+    "fork": "JeffersonLab/coatjava",
+    "branch": "development"
+  }'
+  git_clas12Tags: '{
+    "fork": "gemc/clas12Tags",
+    "branch": "main"
+  }'
 
 jobs:
 
@@ -64,18 +50,20 @@ jobs:
   CI_trigger_info:
     runs-on: ubuntu-latest
     steps:
+      - name: get dependency info
+        run: |
+          echo FORK_COATJAVA=$(     echo "${{ inputs.git_coatjava || env.git_coatjava }}"     | jq -r '.fork'   ) >> $GITHUB_ENV
+          echo BRANCH_COATJAVA=$(   echo "${{ inputs.git_coatjava || env.git_coatjava }}"     | jq -r '.branch' ) >> $GITHUB_ENV
+          echo FORK_CLAS12TAGS=$(   echo "${{ inputs.git_clas12Tags || env.git_clas12Tags }}" | jq -r '.fork'   ) >> $GITHUB_ENV
+          echo BRANCH_CLAS12TAGS=$( echo "${{ inputs.git_clas12Tags || env.git_clas12Tags }}" | jq -r '.branch' ) >> $GITHUB_ENV
       - name: dispatch summary
         run: |
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '| --- | --- | --- |' >> $GITHUB_STEP_SUMMARY
           echo '| **Pull Request** | <${{ inputs.source_url || github.event.pull_request.html_url }}> | ${{ inputs.title || github.event.pull_request.title }} |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`coatjava` Fork and Branch** | `${{ inputs.fork_coatjava || env.fork_coatjava }}` | [`${{ inputs.branch_coatjava || env.branch_coatjava }}`](https://github.com/${{ inputs.fork_coatjava || env.fork_coatjava }}/tree/${{ inputs.branch_coatjava || env.branch_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`clas12Tags` Fork and Branch** | `${{ inputs.fork_clas12Tags || env.fork_clas12Tags }}` | [`${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}`](https://github.com/${{ inputs.fork_clas12Tags || env.fork_clas12Tags }}/tree/${{ inputs.branch_clas12Tags || env.branch_clas12Tags }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`coatjava` Fork and Branch** | `${{ env.FORK_COATJAVA }}` | [`${{ env.BRANCH_COATJAVA }}`](https://github.com/${{ env.FORK_COATJAVA }}/tree/${{ env.BRANCH_COATJAVA }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12Tags` Fork and Branch** | `${{ env.FORK_CLAS12TAGS }}` | [`${{ env.BRANCH_CLAS12TAGS }}`](https://github.com/${{ env.FORK_CLAS12TAGS }}/tree/${{ env.BRANCH_CLAS12TAGS }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
-          echo '' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '${{ inputs.git_coatjava }}' | jq '.fork' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
 
   # build
   #############################################################################
