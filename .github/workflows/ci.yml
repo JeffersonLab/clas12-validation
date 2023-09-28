@@ -50,40 +50,26 @@ jobs:
   dependency_info:
     runs-on: ubuntu-latest
     outputs:
-      fork_coatjava: ${{ steps.info.outputs.FORK_COATJAVA }}
-      branch_coatjava: ${{ steps.info.outputs.BRANCH_COATJAVA }}
-      fork_clas12Tags: ${{ steps.info.outputs.FORK_CLAS12TAGS }}
-      branch_clas12Tags: ${{ steps.info.outputs.BRANCH_CLAS12TAGS }}
+      fork_coatjava: ${{ steps.info.outputs.fork_coatjava }}
+      branch_coatjava: ${{ steps.info.outputs.branch_coatjava }}
+      fork_clas12Tags: ${{ steps.info.outputs.fork_clas12Tags }}
+      branch_clas12Tags: ${{ steps.info.outputs.branch_clas12Tags }}
     steps:
       - name: get dependency info
         id: info
         run: |
-          echo FORK_COATJAVA=$(     echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.fork'   ) >> $GITHUB_OUTPUT
-          echo BRANCH_COATJAVA=$(   echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.branch' ) >> $GITHUB_OUTPUT
-          echo FORK_CLAS12TAGS=$(   echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.fork'   ) >> $GITHUB_OUTPUT
-          echo BRANCH_CLAS12TAGS=$( echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.branch' ) >> $GITHUB_OUTPUT
+          echo fork_coatjava=$(     echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.fork'   ) >> $GITHUB_OUTPUT
+          echo branch_coatjava=$(   echo '${{ inputs.git_coatjava || env.git_coatjava }}'     | jq -r '.branch' ) >> $GITHUB_OUTPUT
+          echo fork_clas12Tags=$(   echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.fork'   ) >> $GITHUB_OUTPUT
+          echo branch_clas12Tags=$( echo '${{ inputs.git_clas12Tags || env.git_clas12Tags }}' | jq -r '.branch' ) >> $GITHUB_OUTPUT
       - name: dispatch summary
         run: |
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '| --- | --- | --- |' >> $GITHUB_STEP_SUMMARY
           echo '| **Pull Request** | <${{ inputs.source_url || github.event.pull_request.html_url }}> | ${{ inputs.title || github.event.pull_request.title }} |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`coatjava` Fork and Branch** | `${{ steps.info.outputs.FORK_COATJAVA }}` | [`${{ steps.info.outputs.BRANCH_COATJAVA }}`](https://github.com/${{ steps.info.outputs.FORK_COATJAVA }}/tree/${{ steps.info.outputs.BRANCH_COATJAVA }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`clas12Tags` Fork and Branch** | `${{ steps.info.outputs.FORK_CLAS12TAGS }}` | [`${{ steps.info.outputs.BRANCH_CLAS12TAGS }}`](https://github.com/${{ steps.info.outputs.FORK_CLAS12TAGS }}/tree/${{ steps.info.outputs.BRANCH_CLAS12TAGS }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`coatjava` Fork and Branch** | `${{ steps.info.outputs.fork_coatjava }}` | [`${{ steps.info.outputs.branch_coatjava }}`](https://github.com/${{ steps.info.outputs.fork_coatjava }}/tree/${{ steps.info.outputs.branch_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12Tags` Fork and Branch** | `${{ steps.info.outputs.fork_clas12Tags }}` | [`${{ steps.info.outputs.branch_clas12Tags }}`](https://github.com/${{ steps.info.outputs.fork_clas12Tags }}/tree/${{ steps.info.outputs.branch_clas12Tags }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
-      # - name: clone coatjava
-      #   run: |
-      #     git clone https://github.com/${{ env.FORK_COATJAVA }}.git --branch ${{ env.BRANCH_COATJAVA }}
-      #     tar czvf coatjava{.tar.gz,}
-      # - name: clone clas12Tags
-      #   run: |
-      #     git clone https://github.com/${{ env.FORK_CLAS12TAGS }}.git --branch ${{ env.BRANCH_CLAS12TAGS }}
-      #     tar czvf clas12Tags{.tar.gz,}
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: clones
-      #     retention-days: 1
-      #     path: ./*.tar.gz
-
 
   # build
   #############################################################################
@@ -98,11 +84,8 @@ jobs:
       with:
         java-version: 11
         distribution: zulu
-    - uses: actions/download-artifact@v3
-      with:
-        name: clones
-    - name: untar build
-      run: tar xzvf coatjava.tar.gz
+    - name: clone
+      run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_coatjava }}.git --branch ${{ needs.dependency_info.outputs.branch_coatjava }}
     - name: build
       run: |
         cd coatjava
@@ -124,12 +107,7 @@ jobs:
     container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
     - name: clone
-      run: git clone https://github.com/${{ env.FORK_CLAS12TAGS }}.git --branch ${{ env.BRANCH_CLAS12TAGS }}
-    # - uses: actions/download-artifact@v3
-    #   with:
-    #     name: clones
-    # - name: untar build
-    #   run: tar xzvf clas12Tags.tar.gz
+      run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12Tags }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12Tags }}
     - name: build
       run: |
         source /app/localSetup.sh
