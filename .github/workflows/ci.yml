@@ -236,10 +236,13 @@ jobs:
       run: ls *.tar.gz | xargs -I{} tar xzvf {}
     - name: TEST LS CVMFS
       run: |
-        echo "CVMFS:"
+        echo "ls -l /cvmfs"
         ls -l /cvmfs
-        echo "SUBDIR:"
+        echo ""
+        echo "ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/"
         ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/
+    - name: gemc version
+      run: ./gemc -USE_GUI=0
     - name: simulation
       run: |
         source /app/localSetup.sh
