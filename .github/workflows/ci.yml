@@ -133,6 +133,8 @@ jobs:
         source /app/localSetup.sh
         cd clas12Tags/source
         scons -j2 OPT=1
+        echo "### GEMC Build Information:" >> $GITHUB_STEP_SUMMARY
+        ./gemc -USE_GUI=0 >> $GITHUB_STEP_SUMMARY
     - name: tar
       run: tar czvf clas12Tags{.tar.gz,}
     - uses: actions/upload-artifact@v3
@@ -241,8 +243,6 @@ jobs:
         echo ""
         echo "ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/"
         ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/
-    - name: gemc version
-      run: ./gemc -USE_GUI=0
     - name: simulation
       run: |
         source /app/localSetup.sh
