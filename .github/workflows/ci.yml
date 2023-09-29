@@ -217,12 +217,12 @@ jobs:
       - build_gemc
       - config_files
     runs-on: ubuntu-latest
+    container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     strategy:
       fail-fast: false
       matrix:
         run_period:
           - rga_spring2019
-    container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -234,6 +234,12 @@ jobs:
       run: ls -lhR
     - name: untar build
       run: ls *.tar.gz | xargs -I{} tar xzvf {}
+    - name: TEST LS CVMFS
+      run: |
+        echo "CVMFS:"
+        ls -l /cvmfs
+        echo "SUBDIR:"
+        ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/
     - name: simulation
       run: |
         source /app/localSetup.sh
