@@ -37,32 +37,6 @@ defaults:
 
 env:
   # default dependency forks and branches
-  #
-  #
-  #
-  #
-  #
-  #
-  #
-  #
-  #
-  #
-  #
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
-  # make sure all these forks and branches are default trunk
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
-  # 
-  #
-  #
-  #
-  #
   git_coatjava: '{
     "fork": "JeffersonLab/coatjava",
     "branch": "development"
@@ -72,8 +46,8 @@ env:
     "branch": "main"
   }'
   git_clas12config: '{
-    "fork": "c-dilks/clas12-config",
-    "branch": "match-latest",
+    "fork": "JeffersonLab/clas12-config",
+    "branch": "main",
     "tag_config_coatjava": "latest",
     "tag_config_gemc": "latest"
   }'
@@ -183,7 +157,7 @@ jobs:
     outputs:
       tag_config_coatjava: ${{ steps.version.outputs.tag_config_coatjava }}
       tag_config_gemc: ${{ steps.version.outputs.tag_config_gemc }}
-      config_files_json: ${{ steps.config_files_json.outputs.config_files_json }}
+      # config_files_json: ${{ steps.config_files_json.outputs.config_files_json }}
     steps:
     - name: clone
       run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12config }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12config }}
@@ -205,17 +179,17 @@ jobs:
         # output vars
         echo tag_config_coatjava=$tag_config_coatjava >> $GITHUB_OUTPUT
         echo tag_config_gemc=$tag_config_gemc         >> $GITHUB_OUTPUT
-    - name: get common config files
-      id: config_files_json
-      run: |
-        cd clas12-config
-        config_files_json=$(util/match_configs.rb)
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Configurations:" >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
-        echo $config_files_json | jq .config | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
-        echo config_files_json="$config_files_json" >> $GITHUB_OUTPUT
+    # - name: get common config files
+    #   id: config_files_json
+    #   run: |
+    #     cd clas12-config
+    #     config_files_json=$(util/match_configs.rb)
+    #     echo "" >> $GITHUB_STEP_SUMMARY
+    #     echo "### Configurations:" >> $GITHUB_STEP_SUMMARY
+    #     echo '```' >> $GITHUB_STEP_SUMMARY
+    #     echo $config_files_json | jq .config | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+    #     echo '```' >> $GITHUB_STEP_SUMMARY
+    #     echo config_files_json="$config_files_json" >> $GITHUB_OUTPUT
     - name: tar
       run: tar czvf clas12-config{.tar.gz,}
     - uses: actions/upload-artifact@v3
@@ -256,42 +230,42 @@ jobs:
 
   # simulation
   #############################################################################
-  simulation:
-    needs:
-      - event_generation
-      - build_gemc
-      - config_files
-    runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
-    strategy:
-      fail-fast: false
-      matrix: ${{fromJson(needs.config_files.outputs.config_files_json)}}
-    steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: event_generation
-    - uses: actions/download-artifact@v3
-      with:
-        name: build
-    - name: tree
-      run: ls -lhR
-    - name: untar build
-      run: ls *.tar.gz | xargs -I{} tar xzvf {}
-    - name: TEST LS CVMFS
-      run: |
-        echo "ls -l /cvmfs"
-        ls -l /cvmfs
-        echo ""
-        echo "ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/"
-        ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/
-    - name: simulation
-      run: |
-        source /app/localSetup.sh
-        gemc_config=$(pwd -P)/clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}
-        cd clas12Tags/source
-        ./gemc \
-          $gemc_config/${{ matrix.run_period }}.gcard \
-          -N=${{ env.num_events }} \
-          -USE_GUI=0
-        echo "[DONE]"
-        ls -lthR
+  # simulation:
+  #   needs:
+  #     - event_generation
+  #     - build_gemc
+  #     - config_files
+  #   runs-on: ubuntu-latest
+  #   container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
+  #   strategy:
+  #     fail-fast: false
+  #     matrix: ${{fromJson(needs.config_files.outputs.config_files_json)}}
+  #   steps:
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: event_generation
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: build
+  #   - name: tree
+  #     run: ls -lhR
+  #   - name: untar build
+  #     run: ls *.tar.gz | xargs -I{} tar xzvf {}
+  #   - name: TEST LS CVMFS
+  #     run: |
+  #       echo "ls -l /cvmfs"
+  #       ls -l /cvmfs
+  #       echo ""
+  #       echo "ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/"
+  #       ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/
+  #   - name: simulation
+  #     run: |
+  #       source /app/localSetup.sh
+  #       gemc_config=$(pwd -P)/clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}
+  #       cd clas12Tags/source
+  #       ./gemc \
+  #         $gemc_config/${{ matrix.run_period }}.gcard \
+  #         -N=${{ env.num_events }} \
+  #         -USE_GUI=0
+  #       echo "[DONE]"
+  #       ls -lthR
