@@ -85,6 +85,7 @@ jobs:
   # dependency and triggerer info
   #############################################################################
   dependency_info:
+    name: Dependency info
     runs-on: ubuntu-latest
     outputs:
       fork_coatjava: ${{ steps.info.outputs.fork_coatjava }}
@@ -197,7 +198,7 @@ jobs:
         [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ]     && tag_config_gemc=$(util/latest.rb gemc)
         # job summary
         echo "### Versions:" >> $GITHUB_STEP_SUMMARY
-        echo "| Configuration Files Set | Version |"     >> $GITHUB_STEP_SUMMARY
+        echo "| Configuration File Set | Version |"      >> $GITHUB_STEP_SUMMARY
         echo "| --- | --- |"                             >> $GITHUB_STEP_SUMMARY
         echo "| \`coatjava\` | ${tag_config_coatjava} |" >> $GITHUB_STEP_SUMMARY
         echo "| \`gemc\` | ${tag_config_gemc} |"         >> $GITHUB_STEP_SUMMARY
