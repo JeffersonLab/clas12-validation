@@ -37,6 +37,32 @@ defaults:
 
 env:
   # default dependency forks and branches
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
+  # make sure all these forks and branches are default trunk
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME
+  # 
+  #
+  #
+  #
+  #
   git_coatjava: '{
     "fork": "JeffersonLab/coatjava",
     "branch": "development"
@@ -46,8 +72,8 @@ env:
     "branch": "main"
   }'
   git_clas12config: '{
-    "fork": "JeffersonLab/clas12-config",
-    "branch": "main",
+    "fork": "c-dilks/clas12-config",
+    "branch": "match-latest",
     "tag_config_coatjava": "latest",
     "tag_config_gemc": "latest"
   }'
@@ -149,12 +175,14 @@ jobs:
   #############################################################################
 
   config_files:
+    name: Configuration files
     needs:
       - dependency_info
     runs-on: ubuntu-latest
     outputs:
       tag_config_coatjava: ${{ steps.version.outputs.tag_config_coatjava }}
       tag_config_gemc: ${{ steps.version.outputs.tag_config_gemc }}
+      config_files_json: ${{ steps.config_files_json.outputs.config_files_json }}
     steps:
     - name: clone
       run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12config }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12config }}
@@ -168,13 +196,25 @@ jobs:
         [ "${{ needs.dependency_info.outputs.tag_config_coatjava }}" = "latest" ] &&  tag_config_coatjava=$(util/latest.rb coatjava)
         [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ]     && tag_config_gemc=$(util/latest.rb gemc)
         # job summary
-        echo "| Configuration Files | Version |"         >> $GITHUB_STEP_SUMMARY
+        echo "### Versions:" >> $GITHUB_STEP_SUMMARY
+        echo "| Configuration Files Set | Version |"     >> $GITHUB_STEP_SUMMARY
         echo "| --- | --- |"                             >> $GITHUB_STEP_SUMMARY
         echo "| \`coatjava\` | ${tag_config_coatjava} |" >> $GITHUB_STEP_SUMMARY
         echo "| \`gemc\` | ${tag_config_gemc} |"         >> $GITHUB_STEP_SUMMARY
         # output vars
         echo tag_config_coatjava=$tag_config_coatjava >> $GITHUB_OUTPUT
         echo tag_config_gemc=$tag_config_gemc         >> $GITHUB_OUTPUT
+    - name: get common config files
+      id: config_files_json
+      run: |
+        cd clas12-config
+        config_files_json=$(util/match_configs.rb)
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Configurations:" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo $config_files_json | jq .config | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo config_files_json="$config_files_json" >> $GITHUB_OUTPUT
     - name: tar
       run: tar czvf clas12-config{.tar.gz,}
     - uses: actions/upload-artifact@v3
@@ -224,9 +264,7 @@ jobs:
     container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     strategy:
       fail-fast: false
-      matrix:
-        run_period:
-          - rga_spring2019
+      matrix: ${{fromJson(needs.config_files.outputs.config_files_json)}}
     steps:
     - uses: actions/download-artifact@v3
       with:
