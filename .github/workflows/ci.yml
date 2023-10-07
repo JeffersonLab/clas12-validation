@@ -25,7 +25,7 @@ on:
   push:
     branches: [ fix-push-name ]
 
-run-name: "[${{ inputs.source || github.repository }}] ${{ inputs.title || github.event.pull_request.title || github.event.push.commits[0].message }}"
+run-name: "[${{ inputs.source || github.repository }}] ${{ inputs.title || github.event.pull_request.title || github.event.head_commit.message }}"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
