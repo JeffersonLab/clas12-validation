@@ -30,7 +30,7 @@ run-name: "[${{ inputs.source || github.repository }}] ${{ inputs.title || githu
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 defaults:
   run:
