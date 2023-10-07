@@ -23,7 +23,7 @@ on:
         type: string
   pull_request:
   push:
-    branches: [ fix-push-name ]
+    branches: [ main ]
 
 run-name: "[${{ inputs.source || github.repository }}] ${{ inputs.title || github.event.pull_request.title || github.event.head_commit.message }}"
 
