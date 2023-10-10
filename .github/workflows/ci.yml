@@ -255,15 +255,23 @@ jobs:
       run: ls *.tar.gz | xargs -I{} tar xzvf {}
     - name: simulation
       run: |
+        #
+        # FIXME: job matrix for event generation files, or for loop?
+        # FIXME: control number of events in event generation
+        # FIXME: parallelize event generation
+        #
+        evgenDir=$(pwd)
         source /app/localSetup.sh
         module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
         gemc_config=$(pwd -P)/clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}
         cd clas12Tags/source
-        ./gemc \
-          $gemc_config/${{ matrix.config }}.gcard \
-          -N=${{ env.num_events }} \
-          -USE_GUI=0 \
-          -OUTPUT="hipo, sim.${{ matrix.config }}.hipo"
+        for evgenFile in $evgenDir/electronproton.txt ; do
+          ./gemc \
+            $gemc_config/${{ matrix.config }}.gcard \
+            -INPUT_GEN_FILE="LUND, ${evgenFile}" \
+            -USE_GUI=0 \
+            -OUTPUT="hipo, sim.${{ matrix.config }}.hipo"
+        done
     - name: ls
       run: ls -lth clas12Tags/source
     - uses: actions/upload-artifact@v3
