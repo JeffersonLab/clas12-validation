@@ -1,0 +1,11 @@
+{
+  "evgen": [
+    "electronkaon",
+    "electronkaonC",
+    "electronneutron",
+    "electrongamma",
+    "electroneutronC",
+    "electronFTkaon",
+    "electrongammaFT"
+  ]
+}

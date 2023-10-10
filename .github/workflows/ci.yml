@@ -57,19 +57,6 @@ env:
     }
   # default number of events
   num_events: 10
-  # event generation types
-  evgen_files_json: >-
-    {
-      "evgen": [
-        "electronkaon",
-        "electronkaonC",
-        "electronneutron",
-        "electrongamma",
-        "electroneutronC",
-        "electronFTkaon",
-        "electrongammaFT"
-      ]
-    }
 
 jobs:
 
@@ -205,7 +192,7 @@ jobs:
         echo config_files_json=$(util/match_configs.rb) >> $GITHUB_OUTPUT
     - name: build full job matrix
       id: config_matrix
-      run: config_matrix=$(jq -s add ${{ steps.config_files_json.outputs.config_files_json }} ${{ env.evgen_files_json }}) >> $GITHUB_OUTPUT
+      run: config_matrix=$(jq -s add ${{ steps.config_files_json.outputs.config_files_json }} config/evgen_ci.json) >> $GITHUB_OUTPUT
     - name: summarize
       run: |
         echo "" >> $GITHUB_STEP_SUMMARY
@@ -229,7 +216,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
-      matrix: ${{ fromJson(env.evgen_files_json) }}
+      matrix: ${{ fromJson(config/evgen_ci.json) }}
     steps:
     - name: setup java
       uses: actions/setup-java@v3
@@ -246,12 +233,12 @@ jobs:
     - name: untar build
       run: ls *.tar.gz | xargs -I{} tar xzvf {}
     - name: check if this configuration is known
-      run: jq -re '.${{ matrix.evgen }}' config/evgen.json
+      run: jq -re '.${{ matrix.evgen }}' config/evgen_opts.json
     - name: event generation
       run: |
         coatjava/coatjava/bin/run-groovy
           coatjava/validation/advanced-tests/src/eb/scripts/gen.groovy \
-          $(jq -r '.${{ matrix.evgen }}' config/evgen.json) \
+          $(jq -r '.${{ matrix.evgen }}' config/evgen_opts.json) \
           -n ${{ env.num_events }}
     - name: rename artifact
       run: |
