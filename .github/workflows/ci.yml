@@ -135,6 +135,7 @@ jobs:
         source /app/localSetup.sh
         cd clas12Tags/source
         scons -j2 OPT=1
+        module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
         echo "### GEMC Build Information:" >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
         ./gemc -USE_GUI=0 >> $GITHUB_STEP_SUMMARY
@@ -262,6 +263,7 @@ jobs:
     - name: simulation
       run: |
         source /app/localSetup.sh
+        module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
         gemc_config=$(pwd -P)/clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}
         cd clas12Tags/source
         ./gemc \
