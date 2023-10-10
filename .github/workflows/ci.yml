@@ -197,7 +197,7 @@ jobs:
         echo config_files_json=$(util/match_configs.rb) >> $GITHUB_OUTPUT
     - name: build full job matrix
       id: config_matrix
-      run: echo config_matrix=$(jq -sc add <(${{ steps.config_files_json.outputs.config_files_json }}) <(${{ steps.evgen_files_json.outputs.evgen_files_json }})) >> $GITHUB_OUTPUT
+      run: echo config_matrix=$(jq -sc add <(echo '${{ steps.config_files_json.outputs.config_files_json }}') <(echo '${{ steps.evgen_files_json.outputs.evgen_files_json }}')) >> $GITHUB_OUTPUT
     - name: summarize
       run: |
         echo "" >> $GITHUB_STEP_SUMMARY
