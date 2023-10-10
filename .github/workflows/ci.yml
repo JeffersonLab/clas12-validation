@@ -203,7 +203,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
-        echo ${{ steps.config_matrix.outputs.config_matrix }} | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+        echo '${{ steps.config_matrix.outputs.config_matrix }}' | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
         ## TEST
         echo '```' >> $GITHUB_STEP_SUMMARY
