@@ -243,7 +243,7 @@ jobs:
       run: jq -re '.${{ matrix.evgen }}' config/evgen_opts.json
     - name: event generation
       run: |
-        coatjava/coatjava/bin/run-groovy
+        coatjava/coatjava/bin/run-groovy \
           coatjava/validation/advanced-tests/src/eb/scripts/gen.groovy \
           $(jq -r '.${{ matrix.evgen }}' config/evgen_opts.json) \
           -n ${{ env.num_events }}
