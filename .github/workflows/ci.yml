@@ -226,7 +226,7 @@ jobs:
         coatjava/validation/advanced-tests/src/eb/scripts/gen.sh
     - uses: actions/upload-artifact@v3
       with:
-        name: event_generation
+        name: evgen
         retention-days: 1
         path: ./*.txt
 
@@ -245,7 +245,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: event_generation
+        name: evgen
     - uses: actions/download-artifact@v3
       with:
         name: build
@@ -253,13 +253,6 @@ jobs:
       run: ls -lhR
     - name: untar build
       run: ls *.tar.gz | xargs -I{} tar xzvf {}
-    - name: TEST LS CVMFS
-      run: |
-        echo "ls -l /cvmfs"
-        ls -l /cvmfs
-        echo ""
-        echo "ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/"
-        ls -l /cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/soft/fedora36-gcc12/sim/2.4/clas12Tags/4.4.2/experiments/clas12/fc/
     - name: simulation
       run: |
         source /app/localSetup.sh
@@ -269,6 +262,12 @@ jobs:
         ./gemc \
           $gemc_config/${{ matrix.config }}.gcard \
           -N=${{ env.num_events }} \
-          -USE_GUI=0
-        echo "[DONE]"
-        ls -lthR
+          -USE_GUI=0 \
+          -OUTPUT="hipo, sim.${{ matrix.config }}.hipo"
+    - name: ls
+      run: ls -lth clas12Tags/source
+    - uses: actions/upload-artifact@v3
+      with:
+        name: sim
+        retention-days: 3
+        path: clas12Tags/source/sim*.hipo
