@@ -224,6 +224,7 @@ jobs:
   event_generation:
     needs:
       - build_coatjava
+      - config_files
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
