@@ -188,7 +188,7 @@ jobs:
         echo tag_config_gemc=$tag_config_gemc         >> $GITHUB_OUTPUT
     - name: read evgen files matrix
       id: evgen_files_json
-      run: echo evgen_files_json=$(jq -c . config/evgen_ci.json)
+      run: echo evgen_files_json=$(jq -c . config/evgen_ci.json) >> $GITHUB_OUTPUT
     - name: get common config files
       id: config_files_json
       run: |
