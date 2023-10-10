@@ -166,6 +166,7 @@ jobs:
       config_files_json: ${{ steps.config_files_json.outputs.config_files_json }}
       config_matrix: ${{ steps.config_matrix.outputs.config_matrix }}
     steps:
+    - uses: actions/checkout@v3
     - name: clone
       run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12config }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12config }}
     - name: get version info
