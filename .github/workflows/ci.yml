@@ -287,7 +287,7 @@ jobs:
         run: |
           echo evgenFile=evgen.${{ matrix.evgen }}.dat >> $GITHUB_OUTPUT
           echo simFile=sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
-          echo recFile=sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
+          echo recFile=rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
           echo gemcConfigFile=clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}/${{ matrix.config }}.gcard >> $GITHUB_OUTPUT
           echo coatjavaConfigFile=clas12-config/coatjava/${{ needs.config_files.outputs.tag_config_coatjava }}/${{ matrix.config }}.yaml >> $GITHUB_OUTPUT
       - name: config files exist
@@ -299,14 +299,16 @@ jobs:
         with:
           entrypoint: bin/ci_sim.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
           args: ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
-      - name: ls
-        run: ls -lth
+      - name: check if output exists
+        run: ls ${{ steps.files.outputs.simFile }}
       - name: reconstruction
         run: |
           coatjava/coatjava/bin/recon-util \
             -y ${{ steps.files.outputs.coatjavaConfigFile }} \
             -i ${{ steps.files.outputs.simFile }} \
             -o ${{ steps.files.outputs.recFile }}
+      - name: check if output exists
+        run: ls ${{ steps.files.outputs.recFile }}
       - uses: actions/upload-artifact@v3
         with:
           name: sim
