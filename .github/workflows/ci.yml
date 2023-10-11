@@ -292,7 +292,6 @@ jobs:
           -INPUT_GEN_FILE="LUND, $evgenFile" \
           -USE_GUI=0 \
           -OUTPUT="hipo, sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo"
-        done
     - name: ls
       run: ls -lth clas12Tags/source
     - uses: actions/upload-artifact@v3
