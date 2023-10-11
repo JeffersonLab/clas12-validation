@@ -298,4 +298,4 @@ jobs:
       with:
         name: sim
         retention-days: 3
-        path: clas12Tags/source/sim*.hipo
+        path: clas12Tags/source/sim.*.hipo
