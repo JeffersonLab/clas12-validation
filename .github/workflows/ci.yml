@@ -250,7 +250,7 @@ jobs:
     - name: rename artifact
       run: |
         ls -t *.txt
-        mv -v $(ls -t *.txt | head -n1) ${{ matrix.evgen }}.txt
+        mv -v $(ls -t *.txt | head -n1) evgen.${{ matrix.evgen }}.dat
     - uses: actions/upload-artifact@v3
       with:
         name: evgen
@@ -282,7 +282,7 @@ jobs:
       run: ls *.tar.gz | xargs -I{} tar xzvf {}
     - name: simulation
       run: |
-        evgenFile=$(pwd)/${{ matrix.evgen }}.txt
+        evgenFile=$(pwd)/evgen.${{ matrix.evgen }}.dat
         gemcConfigFile=$(pwd)/clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}/${{ matrix.config }}.gcard
         source /app/localSetup.sh
         module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
