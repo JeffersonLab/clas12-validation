@@ -100,6 +100,7 @@ jobs:
   #############################################################################
 
   build_coatjava:
+    name: Build coatjava
     needs:
       - dependency_info
     runs-on: ubuntu-latest
@@ -126,6 +127,7 @@ jobs:
         path: ./*.tar.gz
 
   build_gemc:
+    name: Build GEMC
     needs:
       - dependency_info
     runs-on: ubuntu-latest
@@ -216,6 +218,7 @@ jobs:
   # event generation
   #############################################################################
   event_generation:
+    name: Event generation
     needs:
       - build_coatjava
       - config_files
@@ -260,6 +263,7 @@ jobs:
   # simulation
   #############################################################################
   simulation:
+    name: Simulation
     needs:
       - event_generation
       - build_gemc
