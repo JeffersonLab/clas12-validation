@@ -261,7 +261,7 @@ jobs:
   # simulation and reconstruction: combined to one step to avoid large artifact I/O overhead
   #############################################################################
   simrec:
-    name: Simulation and reconstruction
+    name: Sim+Rec
     needs:
       - event_generation
       - build_gemc
