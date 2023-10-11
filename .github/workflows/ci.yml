@@ -255,7 +255,7 @@ jobs:
       with:
         name: evgen
         retention-days: 1
-        path: evgen.${{ matrix.evgen }}.txt
+        path: evgen.${{ matrix.evgen }}.dat
 
   # simulation
   #############################################################################
@@ -267,7 +267,7 @@ jobs:
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix: ${{ fromJson(needs.config_files.outputs.config_matrix) }}
     steps:
     - uses: actions/download-artifact@v3
