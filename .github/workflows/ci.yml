@@ -113,9 +113,8 @@ jobs:
       - name: clone
         run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_coatjava }}.git --branch ${{ needs.dependency_info.outputs.branch_coatjava }}
       - name: build
-        run: |
-          cd coatjava
-          ./build-coatjava.sh
+        working-directory: coatjava
+        run: ./build-coatjava.sh
       - name: tree
         run: tree
       - name: tar
@@ -136,9 +135,9 @@ jobs:
       - name: clone
         run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12tags }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12tags }}
       - name: build
+        working-directory: clas12Tags/source
         run: |
           source /app/localSetup.sh
-          cd clas12Tags/source
           scons -j2 OPT=1
           module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
           echo "### GEMC Build Information:" >> $GITHUB_STEP_SUMMARY
@@ -173,8 +172,8 @@ jobs:
         run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12config }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12config }}
       - name: get version info
         id: version
+        working-directory: clas12-config
         run: |
-          cd clas12-config
           tag_config_coatjava=${{ needs.dependency_info.outputs.tag_config_coatjava }}
           tag_config_gemc=${{ needs.dependency_info.outputs.tag_config_gemc }}
           # get the 'latest' version number, if we asked for 'latest'
@@ -194,9 +193,8 @@ jobs:
         run: echo evgen_files_json=$(jq -c . config/evgen_ci.json) >> $GITHUB_OUTPUT
       - name: get common config files
         id: config_files_json
-        run: |
-          cd clas12-config
-          echo config_files_json=$(util/match_configs.rb) >> $GITHUB_OUTPUT
+        working-directory: clas12-config
+        run: echo config_files_json=$(util/match_configs.rb) >> $GITHUB_OUTPUT
       - name: build full job matrix
         id: config_matrix
         run: echo config_matrix=$(jq -sc add <(echo '${{ steps.config_files_json.outputs.config_files_json }}') <(echo '${{ steps.evgen_files_json.outputs.evgen_files_json }}')) >> $GITHUB_OUTPUT
