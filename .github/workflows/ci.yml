@@ -56,8 +56,8 @@ env:
     }
   git_clas12-config: >-
     {
-      "fork": "c-dilks/clas12-config",
-      "branch": "match-latest",
+      "fork": "JeffersonLab/clas12-config",
+      "branch": "main",
       "tag_config_coatjava": "latest",
       "tag_config_gemc": "latest"
     }
