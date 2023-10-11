@@ -187,6 +187,12 @@ jobs:
           echo num_events=$num_events >> $GITHUB_OUTPUT
           echo "### Number of Events:" >> $GITHUB_STEP_SUMMARY
           echo "$num_events" >> $GITHUB_STEP_SUMMARY
+      - name: test clas12-config utils
+        run: |
+          cd clas12-config
+          util/latest.rb coatjava
+          util/latest.rb gemc
+          util/match_configs.rb
       - name: get version info
         id: version
         working-directory: clas12-config
