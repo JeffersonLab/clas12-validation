@@ -285,10 +285,10 @@ jobs:
       - name: file names
         id: files
         run: |
-          echo evgenFile=$(pwd)/evgen.${{ matrix.evgen }}.dat >> $GITHUB_OUTPUT
-          echo simFile=$(pwd)/sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
-          echo gemcConfigFile=$(pwd)/clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}/${{ matrix.config }}.gcard >> $GITHUB_OUTPUT
-          echo coatjavaConfigFile=$(pwd)/clas12-config/coatjava/${{ needs.config_files.outputs.tag_config_coatjava }}/${{ matrix.config }}.yaml >> $GITHUB_OUTPUT
+          echo evgenFile=evgen.${{ matrix.evgen }}.dat >> $GITHUB_OUTPUT
+          echo simFile=sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
+          echo gemcConfigFile=clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}/${{ matrix.config }}.gcard >> $GITHUB_OUTPUT
+          echo coatjavaConfigFile=clas12-config/coatjava/${{ needs.config_files.outputs.tag_config_coatjava }}/${{ matrix.config }}.yaml >> $GITHUB_OUTPUT
       - name: config files exist
         run: |
           ls ${{ steps.files.outputs.gemcConfigFile }}

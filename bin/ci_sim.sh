@@ -14,8 +14,7 @@ source /app/localSetup.sh
 
 module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
 
-cd clas12Tags/source
-./gemc \
+clas12Tags/source/gemc \
   $gemcConfigFile \
   -INPUT_GEN_FILE="LUND, $evgenFile" \
   -USE_GUI=0 \
