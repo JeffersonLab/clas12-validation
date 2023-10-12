@@ -144,6 +144,7 @@ jobs:
           scons -j2 OPT=1
       - name: version info
         run: |
+          source /app/localSetup.sh
           module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
           echo "### GEMC Build Information:"
           ./gemc -USE_GUI=0
