@@ -3,6 +3,9 @@ name: Validation
 on:
   workflow_dispatch:
     inputs:
+      actor:
+        required: true
+        type: string
       source:
         required: true
         type: string
@@ -26,7 +29,7 @@ on:
     branches: [ main ]
     tags: [ '*' ]
 
-run-name: "[${{ inputs.source || github.repository }}] ${{ inputs.title || github.event.pull_request.title || github.event.head_commit.message }}"
+run-name: "${{ inputs.actor || github.actor }} [${{ inputs.source || github.repository.name }}]: ${{ inputs.title || github.event.pull_request.title || github.event.head_commit.message }}"
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
