@@ -113,9 +113,8 @@ jobs:
       - name: clone
         run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_coatjava }}.git --branch ${{ needs.dependency_info.outputs.branch_coatjava }}
       - name: build
-        run: |
-          cd coatjava
-          ./build-coatjava.sh
+        working-directory: coatjava
+        run: ./build-coatjava.sh
       - name: tree
         run: tree
       - name: tar
@@ -136,9 +135,9 @@ jobs:
       - name: clone
         run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12tags }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12tags }}
       - name: build
+        working-directory: clas12Tags/source
         run: |
           source /app/localSetup.sh
-          cd clas12Tags/source
           scons -j2 OPT=1
           module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
           echo "### GEMC Build Information:" >> $GITHUB_STEP_SUMMARY
@@ -173,8 +172,8 @@ jobs:
         run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12config }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12config }}
       - name: get version info
         id: version
+        working-directory: clas12-config
         run: |
-          cd clas12-config
           tag_config_coatjava=${{ needs.dependency_info.outputs.tag_config_coatjava }}
           tag_config_gemc=${{ needs.dependency_info.outputs.tag_config_gemc }}
           # get the 'latest' version number, if we asked for 'latest'
@@ -194,9 +193,8 @@ jobs:
         run: echo evgen_files_json=$(jq -c . config/evgen_ci.json) >> $GITHUB_OUTPUT
       - name: get common config files
         id: config_files_json
-        run: |
-          cd clas12-config
-          echo config_files_json=$(util/match_configs.rb) >> $GITHUB_OUTPUT
+        working-directory: clas12-config
+        run: echo config_files_json=$(util/match_configs.rb) >> $GITHUB_OUTPUT
       - name: build full job matrix
         id: config_matrix
         run: echo config_matrix=$(jq -sc add <(echo '${{ steps.config_files_json.outputs.config_files_json }}') <(echo '${{ steps.evgen_files_json.outputs.evgen_files_json }}')) >> $GITHUB_OUTPUT
@@ -260,20 +258,20 @@ jobs:
           retention-days: 1
           path: evgen.${{ matrix.evgen }}.dat
 
-  # simulation
+  # simulation and reconstruction: combined to one step to avoid large artifact I/O overhead
   #############################################################################
-  simulation:
-    name: Simulation
+  simrec:
+    name: Sim+Rec
     needs:
       - event_generation
       - build_gemc
       - config_files
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     strategy:
       fail-fast: true
       matrix: ${{ fromJson(needs.config_files.outputs.config_matrix) }}
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: evgen
@@ -284,32 +282,50 @@ jobs:
         run: ls -lhR
       - name: untar build
         run: ls *.tar.gz | xargs -I{} tar xzvf {}
-      - name: simulation
+      - name: file names
+        id: files
         run: |
-          evgenFile=$(pwd)/evgen.${{ matrix.evgen }}.dat
-          gemcConfigFile=$(pwd)/clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}/${{ matrix.config }}.gcard
-          source /app/localSetup.sh
-          module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
-          cd clas12Tags/source
-          ./gemc \
-            $gemcConfigFile \
-            -INPUT_GEN_FILE="LUND, $evgenFile" \
-            -USE_GUI=0 \
-            -OUTPUT="hipo, sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo"
-      - name: ls
-        run: ls -lth clas12Tags/source
+          echo evgenFile=evgen.${{ matrix.evgen }}.dat >> $GITHUB_OUTPUT
+          echo simFile=sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
+          echo recFile=rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
+          echo gemcConfigFile=clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}/${{ matrix.config }}.gcard >> $GITHUB_OUTPUT
+          echo coatjavaConfigFile=clas12-config/coatjava/${{ needs.config_files.outputs.tag_config_coatjava }}/${{ matrix.config }}.yaml >> $GITHUB_OUTPUT
+      - name: config files exist
+        run: |
+          ls ${{ steps.files.outputs.gemcConfigFile }}
+          ls ${{ steps.files.outputs.coatjavaConfigFile }}
+      - name: simulation
+        uses: docker://jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
+        with:
+          entrypoint: bin/ci_sim.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
+          args: ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
+      - name: check if output exists
+        run: ls ${{ steps.files.outputs.simFile }}
+      - name: reconstruction
+        run: |
+          coatjava/coatjava/bin/recon-util \
+            -y ${{ steps.files.outputs.coatjavaConfigFile }} \
+            -i ${{ steps.files.outputs.simFile }} \
+            -o ${{ steps.files.outputs.recFile }}
+      - name: check if output exists
+        run: ls ${{ steps.files.outputs.recFile }}
       - uses: actions/upload-artifact@v3
         with:
           name: sim
           retention-days: 3
-          path: clas12Tags/source/sim.*.hipo
+          path: sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo
+      - uses: actions/upload-artifact@v3
+        with:
+          name: rec
+          retention-days: 3
+          path: rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo
 
   # finalize
   #############################################################################
   final:
     name: Final
     needs:
-      - simulation
+      - simrec
     runs-on: ubuntu-latest
     if: always()
     steps:
