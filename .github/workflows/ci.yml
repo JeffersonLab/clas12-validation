@@ -354,10 +354,10 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "   config:  PID (multiplicity) ...    # sorted multiplicity for each PID" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          for evgen in $(echo '${{ needs.config_files.outputs.config_matrix) }}' | jq -r '.evgen.[]') ; do
+          for evgen in $(echo '${{ needs.config_files.outputs.config_matrix }}' | jq -r '.evgen.[]') ; do
             echo "### \`$evgen\`" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
-            for config in $(echo '${{ needs.config_files.outputs.config_matrix) }}' | jq -r '.config.[]') ; do
+            for config in $(echo '${{ needs.config_files.outputs.config_matrix }}' | jq -r '.config.[]') ; do
               printf "%25s:  %s" $config "$(tail -n1 multiplicity.${evgen}.${config}.txt)" >> $GITHUB_STEP_SUMMARY
             done
             echo '```' >> $GITHUB_STEP_SUMMARY
