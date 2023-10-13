@@ -1,5 +1,7 @@
 # clas12-validation
 
+[![Validation Status](https://github.com/JeffersonLab/clas12-validation/actions/workflows/ci.yml/badge.svg)](https://github.com/JeffersonLab/clas12-validation/actions/workflows/ci.yml)
+
 Additonal tools for validating CLAS12 offline software (see also https://github.com/naharrison/clas12-offline-software/tree/development/validation)
 
 We have 4 levels of validation:
