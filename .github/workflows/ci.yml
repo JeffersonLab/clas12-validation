@@ -62,7 +62,7 @@ env:
       "tag_config_gemc": "latest"
     }
   # default number of events
-  num_events: 5000
+  num_events: 10000
 
 jobs:
 
