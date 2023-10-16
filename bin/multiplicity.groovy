@@ -1,17 +1,16 @@
 import org.jlab.io.hipo.HipoDataSource
 import groovy.json.JsonOutput
 
+def outFile = "multiplicity.txt"
 if(args.length<1) {
   System.err.println """
-  USAGE: run-groovy ${this.class.getSimpleName()}.groovy [HIPO file from reconstruction]
+  USAGE: run-groovy ${this.class.getSimpleName()}.groovy [HIPO file from reconstruction] [output file name (default=$outFile)]
   """
   System.exit(101)
 }
 
 def inFile = args[0]
-def outFile = inFile
-  .replaceAll(/\.hipo$/,".txt")
-  .replaceAll(/^rec/,"multiplicity")
+if(args.length>1) outFile = args[1]
 def outFileH = new File(outFile)
 def outFileW = outFileH.newWriter(false)
 
