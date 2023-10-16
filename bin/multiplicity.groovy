@@ -1,3 +1,6 @@
+// print the multiplicity (number of counts) for each particle PID PDG found in a HIPO file, and store the results in a text file
+// - run with `run-groovy`
+
 import org.jlab.io.hipo.HipoDataSource
 import groovy.json.JsonOutput
 
