@@ -15,6 +15,9 @@ on:
       source_url:
         required: false
         type: string
+      num_events:
+        required: false
+        type: string
       git_coatjava:
         required: false
         type: string
@@ -252,7 +255,7 @@ jobs:
           coatjava/coatjava/bin/run-groovy \
             coatjava/validation/advanced-tests/src/eb/scripts/gen.groovy \
             $(jq -r '.${{ matrix.evgen }}' config/evgen_opts.json) \
-            -n ${{ env.num_events }}
+            -n ${{ inputs.num_events || env.num_events }}
       - name: rename artifact
         run: |
           ls -t *.txt
