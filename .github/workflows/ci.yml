@@ -142,11 +142,13 @@ jobs:
         run: |
           source /app/localSetup.sh
           scons -j2 OPT=1
+      - name: version info
+        working-directory: clas12Tags/source
+        run: |
+          source /app/localSetup.sh
           module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
-          echo "### GEMC Build Information:" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          ./gemc -USE_GUI=0 >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### GEMC Build Information:"
+          ./gemc -USE_GUI=0
       - name: tar
         run: tar czvf clas12Tags{.tar.gz,}
       - uses: actions/upload-artifact@v3
