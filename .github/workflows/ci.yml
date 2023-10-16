@@ -297,7 +297,7 @@ jobs:
           echo evgenFile=evgen.${{ matrix.evgen }}.dat >> $GITHUB_OUTPUT
           echo simFile=sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
           echo recFile=rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
-          echo anaFile=ana.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
+          echo anaFile=ana.${{ matrix.evgen }}.${{ matrix.config }}.txt  >> $GITHUB_OUTPUT
           echo gemcConfigFile=clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}/${{ matrix.config }}.gcard >> $GITHUB_OUTPUT
           echo coatjavaConfigFile=clas12-config/coatjava/${{ needs.config_files.outputs.tag_config_coatjava }}/${{ matrix.config }}.yaml >> $GITHUB_OUTPUT
       - name: config files exist
