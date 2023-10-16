@@ -2,14 +2,10 @@
 
 [![Validation Status](https://github.com/JeffersonLab/clas12-validation/actions/workflows/ci.yml/badge.svg)](https://github.com/JeffersonLab/clas12-validation/actions/workflows/ci.yml)
 
-Additonal tools for validating CLAS12 offline software (see also https://github.com/naharrison/clas12-offline-software/tree/development/validation)
+Automated validation of CLAS12 offline software using GitHub Continuous Integration (CI). The following repositories are tested:
+- [`coatjava`](https://github.com/JeffersonLab/coatjava)
+- [`gemc`](https://github.com/gemc), namely [`clas12Tags`](https://github.com/gemc/clas12Tags)
+- [`clas12-config`](https://github.com/JeffersonLab/clas12-config)
 
-We have 4 levels of validation:
-
-* Unit tests - these are very quick tests (a few seconds) that run automatically with the maven build. See clas12-offline-software.
-
-* Advanced tests - these tests take a little longer (order of minutes) and have to be manually run by the user when desired. These tests are also run automatically by Travis CI for every change to the clas12-offline-software repository and for every pull-request. See clas12-offline-software.
-
-* Release validation 1 - even more advanced tests that take around an hour.
-
-* Release validation 2 - even more advanced tests that consists of running relatively large scale simulations and reconstruction; might take many hours.
+### Legacy Version
+The original version of this repository is found in [release `v0.1`](https://github.com/JeffersonLab/clas12-validation/releases/tag/v0.1).
