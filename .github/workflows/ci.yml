@@ -217,13 +217,13 @@ jobs:
           # matrices
           echo evgen_files_json=$(jq -c . config/evgen_ci.json) >> $GITHUB_OUTPUT
           echo config_files_json=$(jq -c . config/config_ci.json) >> $GITHUB_OUTPUT
-          echo config_matrix=$(jq -sc add <(echo '$evgen_files_json') <(echo '$config_files_json')) >> $GITHUB_OUTPUT
-          # summary
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '$config_matrix' | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          # echo config_matrix=$(jq -sc add <(echo '$evgen_files_json') <(echo '$config_files_json')) >> $GITHUB_OUTPUT
+          # # summary
+          # echo "" >> $GITHUB_STEP_SUMMARY
+          # echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
+          # echo '```' >> $GITHUB_STEP_SUMMARY
+          # echo '$config_matrix' | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+          # echo '```' >> $GITHUB_STEP_SUMMARY
       - name: tar
         run: tar czvf clas12-config{.tar.gz,}
       - uses: actions/upload-artifact@v3
