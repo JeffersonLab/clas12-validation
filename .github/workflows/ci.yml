@@ -56,8 +56,8 @@ env:
     }
   git_clas12-config: >-
     {
-      "fork": "c-dilks/clas12-config",
-      "branch": "match-latest",
+      "fork": "JeffersonLab/clas12-config",
+      "branch": "main",
       "tag_config_coatjava": "latest",
       "tag_config_gemc": "latest"
     }
@@ -172,8 +172,8 @@ jobs:
       num_events: ${{ steps.num_events.outputs.num_events }}
       tag_config_coatjava: ${{ steps.version.outputs.tag_config_coatjava }}
       tag_config_gemc: ${{ steps.version.outputs.tag_config_gemc }}
-      evgen_files_json: ${{ steps.evgen_files_json.outputs.evgen_files_json }}
-      config_files_json: ${{ steps.config_files_json.outputs.config_files_json }}
+      evgen_files_json: ${{ steps.read_json.outputs.evgen_files_json }}
+      config_files_json: ${{ steps.read_json.outputs.config_files_json }}
       config_matrix: ${{ steps.config_matrix.outputs.config_matrix }}
     steps:
       - uses: actions/checkout@v3
@@ -187,6 +187,11 @@ jobs:
           echo num_events=$num_events >> $GITHUB_OUTPUT
           echo "### Number of Events:" >> $GITHUB_STEP_SUMMARY
           echo "$num_events" >> $GITHUB_STEP_SUMMARY
+      - name: test clas12-config utils
+        working-directory: clas12-config
+        run: |
+          util/latest.rb coatjava
+          util/latest.rb gemc
       - name: get version info
         id: version
         working-directory: clas12-config
@@ -206,17 +211,15 @@ jobs:
           # output vars
           echo tag_config_coatjava=$tag_config_coatjava >> $GITHUB_OUTPUT
           echo tag_config_gemc=$tag_config_gemc         >> $GITHUB_OUTPUT
-      - name: read evgen files matrix
-        id: evgen_files_json
-        run: echo evgen_files_json=$(jq -c . config/evgen_ci.json) >> $GITHUB_OUTPUT
-      - name: get common config files
-        id: config_files_json
-        working-directory: clas12-config
-        run: echo config_files_json=$(util/match_configs.rb) >> $GITHUB_OUTPUT
-      - name: build full job matrix
+      - name: read matrix from json files
+        id: read_json
+        run: |
+          echo evgen_files_json=$(jq -c . config/evgen_ci.json) >> $GITHUB_OUTPUT
+          echo config_files_json=$(jq -c . config/config_ci.json) >> $GITHUB_OUTPUT
+      - name: make full job matrix
         id: config_matrix
-        run: echo config_matrix=$(jq -sc add <(echo '${{ steps.config_files_json.outputs.config_files_json }}') <(echo '${{ steps.evgen_files_json.outputs.evgen_files_json }}')) >> $GITHUB_OUTPUT
-      - name: summarize
+        run: echo config_matrix=$(jq -sc add <(echo '${{ steps.read_json.outputs.evgen_files_json }}') <(echo '${{ steps.read_json.outputs.config_files_json }}')) >> $GITHUB_OUTPUT
+      - name: summary
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
