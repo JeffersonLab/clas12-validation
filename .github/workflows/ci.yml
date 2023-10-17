@@ -169,6 +169,7 @@ jobs:
       - dependency_info
     runs-on: ubuntu-latest
     outputs:
+      num_events: ${{ steps.num_events.outputs.num_events }}
       tag_config_coatjava: ${{ steps.version.outputs.tag_config_coatjava }}
       tag_config_gemc: ${{ steps.version.outputs.tag_config_gemc }}
       evgen_files_json: ${{ steps.evgen_files_json.outputs.evgen_files_json }}
@@ -178,6 +179,14 @@ jobs:
       - uses: actions/checkout@v3
       - name: clone
         run: git clone https://github.com/${{ needs.dependency_info.outputs.fork_clas12config }}.git --branch ${{ needs.dependency_info.outputs.branch_clas12config }}
+      - name: set number of events
+        id: num_events
+        run: |
+          num_events=${{ inputs.num_events || env.num_events }}
+          [ $num_events -eq 0 ] && num_events=${{ env.num_events }}
+          echo num_events=$num_events >> $GITHUB_OUTPUT
+          echo "### Number of Events:" >> $GITHUB_STEP_SUMMARY
+          echo "$num_events" >> $GITHUB_STEP_SUMMARY
       - name: get version info
         id: version
         working-directory: clas12-config
@@ -188,6 +197,7 @@ jobs:
           [ "${{ needs.dependency_info.outputs.tag_config_coatjava }}" = "latest" ] &&  tag_config_coatjava=$(util/latest.rb coatjava)
           [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ]     && tag_config_gemc=$(util/latest.rb gemc)
           # job summary
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Versions:" >> $GITHUB_STEP_SUMMARY
           echo "| Configuration File Set | Version |"      >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- |"                             >> $GITHUB_STEP_SUMMARY
@@ -255,7 +265,7 @@ jobs:
           coatjava/coatjava/bin/run-groovy \
             coatjava/validation/advanced-tests/src/eb/scripts/gen.groovy \
             $(jq -r '.${{ matrix.evgen }}' config/evgen_opts.json) \
-            -n ${{ inputs.num_events || env.num_events }}
+            -n ${{ needs.config_files.outputs.num_events }}
       - name: rename artifact
         run: |
           ls -t *.txt
