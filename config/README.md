@@ -4,11 +4,11 @@
 
 The following `json` files are used for configuring the CI job matrix and other options:
 
-| File              | Purpose                                                       |
-| ---               | ---                                                           |
-| `evgen_opts.json` | options for event generation script                           |
-| `evgen_ci.json`   | CI job matrix for event generation                            |
-| `config_ci.json`  | CI job matrix for simulation and reconstruction configuration |
+| File                                 | Purpose                                                       |
+| ---                                  | ---                                                           |
+| [`evgen_opts.json`](evgen_opts.json) | options for event generation script                           |
+| [`evgen_ci.json`](evgen_ci.json)     | CI job matrix for event generation                            |
+| [`config_ci.json`](config_ci.json)   | CI job matrix for simulation and reconstruction configuration |
 
 The CI matrices are hard-coded here, to keep the number of workflow jobs minimal but still broad.
 
