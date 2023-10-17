@@ -188,8 +188,8 @@ jobs:
           echo "### Number of Events:" >> $GITHUB_STEP_SUMMARY
           echo "$num_events" >> $GITHUB_STEP_SUMMARY
       - name: test clas12-config utils
+        working-directory: clas12-config
         run: |
-          cd clas12-config
           util/latest.rb coatjava
           util/latest.rb gemc
       - name: get version info
