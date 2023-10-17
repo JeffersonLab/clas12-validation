@@ -220,6 +220,7 @@ jobs:
         id: config_matrix
         run: echo config_matrix=$(jq -sc add <(echo '${{ steps.read_json.outputs.evgen_files_json }}') <(echo '${{ steps.read_json.outputs.config_files_json }}')) >> $GITHUB_OUTPUT
       - name: summary
+        run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
