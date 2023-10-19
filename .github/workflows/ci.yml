@@ -199,8 +199,8 @@ jobs:
           tag_config_coatjava=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.coatjava')
           tag_config_gemc=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.gemc')
           # get the 'latest' version number, if we asked for 'latest'
-          [ "${{ needs.dependency_info.outputs.tag_config_coatjava }}" = "latest" ] &&  tag_config_coatjava=$(util/latest.rb coatjava)
-          [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ] && tag_config_gemc=$(util/latest.rb gemc)
+          [ "$tag_config_coatjava" = "latest" ] &&  tag_config_coatjava=$(util/latest.rb coatjava)
+          [ "$tag_config_gemc" = "latest" ] && tag_config_gemc=$(util/latest.rb gemc)
           # job summary
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Versions:" >> $GITHUB_STEP_SUMMARY
