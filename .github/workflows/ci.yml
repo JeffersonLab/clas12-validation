@@ -3,10 +3,16 @@ name: Validation
 on:
   workflow_call:
     inputs:
+      # override both ${{ env.num_events_fast }} and ${{ env.num_events_full }}
       num_events:
         required: false
         type: string
+      # override the full ${{ env.config_file_versions }} JSON
       config_file_versions:
+        required: false
+        type: string
+      # override ${{ env.git_upstream }} JSON elements (you do not have to specify all of them, just the ones you want to override)
+      git_upstream:
         required: false
         type: string
   pull_request:
@@ -62,8 +68,16 @@ jobs:
         id: info
         run: |
           echo '${{ env.git_upstream }}' > upstream.json
+          # override `git_upstream` with the source triggerer's fork and branch
           echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.repository }}", "branch": "${{ github.head_ref || github.ref_name }}" }}' > source.json
           jq -sc add upstream.json source.json > deps.json
+          # override `git_upstream` with the caller's inputs, if specified
+          if [ -z '${{ inputs.git_upstream }}' ] ; then
+            echo '${{ inputs.git_upstream }}' > override.json
+            mv {deps,tmp}.json
+            jq -sc add tmp.json override.json > deps.json
+          fi
+          # set outputs
           echo fork_coatjava=$(jq -r '."coatjava".fork' deps.json) >> $GITHUB_OUTPUT
           echo branch_coatjava=$(jq -r '."coatjava".branch' deps.json) >> $GITHUB_OUTPUT
           echo fork_clas12tags=$(jq -r '."clas12Tags".fork' deps.json) >> $GITHUB_OUTPUT
