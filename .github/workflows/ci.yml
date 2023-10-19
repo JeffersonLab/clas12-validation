@@ -66,17 +66,15 @@ jobs:
           # upstream branches and forks
           echo '${{ env.git_upstream }}' > upstream.json
           echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.repository }}", "branch": "${{ github.head_ref || github.ref_name }}" }}' > source.json
-          cat upstream.json
-          cat source.json
           jq -sc add upstream.json source.json > deps.json
-          echo fork_coatjava=$(jq -r '.coatjava.fork' deps.json) >> $GITHUB_OUTPUT
-          echo branch_coatjava=$(jq -r '.coatjava.branch' deps.json) >> $GITHUB_OUTPUT
-          echo fork_clas12tags=$(jq -r '.clas12Tags.fork' deps.json) >> $GITHUB_OUTPUT
-          echo branch_clas12tags=$(jq -r '.clas12Tags.branch' deps.json) >> $GITHUB_OUTPUT
-          echo fork_clas12config=$(jq -r '.clas12-config.fork' deps.json) >> $GITHUB_OUTPUT
-          echo branch_clas12config=$(jq -r '.clas12-config.branch' deps.json) >> $GITHUB_OUTPUT
-          echo fork_clas12validation=$(jq -r '.clas12-validation.fork' deps.json) >> $GITHUB_OUTPUT
-          echo branch_clas12validation=$(jq -r '.clas12-validation.branch' deps.json) >> $GITHUB_OUTPUT
+          echo fork_coatjava=$(jq -r '."coatjava".fork' deps.json) >> $GITHUB_OUTPUT
+          echo branch_coatjava=$(jq -r '."coatjava".branch' deps.json) >> $GITHUB_OUTPUT
+          echo fork_clas12tags=$(jq -r '."clas12Tags".fork' deps.json) >> $GITHUB_OUTPUT
+          echo branch_clas12tags=$(jq -r '."clas12Tags".branch' deps.json) >> $GITHUB_OUTPUT
+          echo fork_clas12config=$(jq -r '."clas12-config".fork' deps.json) >> $GITHUB_OUTPUT
+          echo branch_clas12config=$(jq -r '."clas12-config".branch' deps.json) >> $GITHUB_OUTPUT
+          echo fork_clas12validation=$(jq -r '."clas12-validation".fork' deps.json) >> $GITHUB_OUTPUT
+          echo branch_clas12validation=$(jq -r '."clas12-validation".branch' deps.json) >> $GITHUB_OUTPUT
           # config file versions
           echo '${{ inputs.config_file_versions || env.config_file_versions }}' > config.json
           tag_config_coatjava=$(jq -r '.coatjava' config.json)
