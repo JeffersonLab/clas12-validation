@@ -32,7 +32,7 @@ env:
   git_upstream: >-
     {
       "coatjava":          { "fork": "JeffersonLab/coatjava",          "branch": "development" },
-      "clas12Tags":        { "fork": "JeffersonLab/clas12Tags",        "branch": "main"        },
+      "clas12Tags":        { "fork": "gemc/clas12Tags",                "branch": "main"        },
       "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "branch": "main"        },
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "branch": "main"        }
     }
