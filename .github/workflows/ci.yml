@@ -57,13 +57,10 @@ jobs:
       branch_clas12tags: ${{ steps.info.outputs.branch_clas12tags }}
       fork_clas12config: ${{ steps.info.outputs.fork_clas12config }}
       branch_clas12config: ${{ steps.info.outputs.branch_clas12config }}
-      tag_config_coatjava: ${{ steps.info.outputs.tag_config_coatjava }}
-      tag_config_gemc: ${{ steps.info.outputs.tag_config_gemc }}
     steps:
       - name: get dependency info
         id: info
         run: |
-          # upstream branches and forks
           echo '${{ env.git_upstream }}' > upstream.json
           echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.repository }}", "branch": "${{ github.head_ref || github.ref_name }}" }}' > source.json
           jq -sc add upstream.json source.json > deps.json
@@ -75,10 +72,6 @@ jobs:
           echo branch_clas12config=$(jq -r '."clas12-config".branch' deps.json) >> $GITHUB_OUTPUT
           echo fork_clas12validation=$(jq -r '."clas12-validation".fork' deps.json) >> $GITHUB_OUTPUT
           echo branch_clas12validation=$(jq -r '."clas12-validation".branch' deps.json) >> $GITHUB_OUTPUT
-          # config file versions
-          echo '${{ inputs.config_file_versions || env.config_file_versions }}' > config.json
-          tag_config_coatjava=$(jq -r '.coatjava' config.json)
-          tag_config_gemc=$(jq -r '.gemc' config.json)
       - name: dispatch summary
         run: |
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
@@ -203,11 +196,11 @@ jobs:
         id: version
         working-directory: clas12-config
         run: |
-          tag_config_coatjava=${{ needs.dependency_info.outputs.tag_config_coatjava }}
-          tag_config_gemc=${{ needs.dependency_info.outputs.tag_config_gemc }}
+          tag_config_coatjava=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.coatjava')
+          tag_config_gemc=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.gemc')
           # get the 'latest' version number, if we asked for 'latest'
           [ "${{ needs.dependency_info.outputs.tag_config_coatjava }}" = "latest" ] &&  tag_config_coatjava=$(util/latest.rb coatjava)
-          [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ]     && tag_config_gemc=$(util/latest.rb gemc)
+          [ "${{ needs.dependency_info.outputs.tag_config_gemc }}" = "latest" ] && tag_config_gemc=$(util/latest.rb gemc)
           # job summary
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Versions:" >> $GITHUB_STEP_SUMMARY
