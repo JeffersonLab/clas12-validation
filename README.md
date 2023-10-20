@@ -33,7 +33,7 @@ jobs:
       # use a specific fork and branch of certain repositories (JSON string):
       git_upstream: >-
         {
-          "coatjava": { "fork": "UserName/coatjava", "branch": "feature-branch" },
+          "coatjava":      { "fork": "UserName/coatjava",          "branch": "feature-branch"   },
           "clas12-config": { "fork": "JeffersonLab/clas12-config", "branch": "new-config-files" }
         }
 ```
