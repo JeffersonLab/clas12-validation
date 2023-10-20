@@ -405,8 +405,13 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           for evgen in $(echo '${{ needs.config_files.outputs.config_matrix }}' | jq -r '.evgen[]') ; do
             echo "### \`$evgen\`" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
+            first=true
             for config in $(echo '${{ needs.config_files.outputs.config_matrix }}' | jq -r '.config[]') ; do
+              if first ; then
+                grep 'multiplicity from' ana.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
+                echo '```' >> $GITHUB_STEP_SUMMARY
+                first=false
+              fi
               printf "%25s:  %s" $config "$(tail -n1 ana.${evgen}.${config}.txt)" | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
             done
             echo '```' >> $GITHUB_STEP_SUMMARY

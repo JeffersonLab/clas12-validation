@@ -20,12 +20,14 @@ def outFileW = outFileH.newWriter(false)
 def reader = new HipoDataSource()
 reader.open(inFile)
 
+def particleBankName = inFile.contains(/FT/) ? "RECFT::Particle" : "REC::Particle"
+
 mult = [:]
 while(reader.hasEvent()) {
   event = reader.getNextEvent()
-  particleBank = event.getBank("REC::Particle")
+  particleBank = event.getBank(particleBankName)
   (0..<particleBank.rows()).each{
-    pid = event.getBank("REC::Particle").getInt('pid',it)
+    pid = event.getBank(particleBankName).getInt('pid',it)
     if(mult[pid]==null)
       mult[pid] = 1
     else
@@ -34,7 +36,7 @@ while(reader.hasEvent()) {
 }
 mult = mult.sort{ -it.value }
 
-print "multiplicity: "
+println "multiplicity from `$particleBankName`"
 println JsonOutput.prettyPrint(JsonOutput.toJson(mult))
 
 mult.each{ outFileW << sprintf("%14s  ", sprintf("%d (%d)", it.key, it.value)) }
