@@ -15,7 +15,7 @@ jobs:
     uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@main
 ```
 
-You may customize the called workflow with `input` variables. Here is an example which describes and uses all of them:
+You may customize the called workflow with `input` variables; in general, they override the `env` variables. Here is an example which describes and uses all of them:
 ```yaml
 jobs:
   validation:
@@ -30,7 +30,7 @@ jobs:
           "coatjava": "10.0.0",
           "gemc":     "5.3"
         }
-      # use a specific fork and branch of two repositories (JSON string):
+      # use a specific fork and branch of certain repositories (JSON string):
       git_upstream: >-
         {
           "coatjava": { "fork": "UserName/coatjava", "branch": "feature-branch" },
