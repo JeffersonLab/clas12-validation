@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: dump context
-        run: echo $GITHUB_CONTEXT
+        run: echo '$GITHUB_CONTEXT' | jq
     env:
       GITHUB_CONTEXT: ${{ toJson(github) }}
 
