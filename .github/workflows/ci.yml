@@ -69,7 +69,7 @@ jobs:
         run: |
           echo '${{ env.git_upstream }}' > upstream.json
           echo '${{ inputs.git_upstream || env.git_upstream }}' > caller_overrides.json
-          echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.event.pull_request.repository || github.repository }}", "branch": "${{ github.head_ref || github.ref_name }}" }}' > source.json
+          echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.repository }}", "branch": "${{ github.head_ref || github.ref_name }}" }}' > source.json
           jq -sc add upstream.json caller_overrides.json source.json > deps.json
           echo fork_coatjava=$(jq -r '."coatjava".fork' deps.json) >> $GITHUB_OUTPUT
           echo branch_coatjava=$(jq -r '."coatjava".branch' deps.json) >> $GITHUB_OUTPUT
