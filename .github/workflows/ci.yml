@@ -52,11 +52,13 @@ jobs:
   # context dump
   #############################################################################
   context:
-    name: Github context
+    name: GitHub context
     runs-on: ubuntu-latest
     steps:
       - name: dump context
-        run: echo '$GITHUB_CONTEXT' | jq
+        run: |
+          echo $GITHUB_CONTEXT > context.json
+          jq context.json
     env:
       GITHUB_CONTEXT: ${{ toJson(github) }}
 
