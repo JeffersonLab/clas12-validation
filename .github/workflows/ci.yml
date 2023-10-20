@@ -368,7 +368,9 @@ jobs:
       - name: check if output exists
         run: ls ${{ steps.files.outputs.recFile }}
       - name: analysis
-        run: coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy ${{ steps.files.outputs.recFile }} ${{ steps.files.outputs.anaFile }}
+        run: |
+          coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy ${{ steps.files.outputs.recFile }} ${{ steps.files.outputs.anaFile }}
+          cat ${{ steps.files.outputs.anaFile }}
       - uses: actions/upload-artifact@v3
         with:
           name: sim
@@ -407,7 +409,7 @@ jobs:
             echo "### \`$evgen\`" >> $GITHUB_STEP_SUMMARY
             first=true
             for config in $(echo '${{ needs.config_files.outputs.config_matrix }}' | jq -r '.config[]') ; do
-              if first ; then
+              if $first ; then
                 grep 'multiplicity from' ana.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
                 echo '```' >> $GITHUB_STEP_SUMMARY
                 first=false
