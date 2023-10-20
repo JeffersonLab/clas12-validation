@@ -52,7 +52,7 @@ jobs:
   # context dump
   #############################################################################
   context:
-    name: Dump context
+    name: Github context
     runs-on: ubuntu-latest
     steps:
       - name: dump context
