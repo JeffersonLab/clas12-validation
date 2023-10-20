@@ -15,7 +15,7 @@ jobs:
     uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@main
 ```
 
-Some variables may be overridden. Here is an example usage which overrides several variables:
+You may customize the called workflow with `input` variables. Here is an example which describes and uses all of them:
 ```yaml
 jobs:
   validation:
