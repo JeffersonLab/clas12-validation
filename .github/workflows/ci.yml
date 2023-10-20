@@ -49,6 +49,17 @@ env:
 
 jobs:
 
+  # context dump
+  #############################################################################
+  context:
+    name: Dump context
+    runs-on: ubuntu-latest
+    steps:
+      - name: dump context
+        run: echo $GITHUB_CONTEXT
+    env:
+      GITHUB_CONTEXT: ${{ toJson(github) }}
+
   # dependency and source info
   #############################################################################
   dependency_info:
