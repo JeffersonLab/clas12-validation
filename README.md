@@ -12,7 +12,7 @@ The [workflow](.github/workflows/ci.yml) is reusable: it can be called by other 
 jobs:
   validation:
     name: dispatch validation
-    uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@reusable-workflow@main
+    uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@main
 ```
 
 Some variables may be overridden. Here is an example usage which overrides several variables:
@@ -20,7 +20,7 @@ Some variables may be overridden. Here is an example usage which overrides sever
 jobs:
   validation:
     name: dispatch validation
-    uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@reusable-workflow@main
+    uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@main
     with:
       # use a custom number of events, rather than the defaults:
       num_events = 8
