@@ -3,15 +3,23 @@ name: Validation
 on:
   workflow_call:
     inputs:
-      # override both ${{ env.num_events_fast }} and ${{ env.num_events_full }}
+      # override default number of events, both ${{ env.num_events_fast }} and ${{ env.num_events_full }}
       num_events:
         required: false
         type: string
-      # override the full ${{ env.config_file_versions }} JSON
+      # override default event generation types to run, the ${{ env.matrix_evgen }} JSON list
+      matrix_evgen:
+        required: false
+        type: string
+      # override default config files to run, the ${{ env.matrix_config }} JSON list
+      matrix_config:
+        required: false
+        type: string
+      # override default versions of config files, the full ${{ env.config_file_versions }} JSON
       config_file_versions:
         required: false
         type: string
-      # override ${{ env.git_upstream }} JSON elements (you do not have to specify all of them, just the ones you want to override)
+      # override default forks and branches, ${{ env.git_upstream }} JSON elements (you do not have to specify all of them, just the ones you want to override)
       git_upstream:
         required: false
         type: string
@@ -35,6 +43,27 @@ env:
   # default number of events, for "fast" and "full" tests
   num_events_fast: 10
   num_events_full: 1000
+  # default event generation types to run
+  matrix_evgen: >-
+    [
+      "electronkaon",
+      "electronkaonC",
+      "electronneutron",
+      "electrongamma",
+      "electronneutronC",
+      "electronFTkaon",
+      "electrongammaFT"
+    ]
+  # default config files to run
+  matrix_config: >-
+    [
+      "clas12-default",
+      "rga_spring2018",
+      "rga_fall2018",
+      "rgk_fall2018_FTOn",
+      "rgb_fall2019",
+      "rgc_summer2022_FTOn"
+    ]
   # default forks and branches
   git_upstream: >-
     {
@@ -184,9 +213,9 @@ jobs:
       num_events: ${{ steps.num_events.outputs.num_events }}
       tag_config_coatjava: ${{ steps.version.outputs.tag_config_coatjava }}
       tag_config_gemc: ${{ steps.version.outputs.tag_config_gemc }}
-      evgen_files_json: ${{ steps.read_json.outputs.evgen_files_json }}
-      config_files_json: ${{ steps.read_json.outputs.config_files_json }}
-      config_matrix: ${{ steps.config_matrix.outputs.config_matrix }}
+      matrix_evgen: ${{ steps.read_matrices.outputs.matrix_evgen }}
+      matrix_config: ${{ steps.read_matrices.outputs.matrix_config }}
+      matrix_full: ${{ steps.matrix_full.outputs.matrix_full }}
     steps:
       - name: checkout clas12-validation
         uses: actions/checkout@v4
@@ -234,20 +263,20 @@ jobs:
           # output vars
           echo tag_config_coatjava=$tag_config_coatjava >> $GITHUB_OUTPUT
           echo tag_config_gemc=$tag_config_gemc         >> $GITHUB_OUTPUT
-      - name: read matrix from json files
-        id: read_json
+      - name: read matrices
+        id: read_matrices
         run: |
-          echo evgen_files_json=$(jq -c . config/evgen_ci.json) >> $GITHUB_OUTPUT
-          echo config_files_json=$(jq -c . config/config_ci.json) >> $GITHUB_OUTPUT
+          echo matrix_evgen=$(jq -c . <(echo '{ "evgen": ${{ inputs.matrix_evgen || env.matrix_evgen }} }')) >> $GITHUB_OUTPUT
+          echo matrix_config=$(jq -c . <(echo '{ "config": ${{ inputs.matrix_config || env.matrix_config }} }')) >> $GITHUB_OUTPUT
       - name: make full job matrix
-        id: config_matrix
-        run: echo config_matrix=$(jq -sc add <(echo '${{ steps.read_json.outputs.evgen_files_json }}') <(echo '${{ steps.read_json.outputs.config_files_json }}')) >> $GITHUB_OUTPUT
+        id: matrix_full
+        run: echo matrix_full=$(jq -sc add <(echo '${{ steps.read_matrices.outputs.matrix_evgen }}') <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) >> $GITHUB_OUTPUT
       - name: summary
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '${{ steps.config_matrix.outputs.config_matrix }}' | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.matrix_full.outputs.matrix_full }}' | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
       - name: tar
         run: tar czvf clas12-config{.tar.gz,}
@@ -268,7 +297,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
-      matrix: ${{ fromJson(needs.config_files.outputs.evgen_files_json) }}
+      matrix: ${{ fromJson(needs.config_files.outputs.matrix_evgen) }}
     steps:
       - name: checkout clas12-validation
         uses: actions/checkout@v4
@@ -289,13 +318,18 @@ jobs:
           name: build
       - name: untar build
         run: ls *.tar.gz | xargs -I{} tar xzvf {}
-      - name: check if this configuration is known
-        run: jq -re '.${{ matrix.evgen }}' config/evgen_opts.json
       - name: event generation
         run: |
+          optsFile=coatjava/validation/advanced-tests/src/eb/scripts/list.txt
+          ls $optsFile
+          opts=$(grep -E "^${{ matrix.evgen }} " $optsFile | cut -f 2- -d ' ')
+          if [ -z "$opts" ] ; then
+            echo "ERROR: cannot find event generation type '${{ matrix.evgen }}' in $optsFile" >&2
+            exit 1
+          fi
           coatjava/coatjava/bin/run-groovy \
             coatjava/validation/advanced-tests/src/eb/scripts/gen.groovy \
-            $(jq -r '.${{ matrix.evgen }}' config/evgen_opts.json) \
+            $opts \
             -n ${{ needs.config_files.outputs.num_events }}
       - name: rename artifact
         run: |
@@ -319,7 +353,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
-      matrix: ${{ fromJson(needs.config_files.outputs.config_matrix) }}
+      matrix: ${{ fromJson(needs.config_files.outputs.matrix_full) }}
     steps:
       - name: checkout clas12-validation
         uses: actions/checkout@v4
@@ -404,10 +438,10 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "   config:  PID (multiplicity) ...    # sorted multiplicity for each PID" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          for evgen in $(echo '${{ needs.config_files.outputs.config_matrix }}' | jq -r '.evgen[]') ; do
+          for evgen in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.evgen[]') ; do
             echo "### \`$evgen\`" >> $GITHUB_STEP_SUMMARY
             first=true
-            for config in $(echo '${{ needs.config_files.outputs.config_matrix }}' | jq -r '.config[]') ; do
+            for config in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.config[]') ; do
               if $first ; then
                 grep 'multiplicity from' ana.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
                 echo '```' >> $GITHUB_STEP_SUMMARY

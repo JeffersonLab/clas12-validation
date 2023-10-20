@@ -24,6 +24,19 @@ jobs:
     with:
       # use a custom number of events, rather than the defaults:
       num_events: 8
+      # use a custom list of event generation types to run
+      matrix_evgen: >-
+        [
+          "electronkaon",
+          "electronneutron",
+          "electrongamma"
+        ]
+      # use a custom list of config files to run
+      matrix_config: >-
+        [
+          "rga_spring2018",
+          "rgb_fall2019"
+        ]
       # use specific fixed versions of the config files, rather than the default (latest) versions (JSON string):
       config_file_versions: >-
         {
