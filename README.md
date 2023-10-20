@@ -7,7 +7,7 @@ Automated validation of CLAS12 offline software using GitHub Continuous Integrat
 - [`gemc`](https://github.com/gemc), namely [`clas12Tags`](https://github.com/gemc/clas12Tags)
 - [`clas12-config`](https://github.com/JeffersonLab/clas12-config)
 
-The [workflow](.github/workflows/ci.yml) is reusable: it can be called by other repositories as:
+The [workflow](.github/workflows/ci.yml) is reusable: it can be called by other workflows as
 ```yaml
 jobs:
   validation:
