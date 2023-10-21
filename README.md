@@ -27,9 +27,9 @@ jobs:
       # use a custom list of event generation types to run
       matrix_evgen: >-
         [
-          "electronkaon",
-          "electronneutron",
-          "electrongamma"
+          "e_K",
+          "e_n",
+          "e_g"
         ]
       # use a custom list of config files to run
       matrix_config: >-
