@@ -416,7 +416,11 @@ jobs:
       - name: check if output exists
         run: ls ${{ steps.files.outputs.recFile }}
       - name: analysis
-        run: coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy ${{ steps.files.outputs.recFile }} ${{ steps.files.outputs.anaFile }}
+        run: |
+          bankName="REC::Particle"
+          [[ "${{ matrix.evgen }}" =~ FT ]] && bankName="RECFT::Particle"
+          echo "bankName = $bankName"
+          coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy ${{ steps.files.outputs.recFile }} ${{ steps.files.outputs.anaFile }} $bankName
       - uses: actions/upload-artifact@v3
         with:
           name: sim
