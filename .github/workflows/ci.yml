@@ -293,7 +293,7 @@ jobs:
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
           echo '${{ steps.matrix_full.outputs.matrix_full }}' | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
       - name: tar
