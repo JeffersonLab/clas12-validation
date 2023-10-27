@@ -11,7 +11,6 @@ The [workflow](.github/workflows/ci.yml) is reusable: it can be called by other 
 ```yaml
 jobs:
   validation:
-    name: dispatch validation
     uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@main
 ```
 
@@ -19,7 +18,6 @@ You may customize the called workflow with `input` variables; in general, they o
 ```yaml
 jobs:
   validation:
-    name: dispatch validation
     uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@main
     with:
       # use a custom number of events, rather than the defaults:
