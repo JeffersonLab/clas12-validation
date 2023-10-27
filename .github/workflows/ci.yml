@@ -452,19 +452,19 @@ jobs:
       - name: read multiplicity
         run: |
           echo "# Multiplicity Report" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "   config:  PID (multiplicity) ...    # sorted multiplicity for each PID" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '```yaml' >> $GITHUB_STEP_SUMMARY
           for evgen in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.evgen[]') ; do
-            echo "### \`$evgen\`" >> $GITHUB_STEP_SUMMARY
+            echo "evgen: $evgen" >> $GITHUB_STEP_SUMMARY
             first=true
             for config in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.config[]') ; do
               if $first ; then
-                grep 'multiplicity from' ana.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
-                echo '```' >> $GITHUB_STEP_SUMMARY
+                grep -E '^bank: ' ana.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
+                echo "multiplicity: |" >> $GITHUB_STEP_SUMMARY
+                printf "  %25s:  PID (multiplicity) ...    # sorted multiplicity for each PID\n" "config" >> $GITHUB_STEP_SUMMARY
                 first=false
               fi
-              printf "%25s:  %s" $config "$(tail -n1 ana.${evgen}.${config}.txt)" | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+              printf "  %25s:  %s" $config "$(tail -n1 ana.${evgen}.${config}.txt)" | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
             done
-            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
           done
+          echo '```' >> $GITHUB_STEP_SUMMARY

@@ -34,7 +34,7 @@ while(reader.hasEvent()) {
 }
 mult = mult.sort{ -it.value }
 
-outFileW << "multiplicity from `$particleBankName`\n" << JsonOutput.prettyPrint(JsonOutput.toJson(mult)) << '\n'
+outFileW << "bank: $particleBankName\n" << JsonOutput.prettyPrint(JsonOutput.toJson(mult)) << '\n'
 mult.each{ outFileW << sprintf("%14s  ", sprintf("%d (%d)", it.key, it.value)) }
 outFileW << '\n'
 outFileW.close()
