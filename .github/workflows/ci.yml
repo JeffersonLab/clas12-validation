@@ -3,24 +3,24 @@ name: Validation
 on:
   workflow_call:
     inputs:
-      # override default number of events, both ${{ env.num_events_fast }} and ${{ env.num_events_full }}
       num_events:
+        description: 'override default number of events, both env.num_events_fast and env.num_events_full'
         required: false
         type: string
-      # override default event generation types to run, the ${{ env.matrix_evgen }} JSON list
       matrix_evgen:
+        description: 'override default event generation types to run, the env.matrix_evgen JSON list'
         required: false
         type: string
-      # override default config files to run, the ${{ env.matrix_config }} JSON list
       matrix_config:
+        description: 'override default config files to run, the env.matrix_config JSON list'
         required: false
         type: string
-      # override default versions of config files, the full ${{ env.config_file_versions }} JSON
       config_file_versions:
+        description: 'override default versions of config files, the full env.config_file_versions JSON object'
         required: false
         type: string
-      # override default forks and branches, ${{ env.git_upstream }} JSON elements (you do not have to specify all of them, just the ones you want to override)
       git_upstream:
+        description: 'override default forks and branches, env.git_upstream JSON object elements (you do not have to specify all of them, just the ones you want to override)'
         required: false
         type: string
   pull_request:
