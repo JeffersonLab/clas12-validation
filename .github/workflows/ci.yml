@@ -146,11 +146,11 @@ jobs:
         run: |
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '| --- | --- | --- |' >> $GITHUB_STEP_SUMMARY
-          echo '| **Pull Request** | <${{ github.event.pull_request.html_url || github.event.head_commit.url }}> | ${{ github.event.pull_request.title || github.event.head_commit.message }} |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`coatjava` Fork and Branch** | `${{ steps.info.outputs.fork_coatjava }}` | [`${{ steps.info.outputs.branch_coatjava }}`](https://github.com/${{ steps.info.outputs.fork_coatjava }}/tree/${{ steps.info.outputs.branch_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`clas12Tags` Fork and Branch** | `${{ steps.info.outputs.fork_clas12tags }}` | [`${{ steps.info.outputs.branch_clas12tags }}`](https://github.com/${{ steps.info.outputs.fork_clas12tags }}/tree/${{ steps.info.outputs.branch_clas12tags }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`clas12-config` Fork and Branch** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.branch_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.branch_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`clas12-validation` Fork and Branch** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.branch_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.branch_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **Triggered By `${{ github.event_name }}`:** | <${{ github.event.pull_request.html_url || github.event.head_commit.url }}> | ${{ github.event.pull_request.title || github.event.head_commit.message }} |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`coatjava` Fork and Branch:** | `${{ steps.info.outputs.fork_coatjava }}` | [`${{ steps.info.outputs.branch_coatjava }}`](https://github.com/${{ steps.info.outputs.fork_coatjava }}/tree/${{ steps.info.outputs.branch_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12Tags` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12tags }}` | [`${{ steps.info.outputs.branch_clas12tags }}`](https://github.com/${{ steps.info.outputs.fork_clas12tags }}/tree/${{ steps.info.outputs.branch_clas12tags }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12-config` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.branch_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.branch_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12-validation` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.branch_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.branch_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
 
   # build
