@@ -286,7 +286,7 @@ jobs:
       - name: find config files
         working-directory: clas12-config
         run: |
-          for config_file in $(jq -r '.config' '${{ steps.read_matrices.outputs.matrix_config }}') ; do
+          for config_file in $(jq -r '.config' <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) ; do
             [ "${{ steps.version.outputs.tag_config_coatjava }}" = "latest" ] &&
               util/latest.rb coatjava ${{ matrix.config }} >> coatjava.ver || ls coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config}.gcard" >> coatjava.ver
             [ "${{ steps.version.outputs.tag_config_gemc }}" = "latest" ] &&
