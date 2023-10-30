@@ -291,13 +291,13 @@ jobs:
             if [ "${{ steps.version.outputs.tag_config_coatjava }}" = "latest" ] ; then
               util/latest.rb coatjava $config_file | tee -a coatjava.ver
             else
-              ls coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config}.gcard" | tee -a coatjava.ver
+              ls coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config}.yaml" | tee -a coatjava.ver
             fi
-            if [ "${{ steps.version.outputs.tag_config_gemc }}" = "latest" ] ; then
+            # if [ "${{ steps.version.outputs.tag_config_gemc }}" = "latest" ] ; then
               util/latest.rb gemc $config_file | tee -a gemc.ver
-            else
-              ls gemc/${{ steps.version.outputs.tag_config_gemc }}/${config}.gcard" | tee -a gemc.ver
-            fi
+            # else
+            #   ls gemc/${{ steps.version.outputs.tag_config_gemc }}/${config}.gcard" | tee -a gemc.ver
+            # fi
           done
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Configuration Files:" >> $GITHUB_STEP_SUMMARY
