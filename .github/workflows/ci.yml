@@ -31,9 +31,9 @@ on:
     - cron: '33 8 * * *'
 
 ### keep concurrency class disabled, so that callers can control it
-concurrency:
-  group: ${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.head_ref || github.run_id }}
+#   cancel-in-progress: true
 
 defaults:
   run:
@@ -59,7 +59,7 @@ env:
     {
       "coatjava":          { "fork": "JeffersonLab/coatjava",          "branch": "development" },
       "clas12Tags":        { "fork": "gemc/clas12Tags",                "branch": "main"        },
-      "clas12-config":     { "fork": "c-dilks/clas12-config",     "branch": "latest-ver"        },
+      "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "branch": "main"        },
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "branch": "main"        }
     }
   # default versions of config files
