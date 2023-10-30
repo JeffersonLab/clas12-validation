@@ -288,9 +288,9 @@ jobs:
         run: |
           for config_file in $(jq -r '.config' <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) ; do
             [ "${{ steps.version.outputs.tag_config_coatjava }}" = "latest" ] &&
-              util/latest.rb coatjava ${{ matrix.config }} >> coatjava.ver || ls coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config}.gcard" >> coatjava.ver
+              util/latest.rb coatjava $config_file >> coatjava.ver || ls coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config}.gcard" >> coatjava.ver
             [ "${{ steps.version.outputs.tag_config_gemc }}" = "latest" ] &&
-              util/latest.rb gemc ${{ matrix.config }} >> gemc.ver || ls gemc/${{ steps.version.outputs.tag_config_gemc }}/${config}.gcard" >> gemc.ver
+              util/latest.rb gemc $config_file >> gemc.ver || ls gemc/${{ steps.version.outputs.tag_config_gemc }}/${config}.gcard" >> gemc.ver
           done
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Configuration Files:" >> $GITHUB_STEP_SUMMARY
