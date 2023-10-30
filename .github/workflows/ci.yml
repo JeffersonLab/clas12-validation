@@ -12,7 +12,7 @@ on:
         required: false
         type: string
       matrix_config:
-        description: 'override default config files to run, the env.matrix_config JSON list'
+        description: 'override default list of config files to run (defined in clas12-config)'
         required: false
         type: string
       config_file_versions:
@@ -53,16 +53,6 @@ env:
       "e_nC",
       "eFT_K",
       "e_gFT"
-    ]
-  # default config files to run
-  matrix_config: >-
-    [
-      "clas12-default",
-      "rga_spring2018",
-      "rga_fall2018",
-      "rgk_fall2018_FTOn",
-      "rgb_fall2019",
-      "rgc_summer2022_FTOn"
     ]
   # default forks and branches
   git_upstream: >-
@@ -257,20 +247,12 @@ jobs:
           echo num_events=$num_events >> $GITHUB_OUTPUT
           echo "### Number of Events:" >> $GITHUB_STEP_SUMMARY
           echo "$num_events" >> $GITHUB_STEP_SUMMARY
-      - name: test clas12-config utils
-        working-directory: clas12-config
-        run: |
-          util/latest.rb coatjava
-          util/latest.rb gemc
       - name: get version info
         id: version
         working-directory: clas12-config
         run: |
           tag_config_coatjava=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.coatjava')
           tag_config_gemc=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.gemc')
-          # get the 'latest' version number, if we asked for 'latest'
-          [ "$tag_config_coatjava" = "latest" ] &&  tag_config_coatjava=$(util/latest.rb coatjava)
-          [ "$tag_config_gemc" = "latest" ] && tag_config_gemc=$(util/latest.rb gemc)
           # job summary
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Versions:" >> $GITHUB_STEP_SUMMARY
@@ -285,7 +267,12 @@ jobs:
         id: read_matrices
         run: |
           echo matrix_evgen=$(jq -c . <(echo '{ "evgen": ${{ inputs.matrix_evgen || env.matrix_evgen }} }')) >> $GITHUB_OUTPUT
-          echo matrix_config=$(jq -c . <(echo '{ "config": ${{ inputs.matrix_config || env.matrix_config }} }')) >> $GITHUB_OUTPUT
+          if [ -z "${{ inputs.matrix_config }}" ] ; then
+            config_list=$(jq -c . clas12-config/.github/ci_config_files.json)
+          else
+            config_list=$(jq -c . <(echo '${{ inputs.matrix_config }}'))
+          fi
+          echo matrix_config=$(jq -c . <(echo '{ "config":' $config_list '}')) >> $GITHUB_OUTPUT
       - name: make full job matrix
         id: matrix_full
         run: echo matrix_full=$(jq -sc add <(echo '${{ steps.read_matrices.outputs.matrix_evgen }}') <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) >> $GITHUB_OUTPUT
@@ -295,6 +282,27 @@ jobs:
           echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           echo '${{ steps.matrix_full.outputs.matrix_full }}' | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+      - name: find config files
+        working-directory: clas12-config
+        run: |
+          for config_file in $(jq -r '.config[]' <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) ; do
+            echo "find config files for config='$config_file'"
+            if [ "${{ steps.version.outputs.tag_config_coatjava }}" = "latest" ] ; then
+              util/latest.rb coatjava $config_file | tee -a coatjava.ver
+            else
+              ls coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config}.yaml | tee -a coatjava.ver
+            fi
+            if [ "${{ steps.version.outputs.tag_config_gemc }}" = "latest" ] ; then
+              util/latest.rb gemc $config_file | tee -a gemc.ver
+            else
+              ls gemc/${{ steps.version.outputs.tag_config_gemc }}/${config}.gcard | tee -a gemc.ver
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Configuration Files:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          paste {coatjava,gemc}.ver | column -t | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
       - name: tar
         run: tar czvf clas12-config{.tar.gz,}
@@ -394,8 +402,8 @@ jobs:
           echo simFile=sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
           echo recFile=rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
           echo anaFile=ana.${{ matrix.evgen }}.${{ matrix.config }}.txt  >> $GITHUB_OUTPUT
-          echo gemcConfigFile=clas12-config/gemc/${{ needs.config_files.outputs.tag_config_gemc }}/${{ matrix.config }}.gcard >> $GITHUB_OUTPUT
-          echo coatjavaConfigFile=clas12-config/coatjava/${{ needs.config_files.outputs.tag_config_coatjava }}/${{ matrix.config }}.yaml >> $GITHUB_OUTPUT
+          echo coatjavaConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/coatjava.ver) >> $GITHUB_OUTPUT
+          echo gemcConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/gemc.ver) >> $GITHUB_OUTPUT
       - name: config files exist
         run: |
           ls ${{ steps.files.outputs.gemcConfigFile }}
