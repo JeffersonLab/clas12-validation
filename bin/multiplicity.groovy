@@ -32,7 +32,7 @@ while(reader.hasEvent()) {
       mult[pid]++
   }
 }
-mult = mult.sort{ -it.value }
+mult = mult.sort{ it.key }
 
 outFileW << "bank: $particleBankName\n" << JsonOutput.prettyPrint(JsonOutput.toJson(mult)) << '\n'
 mult.each{ outFileW << sprintf("%14s  ", sprintf("%d (%d)", it.key, it.value)) }
