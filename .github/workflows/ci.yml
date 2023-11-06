@@ -23,10 +23,10 @@ on:
         description: 'override default forks and branches, env.git_upstream JSON object elements (you do not have to specify all of them, just the ones you want to override)'
         required: false
         type: string
-  # pull_request:
+  pull_request:
   push:
-    # branches: [ main ]
-    # tags: [ '*' ]
+    branches: [ main ]
+    tags: [ '*' ]
   schedule:
     - cron: '33 8 * * *'
 
