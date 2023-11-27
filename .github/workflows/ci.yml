@@ -197,7 +197,7 @@ jobs:
       - name: build
         uses: docker://jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
         with:
-          entrypoint: clas12-validation/bin/ci_build_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
+          entrypoint: bin/ci_build_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
           args: clas12Tags/source
       - name: tar
         run: tar cavf clas12Tags{.tar.zst,}
