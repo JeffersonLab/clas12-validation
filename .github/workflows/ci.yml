@@ -170,12 +170,12 @@ jobs:
       - name: tree
         run: tree
       - name: tar
-        run: tar czvf coatjava{.tar.gz,}
+        run: tar cavf coatjava{.tar.zst,}
       - uses: actions/upload-artifact@v3
         with:
           name: build
           retention-days: 1
-          path: ./*.tar.gz
+          path: ./*.tar.zst
 
   build_gemc:
     name: Build GEMC
@@ -203,12 +203,12 @@ jobs:
           echo "### GEMC Build Information:"
           ./gemc -USE_GUI=0
       - name: tar
-        run: tar czvf clas12Tags{.tar.gz,}
+        run: tar cavf clas12Tags{.tar.zst,}
       - uses: actions/upload-artifact@v3
         with:
           name: build
           retention-days: 1
-          path: ./*.tar.gz
+          path: ./*.tar.zst
 
   # clas12-config configuration
   #############################################################################
@@ -306,12 +306,12 @@ jobs:
           paste {coatjava,gemc}.ver | column -t | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
       - name: tar
-        run: tar czvf clas12-config{.tar.gz,}
+        run: tar cavf clas12-config{.tar.zst,}
       - uses: actions/upload-artifact@v3
         with:
           name: build
           retention-days: 1
-          path: ./*.tar.gz
+          path: ./*.tar.zst
 
   # event generation
   #############################################################################
@@ -344,7 +344,7 @@ jobs:
         with:
           name: build
       - name: untar build
-        run: ls *.tar.gz | xargs -I{} tar xzvf {}
+        run: ls *.tar.zst | xargs -I{} tar xavf {}
       - name: check if this configuration is known
         run: jq -re '.${{ matrix.evgen }}' <(echo '${{ env.evgen_opts }}')
       - name: event generation
@@ -395,7 +395,7 @@ jobs:
       - name: tree
         run: ls -lhR
       - name: untar build
-        run: ls *.tar.gz | xargs -I{} tar xzvf {}
+        run: ls *.tar.zst | xargs -I{} tar xavf {}
       - name: file names
         id: files
         run: |
