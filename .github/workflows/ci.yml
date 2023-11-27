@@ -182,7 +182,6 @@ jobs:
     needs:
       - dependency_info
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
     steps:
       - name: checkout clas12Tags
         uses: actions/checkout@v4
@@ -191,17 +190,10 @@ jobs:
           ref: ${{ needs.dependency_info.outputs.branch_clas12tags }}
           path: clas12Tags
       - name: build
-        working-directory: clas12Tags/source
-        run: |
-          source /app/localSetup.sh
-          scons -j2 OPT=1
-      - name: version info
-        working-directory: clas12Tags/source
-        run: |
-          source /app/localSetup.sh
-          module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
-          echo "### GEMC Build Information:"
-          ./gemc -USE_GUI=0
+        uses: docker://jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
+        with:
+          entrypoint: bin/ci_build_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
+          args: clas12Tags/source
       - name: tar
         run: tar cavf clas12Tags{.tar.zst,}
       - uses: actions/upload-artifact@v3
