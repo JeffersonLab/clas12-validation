@@ -189,10 +189,15 @@ jobs:
           repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
           ref: ${{ needs.dependency_info.outputs.branch_clas12tags }}
           path: clas12Tags
+      - name: checkout clas12-validation
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
+          ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
       - name: build
         uses: docker://jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
         with:
-          entrypoint: bin/ci_build_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
+          entrypoint: clas12-validation/bin/ci_build_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
           args: clas12Tags/source
       - name: tar
         run: tar cavf clas12Tags{.tar.zst,}
