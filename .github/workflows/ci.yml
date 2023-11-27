@@ -183,17 +183,17 @@ jobs:
       - dependency_info
     runs-on: ubuntu-latest
     steps:
+      - name: checkout clas12-validation
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
+          ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
       - name: checkout clas12Tags
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
           ref: ${{ needs.dependency_info.outputs.branch_clas12tags }}
           path: clas12Tags
-      - name: checkout clas12-validation
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
-          ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
       - name: build
         uses: docker://jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
         with:
