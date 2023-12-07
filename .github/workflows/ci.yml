@@ -467,7 +467,7 @@ jobs:
       - config_files
     runs-on: ubuntu-latest
     steps:
-      - name: download build
+      - name: download ana
         uses: Wandalen/wretry.action@v1
         with:
           action: actions/download-artifact@v3
