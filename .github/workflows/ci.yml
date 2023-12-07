@@ -337,9 +337,14 @@ jobs:
         uses: wtfjoke/setup-groovy@v1
         with:
           groovy-version: 4.x
-      - uses: actions/download-artifact@v3
+      - name: download build
+        uses: Wandalen/wretry.action@v1
         with:
-          name: build
+          action: actions/download-artifact@v3
+          with: |
+            name: build
+          attempt_limit: 3
+          attempt_delay: 10000
       - name: untar build
         run: ls *.tar.zst | xargs -I{} tar xavf {}
       - name: check if this configuration is known
@@ -383,12 +388,22 @@ jobs:
         uses: wtfjoke/setup-groovy@v1
         with:
           groovy-version: 4.x
-      - uses: actions/download-artifact@v3
+      - name: download evgen
+        uses: Wandalen/wretry.action@v1
         with:
-          name: evgen
-      - uses: actions/download-artifact@v3
+          action: actions/download-artifact@v3
+          with: |
+            name: evgen
+          attempt_limit: 3
+          attempt_delay: 10000
+      - name: download build
+        uses: Wandalen/wretry.action@v1
         with:
-          name: build
+          action: actions/download-artifact@v3
+          with: |
+            name: build
+          attempt_limit: 3
+          attempt_delay: 10000
       - name: tree
         run: ls -lhR
       - name: untar build
@@ -452,9 +467,14 @@ jobs:
       - config_files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - name: download build
+        uses: Wandalen/wretry.action@v1
         with:
-          name: ana
+          action: actions/download-artifact@v3
+          with: |
+            name: ana
+          attempt_limit: 3
+          attempt_delay: 10000
       - name: read multiplicity
         run: |
           echo "# Multiplicity Report" >> $GITHUB_STEP_SUMMARY
