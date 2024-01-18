@@ -21,7 +21,7 @@ on:
         required: false
         type: string
       git_upstream:
-        description: 'override default forks and branches, env.git_upstream JSON object elements (you do not have to specify all of them, just the ones you want to override)'
+        description: 'override default forks and refs, env.git_upstream JSON object elements (you do not have to specify all of them, just the ones you want to override)'
         required: false
         type: string
   pull_request:
@@ -60,10 +60,10 @@ env:
   # default forks and branches
   git_upstream: >-
     {
-      "coatjava":          { "fork": "JeffersonLab/coatjava",          "branch": "development" },
-      "clas12Tags":        { "fork": "gemc/clas12Tags",                "branch": "main"        },
-      "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "branch": "main"        },
-      "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "branch": "main"        }
+      "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "development" },
+      "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": "main"        },
+      "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "ref": "main"        },
+      "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "ref": "main"        }
     }
   # default versions of config files
   config_file_versions: >-
@@ -112,39 +112,39 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       fork_coatjava: ${{ steps.info.outputs.fork_coatjava }}
-      branch_coatjava: ${{ steps.info.outputs.branch_coatjava }}
+      ref_coatjava: ${{ steps.info.outputs.ref_coatjava }}
       fork_clas12tags: ${{ steps.info.outputs.fork_clas12tags }}
-      branch_clas12tags: ${{ steps.info.outputs.branch_clas12tags }}
+      ref_clas12tags: ${{ steps.info.outputs.ref_clas12tags }}
       fork_clas12config: ${{ steps.info.outputs.fork_clas12config }}
-      branch_clas12config: ${{ steps.info.outputs.branch_clas12config }}
+      ref_clas12config: ${{ steps.info.outputs.ref_clas12config }}
       fork_clas12validation: ${{ steps.info.outputs.fork_clas12validation }}
-      branch_clas12validation: ${{ steps.info.outputs.branch_clas12validation }}
+      ref_clas12validation: ${{ steps.info.outputs.ref_clas12validation }}
     steps:
       - name: get dependency info
         id: info
         run: |
           echo '${{ env.git_upstream }}' > upstream.json
           echo '${{ inputs.git_upstream || env.git_upstream }}' > caller_overrides.json
-          echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.event.pull_request.head.repo.full_name || github.repository }}", "branch": "${{ github.head_ref || github.ref_name }}" }}' > source.json
+          echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.event.pull_request.head.repo.full_name || github.repository }}", "ref": "${{ github.head_ref || github.ref_name }}" }}' > source.json
           jq -sc add upstream.json caller_overrides.json source.json > deps.json
           echo fork_coatjava=$(jq -r '."coatjava".fork' deps.json) >> $GITHUB_OUTPUT
-          echo branch_coatjava=$(jq -r '."coatjava".branch' deps.json) >> $GITHUB_OUTPUT
+          echo ref_coatjava=$(jq -r '."coatjava".ref' deps.json) >> $GITHUB_OUTPUT
           echo fork_clas12tags=$(jq -r '."clas12Tags".fork' deps.json) >> $GITHUB_OUTPUT
-          echo branch_clas12tags=$(jq -r '."clas12Tags".branch' deps.json) >> $GITHUB_OUTPUT
+          echo ref_clas12tags=$(jq -r '."clas12Tags".ref' deps.json) >> $GITHUB_OUTPUT
           echo fork_clas12config=$(jq -r '."clas12-config".fork' deps.json) >> $GITHUB_OUTPUT
-          echo branch_clas12config=$(jq -r '."clas12-config".branch' deps.json) >> $GITHUB_OUTPUT
+          echo ref_clas12config=$(jq -r '."clas12-config".ref' deps.json) >> $GITHUB_OUTPUT
           echo fork_clas12validation=$(jq -r '."clas12-validation".fork' deps.json) >> $GITHUB_OUTPUT
-          echo branch_clas12validation=$(jq -r '."clas12-validation".branch' deps.json) >> $GITHUB_OUTPUT
+          echo ref_clas12validation=$(jq -r '."clas12-validation".ref' deps.json) >> $GITHUB_OUTPUT
       - name: dispatch summary
         run: |
           msg=$(echo '${{ github.event.pull_request.title || github.event.head_commit.message }}' | head -n1)
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '| --- | --- | --- |' >> $GITHUB_STEP_SUMMARY
           echo '| **Triggered By `${{ github.event_name }}`:** | <${{ github.event.pull_request.html_url || github.event.head_commit.url }}> | ' $msg ' |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`coatjava` Fork and Branch:** | `${{ steps.info.outputs.fork_coatjava }}` | [`${{ steps.info.outputs.branch_coatjava }}`](https://github.com/${{ steps.info.outputs.fork_coatjava }}/tree/${{ steps.info.outputs.branch_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`clas12Tags` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12tags }}` | [`${{ steps.info.outputs.branch_clas12tags }}`](https://github.com/${{ steps.info.outputs.fork_clas12tags }}/tree/${{ steps.info.outputs.branch_clas12tags }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`clas12-config` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.branch_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.branch_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
-          echo '| **`clas12-validation` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.branch_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.branch_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`coatjava` Fork and Branch:** | `${{ steps.info.outputs.fork_coatjava }}` | [`${{ steps.info.outputs.ref_coatjava }}`](https://github.com/${{ steps.info.outputs.fork_coatjava }}/tree/${{ steps.info.outputs.ref_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12Tags` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12tags }}` | [`${{ steps.info.outputs.ref_clas12tags }}`](https://github.com/${{ steps.info.outputs.fork_clas12tags }}/tree/${{ steps.info.outputs.ref_clas12tags }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12-config` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.ref_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.ref_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12-validation` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.ref_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.ref_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
 
   # build
@@ -165,7 +165,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_coatjava }}
-          ref: ${{ needs.dependency_info.outputs.branch_coatjava }}
+          ref: ${{ needs.dependency_info.outputs.ref_coatjava }}
           path: coatjava
           clean: false
           fetch-tags: true
@@ -193,7 +193,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
-          ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
           clean: false
           fetch-tags: true
           fetch-depth: 0
@@ -201,7 +201,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
-          ref: ${{ needs.dependency_info.outputs.branch_clas12tags }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12tags }}
           path: clas12Tags
           clean: false
           fetch-tags: true
@@ -239,7 +239,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
-          ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
           clean: false
           fetch-tags: true
           fetch-depth: 0
@@ -247,7 +247,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12config }}
-          ref: ${{ needs.dependency_info.outputs.branch_clas12config }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12config }}
           path: clas12-config
           clean: false
           fetch-tags: true
@@ -345,7 +345,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
-          ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
           clean: false
           fetch-tags: true
           fetch-depth: 0
@@ -401,7 +401,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
-          ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
           clean: false
           fetch-tags: true
           fetch-depth: 0
