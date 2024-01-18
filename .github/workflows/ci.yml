@@ -164,6 +164,9 @@ jobs:
           repository: ${{ needs.dependency_info.outputs.fork_coatjava }}
           ref: ${{ needs.dependency_info.outputs.branch_coatjava }}
           path: coatjava
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
       - name: build
         working-directory: coatjava
         run: ./build-coatjava.sh
@@ -188,12 +191,18 @@ jobs:
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
           ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
       - name: checkout clas12Tags
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
           ref: ${{ needs.dependency_info.outputs.branch_clas12tags }}
           path: clas12Tags
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
       - name: build
         uses: docker://jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
         with:
@@ -228,12 +237,18 @@ jobs:
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
           ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
       - name: checkout clas12-config
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12config }}
           ref: ${{ needs.dependency_info.outputs.branch_clas12config }}
           path: clas12-config
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
       - name: set number of events
         id: num_events
         run: |
@@ -328,6 +343,9 @@ jobs:
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
           ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
       - name: setup java
         uses: actions/setup-java@v3
         with:
@@ -384,6 +402,9 @@ jobs:
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
           ref: ${{ needs.dependency_info.outputs.branch_clas12validation }}
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
       - name: setup groovy
         uses: wtfjoke/setup-groovy@v1
         with:
