@@ -9,7 +9,7 @@ fi
 pushd $1
 
 source /app/localSetup.sh
-scons -j2 OPT=1
+scons -j4 OPT=1
 
 module switch gemc/5.3 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
 

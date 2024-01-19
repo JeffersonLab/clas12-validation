@@ -117,6 +117,7 @@ jobs:
       fork_clas12validation: ${{ steps.info.outputs.fork_clas12validation }}
       branch_clas12validation: ${{ steps.info.outputs.branch_clas12validation }}
     steps:
+      - run: nproc ############# TEST
       - name: get dependency info
         id: info
         run: |
@@ -174,7 +175,7 @@ jobs:
           fetch-depth: 0
       - name: build
         working-directory: coatjava
-        run: ./build-coatjava.sh
+        run: ./build-coatjava.sh #-T4 ###FIXME: needs https://github.com/JeffersonLab/coatjava/pull/172
       - name: tree
         run: tree
       - name: tar
