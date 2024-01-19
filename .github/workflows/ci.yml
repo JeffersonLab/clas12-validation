@@ -117,7 +117,6 @@ jobs:
       fork_clas12validation: ${{ steps.info.outputs.fork_clas12validation }}
       branch_clas12validation: ${{ steps.info.outputs.branch_clas12validation }}
     steps:
-      - run: nproc ############# TEST
       - name: get dependency info
         id: info
         run: |
