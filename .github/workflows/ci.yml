@@ -174,7 +174,7 @@ jobs:
           fetch-depth: 0
       - name: build
         working-directory: coatjava
-        run: ./build-coatjava.sh
+        run: ./build-coatjava.sh -T4
       - name: tree
         run: tree
       - name: tar
