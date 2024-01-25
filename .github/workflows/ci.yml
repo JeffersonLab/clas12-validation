@@ -399,7 +399,7 @@ jobs:
       - dependency_info
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix: ${{ fromJson(needs.config_files.outputs.matrix_full) }}
     steps:
       - name: checkout clas12-validation
