@@ -174,7 +174,7 @@ jobs:
           fetch-depth: 0
       - name: build
         working-directory: coatjava
-        run: ./build-coatjava.sh #-T4 ###FIXME: needs https://github.com/JeffersonLab/coatjava/pull/172
+        run: ./build-coatjava.sh -T4
       - name: tree
         run: tree
       - name: tar
