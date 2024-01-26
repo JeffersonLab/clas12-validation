@@ -360,15 +360,6 @@ jobs:
         uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: 4.x
-      # - name: download build
-      #   uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c
-      #   with:
-      #     action: actions/download-artifact@v4
-      #     with: |
-      #       pattern: build.*        # FIXME
-      #       merge-multiple: true
-      #     attempt_limit: 3
-      #     attempt_delay: 10000
       - name: download build
         uses: actions/download-artifact@v4
         with:
@@ -420,27 +411,10 @@ jobs:
         uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: 4.x
-      # - name: download evgen
-      #   uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c
-      #   with:
-      #     action: actions/download-artifact@v4
-      #     with: |
-      #       name: evgen.${{ matrix.evgen }}
-      #     attempt_limit: 3
-      #     attempt_delay: 10000
       - name: download evgen
         uses: actions/download-artifact@v4
         with:
           name: evgen.${{ matrix.evgen }}
-      # - name: download build
-      #   uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c
-      #   with:
-      #     action: actions/download-artifact@v4
-      #     with: |
-      #       pattern: build.*        # FIXME
-      #       merge-multiple: true
-      #     attempt_limit: 3
-      #     attempt_delay: 10000
       - name: download build
         uses: actions/download-artifact@v4
         with:
@@ -509,15 +483,6 @@ jobs:
       - config_files
     runs-on: ubuntu-latest
     steps:
-      # - name: download ana
-      #   uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c
-      #   with:
-      #     action: actions/download-artifact@v4
-      #     with: |
-      #       pattern: ana.*        # FIXME
-      #       merge-multiple: true
-      #     attempt_limit: 3
-      #     attempt_delay: 10000
       - name: download ana
         uses: actions/download-artifact@v4
         with:
