@@ -41,11 +41,11 @@ jobs:
           "coatjava": "10.0.0",
           "gemc":     "5.3"
         }
-      # use a specific fork and branch of certain repositories (JSON string):
+      # use a specific fork and ref (e.g., branch, commit, tag) of certain repositories (JSON string):
       git_upstream: >-
         {
-          "coatjava":      { "fork": "UserName/coatjava",          "branch": "feature-branch"   },
-          "clas12-config": { "fork": "JeffersonLab/clas12-config", "branch": "new-config-files" }
+          "coatjava":      { "fork": "UserName/coatjava",          "ref": "feature-branch"   },
+          "clas12-config": { "fork": "JeffersonLab/clas12-config", "ref": "new-config-files" }
         }
 ```
 
