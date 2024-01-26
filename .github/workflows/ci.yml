@@ -365,7 +365,7 @@ jobs:
         with:
           action: actions/download-artifact@v4
           with: |
-            pattern: build.*
+            pattern: 'build.*'
             merge-multiple: true
           attempt_limit: 3
           attempt_delay: 10000
@@ -428,7 +428,7 @@ jobs:
         with:
           action: actions/download-artifact@v4
           with: |
-            pattern: build.*
+            pattern: 'build.*'
             merge-multiple: true
           attempt_limit: 3
           attempt_delay: 10000
