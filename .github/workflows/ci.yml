@@ -60,7 +60,7 @@ env:
   git_upstream: >-
     {
       "coatjava":          { "fork": "JeffersonLab/coatjava",          "branch": "development" },
-      "clas12Tags":        { "fork": "gemc/clas12Tags",                "branch": "8f9956678b44386d3df85d8d8df9d5002333a82b"        },
+      "clas12Tags":        { "fork": "gemc/clas12Tags",                "branch": "main"        },
       "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "branch": "main"        },
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "branch": "main"        }
     }
@@ -145,11 +145,6 @@ jobs:
           echo '| **`clas12-config` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.branch_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.branch_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| **`clas12-validation` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.branch_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.branch_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
-      # - name: disable workflow
-      #   run: |
-      #     echo "Subsequent jobs in this workflow are disabled until further notice."
-      #     echo "Until then, this workflow will now return 'failure' status."
-      #     exit 1
 
   # build
   #############################################################################
@@ -509,7 +504,3 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
           done
           echo '```' >> $GITHUB_STEP_SUMMARY
-      - name: force failure
-        run: |
-          echo "testing with an older clas12Tags; exiting now with failure"
-          exit 1
