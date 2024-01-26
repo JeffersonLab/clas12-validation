@@ -30,10 +30,9 @@ on:
   schedule:
     - cron: '33 8 * * *'
 
-### keep concurrency class disabled, so that callers can control it
-# concurrency:
-#   group: ${{ github.head_ref || github.run_id }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 defaults:
   run:
