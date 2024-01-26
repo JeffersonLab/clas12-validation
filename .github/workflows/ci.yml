@@ -159,7 +159,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: setup java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 11
           distribution: zulu
@@ -179,9 +179,9 @@ jobs:
         run: tree
       - name: tar
         run: tar cavf coatjava{.tar.zst,}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: build
+          name: build.coatjava
           retention-days: 1
           path: ./*.tar.zst
 
@@ -215,9 +215,9 @@ jobs:
           args: clas12Tags/source
       - name: tar
         run: tar cavf clas12Tags{.tar.zst,}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: build
+          name: build.gemc
           retention-days: 1
           path: ./*.tar.zst
 
@@ -324,9 +324,9 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
       - name: tar
         run: tar cavf clas12-config{.tar.zst,}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: build
+          name: build.config
           retention-days: 1
           path: ./*.tar.zst
 
@@ -352,20 +352,21 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: setup java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 11
           distribution: zulu
       - name: setup groovy
-        uses: wtfjoke/setup-groovy@v1
+        uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: 4.x
       - name: download build
-        uses: Wandalen/wretry.action@v1
+        uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c
         with:
-          action: actions/download-artifact@v3
+          action: actions/download-artifact@v4
           with: |
-            name: build
+            pattern: build.*
+            merge-multiple: true
           attempt_limit: 3
           attempt_delay: 10000
       - name: untar build
@@ -382,9 +383,9 @@ jobs:
         run: |
           ls -t *.txt
           mv -v $(ls -t *.txt | head -n1) evgen.${{ matrix.evgen }}.dat
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: evgen
+          name: evgen.${{ matrix.evgen }}
           retention-days: 1
           path: evgen.${{ matrix.evgen }}.dat
 
@@ -411,23 +412,24 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: setup groovy
-        uses: wtfjoke/setup-groovy@v1
+        uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: 4.x
       - name: download evgen
-        uses: Wandalen/wretry.action@v1
+        uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c
         with:
-          action: actions/download-artifact@v3
+          action: actions/download-artifact@v4
           with: |
-            name: evgen
+            name: evgen.${{ matrix.evgen }}
           attempt_limit: 3
           attempt_delay: 10000
       - name: download build
-        uses: Wandalen/wretry.action@v1
+        uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c
         with:
-          action: actions/download-artifact@v3
+          action: actions/download-artifact@v4
           with: |
-            name: build
+            pattern: build.*
+            merge-multiple: true
           attempt_limit: 3
           attempt_delay: 10000
       - name: tree
@@ -468,19 +470,19 @@ jobs:
           [[ "${{ matrix.evgen }}" =~ FT ]] && bankName="RECFT::Particle"
           echo "bankName = $bankName"
           coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy ${{ steps.files.outputs.recFile }} ${{ steps.files.outputs.anaFile }} $bankName
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: sim
+          name: sim.${{ matrix.evgen }}.${{ matrix.config }}
           retention-days: 3
           path: sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: rec
+          name: rec.${{ matrix.evgen }}.${{ matrix.config }}
           retention-days: 3
           path: rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: ana
+          name: ana.${{ matrix.evgen }}.${{ matrix.config }}
           retention-days: 3
           path: ana.${{ matrix.evgen }}.${{ matrix.config }}.txt
 
@@ -494,11 +496,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download ana
-        uses: Wandalen/wretry.action@v1
+        uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c
         with:
-          action: actions/download-artifact@v3
+          action: actions/download-artifact@v4
           with: |
-            name: ana
+            pattern: ana.*
+            merge-multiple: true
           attempt_limit: 3
           attempt_delay: 10000
       - name: read multiplicity
