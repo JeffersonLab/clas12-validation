@@ -30,10 +30,12 @@ on:
   schedule:
     - cron: '33 8 * * *'
 
-### keep concurrency class disabled, so that callers can control it
-# concurrency:
-#   group: ${{ github.head_ref || github.run_id }}
-#   cancel-in-progress: true
+# apply cancel-in-progress to:
+# - `pull_request` triggers from the same `head_ref` (PR feature branch) and caller repo (set by `repository_id`)
+# - all other triggers: allow only the most recent of its trigger type (set by `event_name`, e.g., `push`) and caller repo
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.event_name }}-${{ github.repository_id }}
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -143,11 +145,6 @@ jobs:
           echo '| **`clas12-config` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.branch_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.branch_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| **`clas12-validation` Fork and Branch:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.branch_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.branch_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
-      - name: disable workflow
-        run: |
-          echo "Subsequent jobs in this workflow are disabled until further notice."
-          echo "Until then, this workflow will now return 'failure' status."
-          exit 1
 
   # build
   #############################################################################
@@ -159,7 +156,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: setup java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 11
           distribution: zulu
@@ -179,9 +176,9 @@ jobs:
         run: tree
       - name: tar
         run: tar cavf coatjava{.tar.zst,}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: build
+          name: build.coatjava
           retention-days: 1
           path: ./*.tar.zst
 
@@ -215,9 +212,9 @@ jobs:
           args: clas12Tags/source
       - name: tar
         run: tar cavf clas12Tags{.tar.zst,}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: build
+          name: build.gemc
           retention-days: 1
           path: ./*.tar.zst
 
@@ -324,9 +321,9 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
       - name: tar
         run: tar cavf clas12-config{.tar.zst,}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: build
+          name: build.config
           retention-days: 1
           path: ./*.tar.zst
 
@@ -352,22 +349,19 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: setup java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 11
           distribution: zulu
       - name: setup groovy
-        uses: wtfjoke/setup-groovy@v1
+        uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: 4.x
       - name: download build
-        uses: Wandalen/wretry.action@v1
+        uses: actions/download-artifact@v4
         with:
-          action: actions/download-artifact@v3
-          with: |
-            name: build
-          attempt_limit: 3
-          attempt_delay: 10000
+          pattern: build.*
+          merge-multiple: true
       - name: untar build
         run: ls *.tar.zst | xargs -I{} tar xavf {}
       - name: check if this configuration is known
@@ -382,9 +376,9 @@ jobs:
         run: |
           ls -t *.txt
           mv -v $(ls -t *.txt | head -n1) evgen.${{ matrix.evgen }}.dat
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: evgen
+          name: evgen.${{ matrix.evgen }}
           retention-days: 1
           path: evgen.${{ matrix.evgen }}.dat
 
@@ -411,25 +405,18 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: setup groovy
-        uses: wtfjoke/setup-groovy@v1
+        uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: 4.x
       - name: download evgen
-        uses: Wandalen/wretry.action@v1
+        uses: actions/download-artifact@v4
         with:
-          action: actions/download-artifact@v3
-          with: |
-            name: evgen
-          attempt_limit: 3
-          attempt_delay: 10000
+          name: evgen.${{ matrix.evgen }}
       - name: download build
-        uses: Wandalen/wretry.action@v1
+        uses: actions/download-artifact@v4
         with:
-          action: actions/download-artifact@v3
-          with: |
-            name: build
-          attempt_limit: 3
-          attempt_delay: 10000
+          pattern: build.*
+          merge-multiple: true
       - name: tree
         run: ls -lhR
       - name: untar build
@@ -468,19 +455,19 @@ jobs:
           [[ "${{ matrix.evgen }}" =~ FT ]] && bankName="RECFT::Particle"
           echo "bankName = $bankName"
           coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy ${{ steps.files.outputs.recFile }} ${{ steps.files.outputs.anaFile }} $bankName
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: sim
+          name: sim.${{ matrix.evgen }}.${{ matrix.config }}
           retention-days: 3
           path: sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: rec
+          name: rec.${{ matrix.evgen }}.${{ matrix.config }}
           retention-days: 3
           path: rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: ana
+          name: ana.${{ matrix.evgen }}.${{ matrix.config }}
           retention-days: 3
           path: ana.${{ matrix.evgen }}.${{ matrix.config }}.txt
 
@@ -494,13 +481,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download ana
-        uses: Wandalen/wretry.action@v1
+        uses: actions/download-artifact@v4
         with:
-          action: actions/download-artifact@v3
-          with: |
-            name: ana
-          attempt_limit: 3
-          attempt_delay: 10000
+          pattern: ana.*
+          merge-multiple: true
       - name: read multiplicity
         run: |
           echo "# Multiplicity Report" >> $GITHUB_STEP_SUMMARY
