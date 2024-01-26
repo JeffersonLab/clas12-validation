@@ -33,7 +33,6 @@ on:
 # apply cancel-in-progress to:
 # - `pull_request` triggers from the same `head_ref` (PR feature branch) and caller repo
 # - all other triggers: allow only the most recent of its type (set by `event_name`) and caller repo (set by `repository_id`)
-#   - the downside of doing this is that `cancel-in-progress` applies to caller's trunk branch pushes
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.event_name }}-${{ github.repository_id }}
   cancel-in-progress: true
