@@ -12,7 +12,7 @@ simFile=$3
 
 source /app/localSetup.sh
 
-module switch gemc/5.5 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
+module switch gemc/5.4 # for dependency files ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
 
 clas12Tags/source/gemc \
   $gemcConfigFile \
