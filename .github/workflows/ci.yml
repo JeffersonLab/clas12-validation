@@ -2,6 +2,11 @@ name: Validation
 
 on:
   workflow_dispatch:
+    inputs:
+      num_events:
+        description: 'number of events (keep it small, since 1000 will take around 6 hours)'
+        required: false
+        type: string
   workflow_call:
     inputs:
       num_events:
