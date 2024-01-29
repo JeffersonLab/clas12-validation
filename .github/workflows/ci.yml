@@ -135,7 +135,10 @@ jobs:
           echo fork_coatjava=$(jq -r '."coatjava".fork' deps.json) >> $GITHUB_OUTPUT
           echo ref_coatjava=$(jq -r '."coatjava".ref' deps.json) >> $GITHUB_OUTPUT
           echo fork_clas12tags=$(jq -r '."clas12Tags".fork' deps.json) >> $GITHUB_OUTPUT
-          echo ref_clas12tags=$(jq -r '."clas12Tags".ref' deps.json) >> $GITHUB_OUTPUT
+          # FIXME FIXME FIXME #####################
+          # echo ref_clas12tags=$(jq -r '."clas12Tags".ref' deps.json) >> $GITHUB_OUTPUT
+          echo ref_clas12tags=5.4 >> $GITHUB_OUTPUT
+          # FIXME FIXME FIXME #####################
           echo fork_clas12config=$(jq -r '."clas12-config".fork' deps.json) >> $GITHUB_OUTPUT
           echo ref_clas12config=$(jq -r '."clas12-config".ref' deps.json) >> $GITHUB_OUTPUT
           echo fork_clas12validation=$(jq -r '."clas12-validation".fork' deps.json) >> $GITHUB_OUTPUT
