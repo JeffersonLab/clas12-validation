@@ -134,10 +134,10 @@ jobs:
           echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.event.pull_request.head.repo.full_name || github.repository }}", "ref": "${{ github.head_ref || github.ref_name }}" }}' > source.json
           jq -sc add upstream.json caller_overrides.json source.json > deps.json
           ### get fork names and refs
-          echo fork_coatjava=$(jq -r '."coatjava".fork' deps.json)
-          echo fork_clas12tags=$(jq -r '."clas12Tags".fork' deps.json)
-          echo fork_clas12config=$(jq -r '."clas12-config".fork' deps.json)
-          echo fork_clas12validation=$(jq -r '."clas12-validation".fork' deps.json)
+          fork_coatjava=$(jq -r '."coatjava".fork' deps.json)
+          fork_clas12tags=$(jq -r '."clas12Tags".fork' deps.json)
+          fork_clas12config=$(jq -r '."clas12-config".fork' deps.json)
+          fork_clas12validation=$(jq -r '."clas12-validation".fork' deps.json)
           ref_coatjava=$(jq -r '."coatjava".ref' deps.json)
           ref_clas12tags=$(jq -r '."clas12Tags".ref' deps.json)
           ref_clas12config=$(jq -r '."clas12-config".ref' deps.json)
