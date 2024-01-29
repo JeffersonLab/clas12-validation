@@ -2,12 +2,29 @@
 # gets the tag with the highest semver number
 # - "highest" is preferred over "latest", because of backports to old tags may
 #   cause them to be "later" than "higher" tags
-# - must be executed in a directory containing `.git/`
-# - while this script may not be used in this repository, it may be used by caller workflows
 
-tag_list = `git tag --list`.split.map{ |tag|
+if ARGV.empty?
+  $stderr.puts "USAGE: #{$0} [repo owner]/[repo name]"
+  exit 2
+end
+repo = ARGV[0]
+
+api_args = [
+  '--silent',
+  '-L',
+  '-H "Accept: application/vnd.github+json"',
+  '-H "X-GitHub-Api-Version: 2022-11-28"',
+  "https://api.github.com/repos/#{repo}/tags",
+]
+tag_list_unsorted = `curl #{api_args.join ' '} | jq -r '.[].name'`
+unless $?.success?
+  $stderr.puts "ERROR: failed to get highest tag from repository '#{repo}'"
+  exit 1
+end
+
+tag_list = tag_list_unsorted.split.map{ |tag|
   begin
-    Gem::Version.new tag
+    Gem::Version.new tag.gsub(/^v/,'')
   rescue
     nil
   end
