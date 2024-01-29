@@ -215,7 +215,7 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
-        uses: docker://jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
+        uses: docker://jeffersonlab/gemc:4.4.2-5.4-5.5-fedora36 ##### FIXME: need `latest` tag
         with:
           entrypoint: bin/ci_build_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
           args: clas12Tags/source
@@ -444,7 +444,7 @@ jobs:
           ls ${{ steps.files.outputs.gemcConfigFile }}
           ls ${{ steps.files.outputs.coatjavaConfigFile }}
       - name: simulation
-        uses: docker://jeffersonlab/gemc:4.4.2-5.1-5.2-5.3-fedora36-cvmfs ##### FIXME: need `latest` tag
+        uses: docker://jeffersonlab/gemc:4.4.2-5.4-5.5-fedora36 ##### FIXME: need `latest` tag
         with:
           entrypoint: bin/ci_sim.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
           args: ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
