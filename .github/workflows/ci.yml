@@ -62,11 +62,11 @@ env:
       "eFT_K",
       "e_gFT"
     ]
-  # default forks and branches
+  # default forks and branches; if `ref` is an empty string, the highest semver tag will be used
   git_upstream: >-
     {
-      "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "" },
-      "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": ""        },
+      "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "development" },
+      "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": ""            },
       "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "ref": "main"        },
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "ref": "main"        }
     }
