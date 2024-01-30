@@ -41,7 +41,9 @@ case $cmd in
 esac
 
 ### source environment, and show available modules
+set +u
 source /app/localSetup.sh
+set -u
 echo "=============================="
 echo "MODULE AVAIL"
 echo "=============================="
