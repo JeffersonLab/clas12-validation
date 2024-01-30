@@ -75,6 +75,5 @@ case $cmd in
     ### print build info
     echo "### GEMC Build Information:"
     $sourceDir/gemc -USE_GUI=0
-    popd
     ;;
 esac
