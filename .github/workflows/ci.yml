@@ -231,7 +231,7 @@ jobs:
         uses: docker://jeffersonlab/gemc:4.4.2-5.4-5.5-fedora36 ##### FIXME: need `latest` tag
         with:
           entrypoint: bin/ci_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
-          args: clas12Tags/source
+          args: build clas12Tags/source
       - name: tar
         run: tar cavf clas12Tags{.tar.zst,}
       - uses: actions/upload-artifact@v4
@@ -460,7 +460,7 @@ jobs:
         uses: docker://jeffersonlab/gemc:4.4.2-5.4-5.5-fedora36 ##### FIXME: need `latest` tag
         with:
           entrypoint: bin/ci_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
-          args: clas12Tags/source ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
+          args: sim clas12Tags/source ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       - name: reconstruction
