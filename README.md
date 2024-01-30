@@ -41,7 +41,8 @@ jobs:
           "coatjava": "10.0.0",
           "gemc":     "5.3"
         }
-      # use a specific fork and ref (e.g., branch, commit, tag) of certain repositories (JSON string):
+      # use a specific fork and ref (e.g., branch, commit, tag) of certain repositories (JSON string);
+      # if 'ref' is an empty string, the highest semantic-versioned tag will be used
       git_upstream: >-
         {
           "coatjava":      { "fork": "UserName/coatjava",          "ref": "feature-branch"   },
