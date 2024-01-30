@@ -59,7 +59,7 @@ fi
 
 ### to get the dependencies correct, switch to this tag
 ##### FIXME: switch to gemc/dev and use ubuntu + cvmfs action
-module switch gemc/5.6
+module switch gemc/5.5
 
 ### run a simulation or print build info
 case $cmd in
