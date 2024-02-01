@@ -66,7 +66,7 @@ env:
   git_upstream: >-
     {
       "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "development" },
-      "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": "5.4"         },
+      "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": ""            },
       "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "ref": "main"        },
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "ref": "main"        }
     }
@@ -228,9 +228,9 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
-        uses: docker://jeffersonlab/gemc:4.4.2-5.4-5.5-fedora36 ##### FIXME: need `latest` tag
+        uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
-          entrypoint: bin/ci_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
+          entrypoint: bin/ci_gemc.sh
           args: build clas12Tags/source
       - name: tar
         run: tar cavf clas12Tags{.tar.zst,}
@@ -457,9 +457,9 @@ jobs:
           ls ${{ steps.files.outputs.gemcConfigFile }}
           ls ${{ steps.files.outputs.coatjavaConfigFile }}
       - name: simulation
-        uses: docker://jeffersonlab/gemc:4.4.2-5.4-5.5-fedora36 ##### FIXME: need `latest` tag
+        uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
-          entrypoint: bin/ci_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
+          entrypoint: bin/ci_gemc.sh
           args: sim clas12Tags/source ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
