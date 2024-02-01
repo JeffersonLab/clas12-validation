@@ -107,12 +107,12 @@ jobs:
         uses: skitionek/notify-microsoft-teams@v1.0.8
         with:
           webhook_url: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-          raw: >-
-            {
-              "@type": "MessageCard",
-              "@context": "https://github.com/JeffersonLab/clas12-validation",
-              "title": "beep boop this is a test"
-            }
+          # raw: >-
+          #   {
+          #     "@type": "MessageCard",
+          #     "@context": "https://github.com/JeffersonLab/clas12-validation",
+          #     "title": "beep boop this is a test"
+          #   }
 
   # context dump
   #############################################################################
