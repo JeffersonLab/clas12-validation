@@ -173,7 +173,10 @@ jobs:
           ### if the caller repo is `clas12Tags`, we want to locally build GEMC; if not, use the container version
           caller_repo=$(echo "${{ github.repository }}" | sed 's;^.*/;;g')
           echo "caller_repo = $caller_repo"
-          [ "$caller_repo" = "clas12Tags" ] && gemc_executable=clas12Tags/source/gemc || gemc_executable=gemc
+          gemc_executable=gemc
+          if [ "$caller_repo" = "clas12Tags" ]; then
+            gemc_executable=clas12Tags/source/gemc
+          fi
           echo gemc_executable=$gemc_executable >> GITHUB_OUTPUT
       - name: dispatch summary
         run: |
