@@ -124,6 +124,8 @@ jobs:
       ref_clas12config: ${{ steps.info.outputs.ref_clas12config }}
       fork_clas12validation: ${{ steps.info.outputs.fork_clas12validation }}
       ref_clas12validation: ${{ steps.info.outputs.ref_clas12validation }}
+      gemc_module_tag: ${{ steps.gemc_module_tag.outputs.gemc_module_tag }}
+      gemc_executable: ${{ steps.gemc_executable.outputs.gemc_executable }}
     steps:
       - uses: actions/checkout@v4
       - name: get dependency info
@@ -156,6 +158,21 @@ jobs:
           echo ref_clas12tags=$ref_clas12tags >> $GITHUB_OUTPUT
           echo ref_clas12config=$ref_clas12config >> $GITHUB_OUTPUT
           echo ref_clas12validation=$ref_clas12validation >> $GITHUB_OUTPUT
+      - name: set GEMC module tag
+        id: gemc_module_tag
+        run: |
+          ### if `ref_clas12tags` is a tag, use that; otherwise use the highest semver tag
+          ### FIXME probably won't work for triggers from backports to old `clas12Tags` tags
+          gemc_module_tag=${{ steps.info.outputs.ref_clas12tags }}
+          repo=${{ steps.info.outputs.fork_clas12tags }}
+          bin/is_a_tag.rb $gemc_module_tag $repo || gemc_module_tag=$(bin/get_highest_tag.rb $repo)
+          echo gemc_module_tag=$gemc_module_tag >> $GITHUB_OUTPUT
+      - name: set GEMC executable
+        id: gemc_executable
+        run: |
+          ### if the caller repo is `clas12Tags`, we want to locally build GEMC; if not, use the container version
+          [ "${{ github.repository.name }}" = "clas12Tags" ] gemc_executable=clas12Tags/source/gemc || gemc_executable=gemc
+          echo gemc_executable=$gemc_executable >> GITHUB_OUTPUT
       - name: dispatch summary
         run: |
           msg=$(echo '${{ github.event.pull_request.title || github.event.head_commit.message }}' | head -n1)
@@ -167,6 +184,15 @@ jobs:
           echo '| **`clas12-config` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.ref_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.ref_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| **`clas12-validation` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.ref_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.ref_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo 'Using module `gemc/${{ steps.gemc_module_tag.outputs.gemc_module_tag }}`' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.gemc_executable.outputs.gemc_executable }}" = "gemc" ]; then
+            echo "- Using this GEMC module to run simulations" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- This module is just used for GEMC dependencies" >> $GITHUB_STEP_SUMMARY
+            echo "- Will use a local build of GEMC to run simulations" >> $GITHUB_STEP_SUMMARY
+          fi
 
   # build
   #############################################################################
@@ -205,6 +231,7 @@ jobs:
           path: ./*.tar.zst
 
   build_gemc:
+    if: ${{ github.repository.name == 'clas12Tags' }}
     name: Build GEMC
     needs:
       - dependency_info
@@ -230,8 +257,8 @@ jobs:
       - name: build
         uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
-          entrypoint: bin/ci_gemc.sh
-          args: build clas12Tags/source
+          entrypoint: bin/ci_gemc_build.sh
+          args: clas12Tags/source
       - name: tar
         run: tar cavf clas12Tags{.tar.zst,}
       - uses: actions/upload-artifact@v4
@@ -459,8 +486,8 @@ jobs:
       - name: simulation
         uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
-          entrypoint: bin/ci_gemc.sh
-          args: sim clas12Tags/source ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
+          entrypoint: bin/ci_gemc_run.sh
+          args: ${{ needs.dependency_info.outputs.gemc_executable }} ${{ needs.dependency_info.outputs.gemc_module_tag }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       - name: reconstruction
