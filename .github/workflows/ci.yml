@@ -230,12 +230,12 @@ jobs:
 
   build_gemc:
     name: Build GEMC
+    if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
     needs:
       - dependency_info
     runs-on: ubuntu-latest
     steps:
       - name: checkout clas12-validation
-        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
@@ -244,7 +244,6 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: checkout clas12Tags
-        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
@@ -254,16 +253,13 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
-        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
           entrypoint: bin/ci_gemc_build.sh
           args: clas12Tags/source
       - name: tar
-        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         run: tar cavf clas12Tags{.tar.zst,}
       - uses: actions/upload-artifact@v4
-        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         with:
           name: build.gemc
           retention-days: 1
@@ -437,6 +433,7 @@ jobs:
   #############################################################################
   fulltest:
     name: Run
+    if: ${{ ! failure() && ! cancelled() }}
     needs:
       - event_generation
       - build_gemc
