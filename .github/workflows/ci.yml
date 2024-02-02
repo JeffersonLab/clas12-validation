@@ -105,10 +105,13 @@ jobs:
       issues: write
     steps:
       - uses: actions/checkout@v4
+      - uses: szenius/set-timezone@v1.2
+        with:
+          timezoneLinux: "America/New_York"
       - uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO_URL: ${{ github.repository.html_url }}
+          REPO_URL: ${{ github.event.repository.html_url }}
           RUN_ID: ${{ github.run_id }}
         with:
           filename: .github/nightly-issue.md
