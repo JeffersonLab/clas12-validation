@@ -186,13 +186,7 @@ jobs:
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '' >> $GITHUB_STEP_SUMMARY
           echo 'Using module `gemc/${{ steps.gemc_module_tag.outputs.gemc_module_tag }}`' >> $GITHUB_STEP_SUMMARY
-          echo '' >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.gemc_executable.outputs.gemc_executable }}" = "gemc" ]; then
-            echo "- Using this GEMC module to run simulations" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- This module is just used to resolve GEMC dependencies" >> $GITHUB_STEP_SUMMARY
-            echo "- Will use a local build of GEMC to run simulations" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo 'Using GEMC executable `${{ steps.gemc_executable.outputs.gemc_executable }}`' >> $GITHUB_STEP_SUMMARY
 
   # build
   #############################################################################
