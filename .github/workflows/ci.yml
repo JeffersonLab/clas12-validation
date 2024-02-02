@@ -150,10 +150,10 @@ jobs:
           ref_clas12config=$(jq -r '."clas12-config".ref' deps.json)
           ref_clas12validation=$(jq -r '."clas12-validation".ref' deps.json)
           ### if any ref names are empty strings, use the highest tag instead
-          [ "$ref_coatjava" = "" ] && ref_coatjava=$(bin/get_highest_tag.rb $fork_coatjava)
-          [ "$ref_clas12tags" = "" ] && ref_clas12tags=$(bin/get_highest_tag.rb $fork_clas12tags)
-          [ "$ref_clas12config" = "" ] && ref_clas12config=$(bin/get_highest_tag.rb $fork_clas12config)
-          [ "$ref_clas12validation" = "" ] && ref_clas12validation=$(bin/get_highest_tag.rb $fork_clas12validation)
+          [ "$ref_coatjava" = "" ] && ref_coatjava=$(bin/get_highest_tag.rb JeffersonLab/coatjava)
+          [ "$ref_clas12tags" = "" ] && ref_clas12tags=$(bin/get_highest_tag.rb gemc/clas12Tags)
+          [ "$ref_clas12config" = "" ] && ref_clas12config=$(bin/get_highest_tag.rb JeffersonLab/clas12-config)
+          [ "$ref_clas12validation" = "" ] && ref_clas12validation=$(bin/get_highest_tag.rb JeffersonLab/clas12-validation)
           ### set output vars
           echo fork_coatjava=$fork_coatjava >> $GITHUB_OUTPUT
           echo fork_clas12tags=$fork_clas12tags >> $GITHUB_OUTPUT
@@ -169,7 +169,7 @@ jobs:
           ### if `ref_clas12tags` is a tag, use that; otherwise use the highest semver tag
           ### FIXME probably won't work for triggers from backports to old `clas12Tags` tags
           gemc_module_tag=${{ steps.info.outputs.ref_clas12tags }}
-          repo=${{ steps.info.outputs.fork_clas12tags }}
+          repo=gemc/clas12Tags
           bin/is_a_tag.rb $gemc_module_tag $repo || gemc_module_tag=$(bin/get_highest_tag.rb $repo)
           echo gemc_module_tag=$gemc_module_tag >> $GITHUB_OUTPUT
       - name: set GEMC executable

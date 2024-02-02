@@ -16,7 +16,7 @@ api_args = [
 ]
 tag_list = `curl #{api_args.join ' '} | jq -r '.[].name'`
 unless $?.success?
-  $stderr.puts "ERROR: failed to get highest tag from repository '#{repo}'"
+  $stderr.puts "ERROR: failed to get list of tags from #{repo}"
   exit 1
 end
 
