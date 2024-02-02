@@ -188,7 +188,7 @@ jobs:
           echo '| **`clas12-validation` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.ref_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.ref_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '' >> $GITHUB_STEP_SUMMARY
-          echo '- Caller repository: `${{ steps.gemc_module_tag.outputs.caller_repo }}`' >> $GITHUB_STEP_SUMMARY
+          echo '- Caller repository: `${{ steps.gemc_executable.outputs.caller_repo }}`' >> $GITHUB_STEP_SUMMARY
           echo '- GEMC module: `gemc/${{ steps.gemc_module_tag.outputs.gemc_module_tag }}`' >> $GITHUB_STEP_SUMMARY
           echo '- GEMC executable: `${{ steps.gemc_executable.outputs.gemc_executable }}`' >> $GITHUB_STEP_SUMMARY
 
@@ -229,13 +229,13 @@ jobs:
           path: ./*.tar.zst
 
   build_gemc:
-    if: ${{ github.repository.name == 'clas12Tags' }}
     name: Build GEMC
     needs:
       - dependency_info
     runs-on: ubuntu-latest
     steps:
       - name: checkout clas12-validation
+        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
@@ -244,6 +244,7 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: checkout clas12Tags
+        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
@@ -253,13 +254,16 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
+        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
           entrypoint: bin/ci_gemc_build.sh
           args: clas12Tags/source
       - name: tar
+        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         run: tar cavf clas12Tags{.tar.zst,}
       - uses: actions/upload-artifact@v4
+        if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }}
         with:
           name: build.gemc
           retention-days: 1
