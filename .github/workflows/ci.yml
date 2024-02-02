@@ -105,9 +105,6 @@ jobs:
       issues: write
     steps:
       - uses: actions/checkout@v4
-      - uses: szenius/set-timezone@v1.2
-        with:
-          timezoneLinux: "America/New_York"
       - uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,5 @@
 ---
-title: Test issue bot on {{ date | date('dddd, MMMM Do, [at] LT') }}
+title: Test issue bot on {{ date | tz('America/New_York') | date('dddd, MMMM Do, [at] LT') }}
 ---
 This is a test, ignore this issue.
 
