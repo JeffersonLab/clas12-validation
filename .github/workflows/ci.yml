@@ -433,7 +433,7 @@ jobs:
   #############################################################################
   fulltest:
     name: Run
-    if: ${{ ! failure() && ! cancelled() }}
+    if: ${{ ! failure() && ! cancelled() }} # needed since `build_gemc` may be skipped
     needs:
       - event_generation
       - build_gemc
