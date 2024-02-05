@@ -66,7 +66,7 @@ env:
   git_upstream: >-
     {
       "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "development" },
-      "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": "5.4"         },
+      "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": ""            },
       "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "ref": "main"        },
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "ref": "main"        }
     }
@@ -124,8 +124,15 @@ jobs:
       ref_clas12config: ${{ steps.info.outputs.ref_clas12config }}
       fork_clas12validation: ${{ steps.info.outputs.fork_clas12validation }}
       ref_clas12validation: ${{ steps.info.outputs.ref_clas12validation }}
+      gemc_module_tag: ${{ steps.gemc_module_tag.outputs.gemc_module_tag }}
+      gemc_executable: ${{ steps.gemc_executable.outputs.gemc_executable }}
+      caller_repo: ${{ steps.gemc_executable.outputs.caller_repo }}
     steps:
-      - uses: actions/checkout@v4
+      - name: checkout clas12-validation
+        uses: actions/checkout@v4
+        with:
+          repository: JeffersonLab/clas12-validation
+          # ref: feature-branch # NOTE: if making a clas12-validation change that impacts this job, temporarily set the corresponding ref here
       - name: get dependency info
         id: info
         run: |
@@ -143,10 +150,10 @@ jobs:
           ref_clas12config=$(jq -r '."clas12-config".ref' deps.json)
           ref_clas12validation=$(jq -r '."clas12-validation".ref' deps.json)
           ### if any ref names are empty strings, use the highest tag instead
-          [ "$ref_coatjava" = "" ] && ref_coatjava=$(bin/get_highest_tag.rb $fork_coatjava)
-          [ "$ref_clas12tags" = "" ] && ref_clas12tags=$(bin/get_highest_tag.rb $fork_clas12tags)
-          [ "$ref_clas12config" = "" ] && ref_clas12config=$(bin/get_highest_tag.rb $fork_clas12config)
-          [ "$ref_clas12validation" = "" ] && ref_clas12validation=$(bin/get_highest_tag.rb $fork_clas12validation)
+          [ "$ref_coatjava" = "" ] && ref_coatjava=$(bin/get_highest_tag.rb JeffersonLab/coatjava) # NOTE: using the main forks here, since they have the semver tags
+          [ "$ref_clas12tags" = "" ] && ref_clas12tags=$(bin/get_highest_tag.rb gemc/clas12Tags)
+          [ "$ref_clas12config" = "" ] && ref_clas12config=$(bin/get_highest_tag.rb JeffersonLab/clas12-config)
+          [ "$ref_clas12validation" = "" ] && ref_clas12validation=$(bin/get_highest_tag.rb JeffersonLab/clas12-validation)
           ### set output vars
           echo fork_coatjava=$fork_coatjava >> $GITHUB_OUTPUT
           echo fork_clas12tags=$fork_clas12tags >> $GITHUB_OUTPUT
@@ -156,6 +163,23 @@ jobs:
           echo ref_clas12tags=$ref_clas12tags >> $GITHUB_OUTPUT
           echo ref_clas12config=$ref_clas12config >> $GITHUB_OUTPUT
           echo ref_clas12validation=$ref_clas12validation >> $GITHUB_OUTPUT
+      - name: set GEMC module tag
+        id: gemc_module_tag
+        run: |
+          ### if `ref_clas12tags` is a tag, use that; otherwise use the highest semver tag
+          ### FIXME probably won't work for triggers from backports to old `clas12Tags` tags
+          gemc_module_tag=${{ steps.info.outputs.ref_clas12tags }}
+          repo=gemc/clas12Tags
+          bin/is_a_tag.rb $gemc_module_tag $repo || gemc_module_tag=$(bin/get_highest_tag.rb $repo)
+          echo gemc_module_tag=$gemc_module_tag >> $GITHUB_OUTPUT
+      - name: set GEMC executable
+        id: gemc_executable
+        run: |
+          ### if the caller repo is `clas12Tags`, we want to locally build GEMC; if not, use the container version
+          caller_repo=$(echo "${{ github.repository }}" | sed 's;^.*/;;g')
+          [ "$caller_repo" = "clas12Tags" ] && gemc_executable=./clas12Tags/source/gemc || gemc_executable=gemc
+          echo gemc_executable=$gemc_executable >> $GITHUB_OUTPUT
+          echo caller_repo=$caller_repo >> $GITHUB_OUTPUT
       - name: dispatch summary
         run: |
           msg=$(echo '${{ github.event.pull_request.title || github.event.head_commit.message }}' | head -n1)
@@ -167,6 +191,10 @@ jobs:
           echo '| **`clas12-config` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.ref_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.ref_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| **`clas12-validation` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.ref_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.ref_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '- Caller repository: `${{ steps.gemc_executable.outputs.caller_repo }}`' >> $GITHUB_STEP_SUMMARY
+          echo '- GEMC module: `gemc/${{ steps.gemc_module_tag.outputs.gemc_module_tag }}`' >> $GITHUB_STEP_SUMMARY
+          echo '- GEMC executable: `${{ steps.gemc_executable.outputs.gemc_executable }}`' >> $GITHUB_STEP_SUMMARY
 
   # build
   #############################################################################
@@ -206,6 +234,7 @@ jobs:
 
   build_gemc:
     name: Build GEMC
+    if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }} # only build GEMC if triggered by GEMC/clas12Tags
     needs:
       - dependency_info
     runs-on: ubuntu-latest
@@ -228,10 +257,10 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
-        uses: docker://jeffersonlab/gemc:4.4.2-5.4-5.5-fedora36 ##### FIXME: need `latest` tag
+        uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
-          entrypoint: bin/ci_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
-          args: build clas12Tags/source
+          entrypoint: bin/ci_gemc_build.sh
+          args: clas12Tags/source
       - name: tar
         run: tar cavf clas12Tags{.tar.zst,}
       - uses: actions/upload-artifact@v4
@@ -408,6 +437,7 @@ jobs:
   #############################################################################
   fulltest:
     name: Run
+    if: ${{ ! failure() && ! cancelled() }} # needed since `build_gemc` may be skipped
     needs:
       - event_generation
       - build_gemc
@@ -457,10 +487,10 @@ jobs:
           ls ${{ steps.files.outputs.gemcConfigFile }}
           ls ${{ steps.files.outputs.coatjavaConfigFile }}
       - name: simulation
-        uses: docker://jeffersonlab/gemc:4.4.2-5.4-5.5-fedora36 ##### FIXME: need `latest` tag
+        uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
-          entrypoint: bin/ci_gemc.sh ##### FIXME (in the script): switch to gemc/dev and use ubuntu + cvmfs action
-          args: sim clas12Tags/source ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
+          entrypoint: bin/ci_gemc_run.sh
+          args: ${{ needs.dependency_info.outputs.gemc_executable }} ${{ needs.dependency_info.outputs.gemc_module_tag }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       - name: reconstruction
@@ -497,6 +527,7 @@ jobs:
   #############################################################################
   final:
     name: Final
+    if: ${{ ! failure() && ! cancelled() }} # needed since `build_gemc` may be skipped
     needs:
       - fulltest
       - config_files
@@ -529,13 +560,13 @@ jobs:
 
   issue_bot:
     name: Issue bot
+    if: ${{ github.event_name == 'schedule' && ( cancelled() || failure() ) }}
     runs-on: ubuntu-latest
     needs:
       - final
     permissions:
       contents: read
       issues: write
-    if: ${{ github.event_name == 'schedule' && ( cancelled() || failure() ) }}
     steps:
       - uses: actions/checkout@v4
       - uses: JasonEtco/create-an-issue@v2
