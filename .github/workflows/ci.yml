@@ -224,9 +224,7 @@ jobs:
         with:
           attempt_limit: 3
           attempt_delay: 10000
-          command: |
-            cd coatjava
-            ./build-coatjava.sh -T4
+          command: cd coatjava && build-coatjava.sh -T4
       - name: tree
         run: tree
       - name: tar
