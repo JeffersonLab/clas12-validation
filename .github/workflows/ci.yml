@@ -132,7 +132,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: JeffersonLab/clas12-validation
-          ref: gemc-5.6 ### FIXME ### FIXME ### FIXME ### FIXME ### FIXME ### FIXME ### FIXME ### FIXME ### FIXME ### FIXME remove this ref!
+          # ref: feature-branch # NOTE: if making a clas12-validation change that impacts this job, temporarily set the corresponding ref here
       - name: get dependency info
         id: info
         run: |
@@ -150,7 +150,7 @@ jobs:
           ref_clas12config=$(jq -r '."clas12-config".ref' deps.json)
           ref_clas12validation=$(jq -r '."clas12-validation".ref' deps.json)
           ### if any ref names are empty strings, use the highest tag instead
-          [ "$ref_coatjava" = "" ] && ref_coatjava=$(bin/get_highest_tag.rb JeffersonLab/coatjava)
+          [ "$ref_coatjava" = "" ] && ref_coatjava=$(bin/get_highest_tag.rb JeffersonLab/coatjava) # NOTE: using the main forks here, since they have the semver tags
           [ "$ref_clas12tags" = "" ] && ref_clas12tags=$(bin/get_highest_tag.rb gemc/clas12Tags)
           [ "$ref_clas12config" = "" ] && ref_clas12config=$(bin/get_highest_tag.rb JeffersonLab/clas12-config)
           [ "$ref_clas12validation" = "" ] && ref_clas12validation=$(bin/get_highest_tag.rb JeffersonLab/clas12-validation)
