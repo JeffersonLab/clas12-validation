@@ -220,12 +220,13 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
-        # working-directory: coatjava
         uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # using wretry.action, to mitigate sporadic maven repo connection failures
         with:
-          command: ./build-coatjava.sh -T4
           attempt_limit: 3
           attempt_delay: 10000
+          command: |
+            cd coatjava
+            ./build-coatjava.sh -T4
       - name: tree
         run: tree
       - name: tar
