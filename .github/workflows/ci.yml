@@ -10,7 +10,7 @@ on:
   workflow_call:
     inputs:
       num_events:
-        description: 'override default number of events, both env.num_events_fast and env.num_events_full'
+        description: 'override default number of events'
         required: false
         type: string
       matrix_evgen:
@@ -33,8 +33,6 @@ on:
   push:
     branches: [ main ]
     tags: [ '*' ]
-  schedule:
-    - cron: '33 8 * * *'
 
 # apply cancel-in-progress to:
 # - `pull_request` triggers from the same `head_ref` (PR feature branch) and caller repo (set by `repository_id`)
@@ -48,9 +46,8 @@ defaults:
     shell: bash
 
 env:
-  # default number of events, for "fast" and "full" tests
-  num_events_fast: 10
-  num_events_full: 1000
+  # default number of events
+  num_events: 10
   # default event generation types to run; see below for all available types and their options
   matrix_evgen: >-
     [
@@ -308,11 +305,7 @@ jobs:
       - name: set number of events
         id: num_events
         run: |
-          num_events=${{ inputs.num_events || 0 }} # use custom number of events
-          if [ $num_events -eq 0 ] ; then
-            # use low stats by default, or high stats for nightly scheduled jobs
-            [ "${{ github.event_name }}" = "schedule" ] && num_events=${{ env.num_events_full }} || num_events=${{ env.num_events_fast }}
-          fi
+          num_events=${{ inputs.num_events || env.num_events }}
           echo num_events=$num_events >> $GITHUB_OUTPUT
           echo "### Number of Events:" >> $GITHUB_STEP_SUMMARY
           echo "$num_events" >> $GITHUB_STEP_SUMMARY
@@ -560,22 +553,3 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
           done
           echo '```' >> $GITHUB_STEP_SUMMARY
-
-  issue_bot:
-    name: Issue bot
-    if: ${{ github.event_name == 'schedule' && ( cancelled() || failure() ) }}
-    runs-on: ubuntu-latest
-    needs:
-      - final
-    permissions:
-      contents: read
-      issues: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO_URL: ${{ github.event.repository.html_url }}
-          RUN_ID: ${{ github.run_id }}
-        with:
-          filename: .github/nightly-issue.md
