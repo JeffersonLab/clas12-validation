@@ -125,6 +125,7 @@ jobs:
       gemc_executable: ${{ steps.gemc_executable.outputs.gemc_executable }}
       caller_repo: ${{ steps.gemc_executable.outputs.caller_repo }}
     steps:
+      - run: exit 1 # test issue bot response
       - name: checkout clas12-validation
         uses: actions/checkout@v4
         with:
