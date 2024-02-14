@@ -91,6 +91,10 @@ env:
       "eFT_p":  "-pid -2212 -ft",
       "eFT_K":  "-pid -321 -ft"
     }
+  # additional settings
+  java_version: 17
+  java_distribution: zulu
+  groovy_version: 4.x
 
 jobs:
 
@@ -205,8 +209,8 @@ jobs:
       - name: setup java
         uses: actions/setup-java@v4
         with:
-          java-version: 11
-          distribution: zulu
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
       - name: checkout coatjava
         uses: actions/checkout@v4
         with:
@@ -398,12 +402,12 @@ jobs:
       - name: setup java
         uses: actions/setup-java@v4
         with:
-          java-version: 11
-          distribution: zulu
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
       - name: setup groovy
         uses: wtfjoke/setup-groovy@v2
         with:
-          groovy-version: 4.x
+          groovy-version: ${{ env.groovy_version }}
       - name: download build
         uses: actions/download-artifact@v4
         with:
@@ -455,7 +459,7 @@ jobs:
       - name: setup groovy
         uses: wtfjoke/setup-groovy@v2
         with:
-          groovy-version: 4.x
+          groovy-version: ${{ env.groovy_version }}
       - name: download evgen
         uses: actions/download-artifact@v4
         with:
