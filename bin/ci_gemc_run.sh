@@ -22,10 +22,14 @@ echo "=============================="
 module avail --no-pager
 echo "=============================="
 
-### switch to the gemc module
-### - if we do not have a custom build, this activates the appropriate gemc version
-### - if we do have a custom build, this just makes sure the dependencies are resolved correctly
-module switch gemc/$gemcTag
+### switch the gemc module
+### - if we do not have a custom `gemc` build (e.g, from a `coatjava` trigger),
+###   this activates the version `$gemcTag`, which is likely the highest semver tag
+### - if we do have a custom `gemc` build (e.g., from a `clas12Tags` trigger),
+###   this just makes sure the dependencies are resolved correctly
+### - if this command fails, e.g. if `gemc/$gemcTag` module is not available, a
+###   warning is printed and we proceed with the default version in the container
+module switch gemc/$gemcTag || echo -e "\e[1;31m[WARNING]: proceeding with container's default GEMC version \e[0m" >&2
 
 ### run a simulation
 $gemcExe \
