@@ -29,7 +29,9 @@ echo "=============================="
 ###   this just makes sure the dependencies are resolved correctly
 ### - if this command fails, e.g. if `gemc/$gemcTag` module is not available, a
 ###   warning is printed and we proceed with the default version in the container
-module switch gemc/$gemcTag || echo -e "\e[1;31m[WARNING]: proceeding with container's default GEMC version \e[0m" >&2
+module test gemc/$gemcTag &&
+  module switch gemc/$gemcTag ||
+  echo -e "\e[1;31m[WARNING]: proceeding with container's default GEMC version \e[0m" >&2
 
 ### run a simulation
 $gemcExe \
