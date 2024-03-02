@@ -194,7 +194,7 @@ jobs:
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '' >> $GITHUB_STEP_SUMMARY
           echo '- Caller repository: `${{ steps.gemc_executable.outputs.caller_repo }}`' >> $GITHUB_STEP_SUMMARY
-          echo '- GEMC module: `gemc/${{ steps.gemc_module_tag.outputs.gemc_module_tag }}`' >> $GITHUB_STEP_SUMMARY
+          echo '- GEMC module: `gemc/${{ steps.gemc_module_tag.outputs.gemc_module_tag }}`, if available in container; if not, use the default version in the container (see "Run" jobs)' >> $GITHUB_STEP_SUMMARY
           echo '- GEMC executable: `${{ steps.gemc_executable.outputs.gemc_executable }}`' >> $GITHUB_STEP_SUMMARY
 
   # build
