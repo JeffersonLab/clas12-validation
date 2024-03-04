@@ -161,8 +161,9 @@ jobs:
           ### set number of events
           num_events=${{ inputs.num_events || env.num_events }}
           ### make cache key names
-          cache_key_coatjava=$(echo coatjava---${fork_coatjava}---${ref_coatjava} | sed 's;/;-;g')
-          cache_key_evgen=${cache_key_coatjava}---${num_events}events
+          key_coatjava=$(echo ${fork_coatjava}---${ref_coatjava} | sed 's;/;-;g')
+          cache_key_coatjava=coatjava---${key_coatjava}
+          cache_key_evgen=evgen---${key_coatjava}---${num_events}events
           ### set output vars
           echo fork_coatjava=$fork_coatjava >> $GITHUB_OUTPUT
           echo fork_clas12tags=$fork_clas12tags >> $GITHUB_OUTPUT
