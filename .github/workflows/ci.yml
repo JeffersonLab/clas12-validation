@@ -128,6 +128,9 @@ jobs:
       gemc_module_tag: ${{ steps.gemc_module_tag.outputs.gemc_module_tag }}
       gemc_executable: ${{ steps.gemc_executable.outputs.gemc_executable }}
       caller_repo: ${{ steps.gemc_executable.outputs.caller_repo }}
+      cache_key_coatjava: ${{ steps.info.outputs.cache_key_coatjava }}
+      cache_key_evgen: ${{ steps.info.outputs.cache_key_evgen }}
+      num_events: ${{ steps.info.outputs.num_events }}
     steps:
       - name: checkout clas12-validation
         uses: actions/checkout@v4
@@ -155,6 +158,11 @@ jobs:
           [ "$ref_clas12tags" = "" ] && ref_clas12tags=$(bin/get_highest_tag.rb gemc/clas12Tags)
           [ "$ref_clas12config" = "" ] && ref_clas12config=$(bin/get_highest_tag.rb JeffersonLab/clas12-config)
           [ "$ref_clas12validation" = "" ] && ref_clas12validation=$(bin/get_highest_tag.rb JeffersonLab/clas12-validation)
+          ### set number of events
+          num_events=${{ inputs.num_events || env.num_events }}
+          ### make cache key names
+          cache_key_coatjava=$(echo coatjava---${fork_coatjava}---${ref_coatjava} | sed 's;/;-;g')
+          cache_key_evgen=${cache_key_coatjava}---${num_events}events
           ### set output vars
           echo fork_coatjava=$fork_coatjava >> $GITHUB_OUTPUT
           echo fork_clas12tags=$fork_clas12tags >> $GITHUB_OUTPUT
@@ -164,6 +172,9 @@ jobs:
           echo ref_clas12tags=$ref_clas12tags >> $GITHUB_OUTPUT
           echo ref_clas12config=$ref_clas12config >> $GITHUB_OUTPUT
           echo ref_clas12validation=$ref_clas12validation >> $GITHUB_OUTPUT
+          echo num_events=$num_events >> $GITHUB_OUTPUT
+          echo cache_key_coatjava=$cache_key_coatjava >> $GITHUB_OUTPUT
+          echo cache_key_evgen=$cache_key_evgen >> $GITHUB_OUTPUT
       - name: set GEMC module tag
         id: gemc_module_tag
         run: |
@@ -183,6 +194,10 @@ jobs:
           echo caller_repo=$caller_repo >> $GITHUB_OUTPUT
       - name: dispatch summary
         run: |
+          echo '### Number of Events:' >> $GITHUB_STEP_SUMMARY
+          echo "$num_events" >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '### Trigger Info:' >> $GITHUB_STEP_SUMMARY
           msg=$(echo '${{ github.event.pull_request.title || github.event.head_commit.message }}' | head -n1)
           echo '| | | |' >> $GITHUB_STEP_SUMMARY
           echo '| --- | --- | --- |' >> $GITHUB_STEP_SUMMARY
@@ -196,6 +211,12 @@ jobs:
           echo '- Caller repository: `${{ steps.gemc_executable.outputs.caller_repo }}`' >> $GITHUB_STEP_SUMMARY
           echo '- GEMC module: `gemc/${{ steps.gemc_module_tag.outputs.gemc_module_tag }}`, if available in container; if not, use the default version in the container (see "Run" jobs)' >> $GITHUB_STEP_SUMMARY
           echo '- GEMC executable: `${{ steps.gemc_executable.outputs.gemc_executable }}`' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '### Cache keys' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.info.outputs.cache_key_coatjava }}' >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.info.outputs.cache_key_evgen }}  # with suffix for matrix.evgen' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
   # build
   #############################################################################
@@ -206,12 +227,20 @@ jobs:
       - dependency_info
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/cache/restore@v4
+        id: cache
+        with:
+          key: ${{ needs.dependency_info.outputs.cache_key_coatjava }}
+          path: coatjava.tar.zst
+          lookup-only: true
       - name: setup java
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         uses: actions/setup-java@v4
         with:
           java-version: ${{ env.java_version }}
           distribution: ${{ env.java_distribution }}
       - name: checkout coatjava
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_coatjava }}
@@ -221,20 +250,21 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         uses: Wandalen/wretry.action@0ef67d343938e879e0a9bb37c107a55731e8ed35 # using wretry.action, to mitigate sporadic maven repo connection failures
         with:
           attempt_limit: 3
           attempt_delay: 10000
           command: 'cd coatjava ; ./build-coatjava.sh -T4'
-      - name: tree
-        run: tree
       - name: tar
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         run: tar cavf coatjava{.tar.zst,}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/cache/save@v4
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+        id: cache_save
         with:
-          name: build.coatjava
-          retention-days: 1
-          path: ./*.tar.zst
+          key: ${{ needs.dependency_info.outputs.cache_key_coatjava }}
+          path: coatjava.tar.zst
 
   build_gemc:
     name: Build GEMC
@@ -282,7 +312,6 @@ jobs:
       - dependency_info
     runs-on: ubuntu-latest
     outputs:
-      num_events: ${{ steps.num_events.outputs.num_events }}
       tag_config_coatjava: ${{ steps.version.outputs.tag_config_coatjava }}
       tag_config_gemc: ${{ steps.version.outputs.tag_config_gemc }}
       matrix_evgen: ${{ steps.read_matrices.outputs.matrix_evgen }}
@@ -306,13 +335,6 @@ jobs:
           clean: false
           fetch-tags: true
           fetch-depth: 0
-      - name: set number of events
-        id: num_events
-        run: |
-          num_events=${{ inputs.num_events || env.num_events }}
-          echo num_events=$num_events >> $GITHUB_OUTPUT
-          echo "### Number of Events:" >> $GITHUB_STEP_SUMMARY
-          echo "$num_events" >> $GITHUB_STEP_SUMMARY
       - name: get version info
         id: version
         working-directory: clas12-config
@@ -391,7 +413,14 @@ jobs:
       fail-fast: true
       matrix: ${{ fromJson(needs.config_files.outputs.matrix_evgen) }}
     steps:
+      - uses: actions/cache/restore@v4
+        id: cache
+        with:
+          key: ${{ needs.dependency_info.outputs.cache_key_evgen }}---${{ matrix.evgen }}
+          path: evgen.${{ matrix.evgen }}.dat
+          lookup-only: true
       - name: checkout clas12-validation
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
@@ -400,37 +429,51 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: setup java
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         uses: actions/setup-java@v4
         with:
           java-version: ${{ env.java_version }}
           distribution: ${{ env.java_distribution }}
       - name: setup groovy
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: ${{ env.groovy_version }}
       - name: download build
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         uses: actions/download-artifact@v4
         with:
           pattern: build.*
           merge-multiple: true
+      - name: cache restore coatjava
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ needs.dependency_info.outputs.cache_key_coatjava }}
+          path: coatjava.tar.zst
       - name: untar build
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         run: ls *.tar.zst | xargs -I{} tar xavf {}
       - name: check if this configuration is known
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         run: jq -re '.${{ matrix.evgen }}' <(echo '${{ env.evgen_opts }}')
       - name: event generation
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         run: |
           coatjava/coatjava/bin/run-groovy \
             coatjava/validation/advanced-tests/src/eb/scripts/gen.groovy \
             $(jq -r '.${{ matrix.evgen }}' <(echo '${{ env.evgen_opts }}')) \
-            -n ${{ needs.config_files.outputs.num_events }}
+            -n ${{ needs.dependency_info.outputs.num_events }}
       - name: rename artifact
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         run: |
           ls -t *.txt
           mv -v $(ls -t *.txt | head -n1) evgen.${{ matrix.evgen }}.dat
-      - uses: actions/upload-artifact@v4
+      - uses: actions/cache/save@v4
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+        id: cache_save
         with:
-          name: evgen.${{ matrix.evgen }}
-          retention-days: 1
+          key: ${{ needs.dependency_info.outputs.cache_key_evgen }}---${{ matrix.evgen }}
           path: evgen.${{ matrix.evgen }}.dat
 
   # simulation, reconstruction, and analysis: combined to one step to avoid large artifact I/O overhead
@@ -465,15 +508,21 @@ jobs:
         uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: ${{ env.groovy_version }}
-      - name: download evgen
-        uses: actions/download-artifact@v4
+      - name: cache restore evgen
+        uses: actions/cache/restore@v4
         with:
-          name: evgen.${{ matrix.evgen }}
+          key: ${{ needs.dependency_info.outputs.cache_key_evgen }}---${{ matrix.evgen }}
+          path: evgen.${{ matrix.evgen }}.dat
       - name: download build
         uses: actions/download-artifact@v4
         with:
           pattern: build.*
           merge-multiple: true
+      - name: cache restore coatjava
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ needs.dependency_info.outputs.cache_key_coatjava }}
+          path: coatjava.tar.zst
       - name: tree
         run: ls -lhR
       - name: untar build
