@@ -24,14 +24,16 @@ echo "=============================="
 
 ### switch the gemc module
 ### - if we do not have a custom `gemc` build (e.g, from a `coatjava` trigger),
-###   this activates the version `$gemcTag`, which is likely the highest semver tag
+###   use whatever the container's default version is
 ### - if we do have a custom `gemc` build (e.g., from a `clas12Tags` trigger),
 ###   this just makes sure the dependencies are resolved correctly
 ### - if this command fails, e.g. if `gemc/$gemcTag` module is not available, a
 ###   warning is printed and we proceed with the default version in the container
-module test gemc/$gemcTag &&
-  module switch gemc/$gemcTag ||
-  echo -e "\e[1;31m[WARNING]: proceeding with container's default GEMC version \e[0m" >&2
+if [ "$gemcExe" != "gemc" ]; then
+  module test gemc/$gemcTag &&
+    module switch gemc/$gemcTag ||
+    echo -e "\e[1;31m[WARNING]: proceeding with container's default GEMC version \e[0m" >&2
+fi
 
 ### run a simulation
 $gemcExe \
