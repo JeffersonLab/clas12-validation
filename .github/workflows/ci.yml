@@ -233,7 +233,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: build.coatjava
-          retention-days: 1
+          retention-days: 3
           path: ./*.tar.zst
 
   build_gemc:
@@ -270,7 +270,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: build.gemc
-          retention-days: 1
+          retention-days: 3
           path: ./*.tar.zst
 
   # clas12-config configuration
@@ -375,7 +375,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: build.config
-          retention-days: 1
+          retention-days: 3
           path: ./*.tar.zst
 
   # event generation
@@ -430,7 +430,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: evgen.${{ matrix.evgen }}
-          retention-days: 1
+          retention-days: 3
           path: evgen.${{ matrix.evgen }}.dat
 
   # simulation, reconstruction, and analysis: combined to one step to avoid large artifact I/O overhead
