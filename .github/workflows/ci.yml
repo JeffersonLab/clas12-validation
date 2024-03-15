@@ -261,7 +261,7 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
-        uses: docker://jeffersonlab/gemc:dev-fedora36
+        uses: docker://jeffersonlab/gemc:dev-g4v10.7.4-fedora36-cvmfs
         with:
           entrypoint: bin/ci_gemc_build.sh
           args: clas12Tags/source
@@ -492,7 +492,7 @@ jobs:
           ls ${{ steps.files.outputs.gemcConfigFile }}
           ls ${{ steps.files.outputs.coatjavaConfigFile }}
       - name: simulation
-        uses: docker://jeffersonlab/gemc:dev-fedora36
+        uses: docker://jeffersonlab/gemc:dev-g4v10.7.4-fedora36-cvmfs
         with:
           entrypoint: bin/ci_gemc_run.sh
           args: ${{ needs.dependency_info.outputs.gemc_executable }} ${{ needs.dependency_info.outputs.gemc_module_tag }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
