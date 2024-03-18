@@ -94,7 +94,7 @@ env:
   # additional settings
   java_version: 17
   java_distribution: zulu
-  groovy_version: 4.0.3
+  groovy_version: 4.x
 
 jobs:
 
