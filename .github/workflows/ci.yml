@@ -221,7 +221,7 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
-        uses: Wandalen/wretry.action@7e3e094b56685165ba2fb92f14c86f900907663a # using wretry.action, to mitigate sporadic maven repo connection failures
+        uses: Wandalen/wretry.action@42af9d415b6e955870e984489d2c9b97aabc949f # using wretry.action, to mitigate sporadic maven repo connection failures
         with:
           attempt_limit: 3
           attempt_delay: 10000
