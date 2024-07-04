@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # check if a given tag is available in a repo; exit 0 if yes, 1 if no
 
 unless ARGV.length == 2
