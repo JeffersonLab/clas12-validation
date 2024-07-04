@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # gets the tag with the highest semver number
 # - "highest" is preferred over "latest", because of backports to old tags may
 #   cause them to be "later" than "higher" tags
