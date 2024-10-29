@@ -8,7 +8,7 @@ sourceDir=$1
 
 ### source environment
 set +u
-source /app/localSetup.sh
+source /etc/profile.d/localSetup.sh
 set -u
 
 ### show available modules
