@@ -50,5 +50,22 @@ jobs:
         }
 ```
 
-### Legacy Version
+## Version Handling
+
+`clas12-validation` supports certain version combinations, with versions of the upstream repositories (`clas12Tags`, `coatjava`, _etc_.) and
+versions of the configurations (`gcard` files for `gemc`, and `yaml` files for `coatjava`). Depending on the triggering workflow and trigger
+branch, `clas12-validation` needs to choose the most appropriate combination of version numbers.
+
+First of all, the input variable `matrix_config` lists the configuration file (`gcard` and `yaml`) _basenames_ that are tested; for each of these,
+we test the event generator sample defined by `matrix_evgen`. We need the `gcard` version number to match the version of `gemc` that is tested.
+For most triggers, we simply take the highest semantic-version `gcard`, for each `matrix_config` basename, and use the corresponding version of `gemc`;
+on the other hand, for example, `clas12Tags` triggers may use a new build of `clas12Tags` (`gemc`), together with the `dev` version of the `gcard` and
+`yaml` files.
+
+The table below shows the configuration file versions and the `gemc` version, for each triggering repository:
+
+| Triggering Repository | `clas12-config` branch | `gemc` configuration `gcard` version | `coatjava` configurations `yaml` version | `gemc` version | `coatjava` version |
+| ---                   | ---                    | ---                                  | ---                                      | ---            | ---                |
+
+## Legacy Version
 The original version of this repository is found in [release `v0.1`](https://github.com/JeffersonLab/clas12-validation/releases/tag/v0.1).
