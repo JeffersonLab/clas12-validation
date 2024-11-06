@@ -17,7 +17,8 @@ jobs:
     uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@main
 ```
 
-You may customize the called workflow with `input` variables; in general, they override the `env` variables. Here is an example which describes and uses all of them:
+You may customize the called workflow with `input` variables; in general, they override the `env` variables. Below is an example which describes and uses all of them;
+the default values for all of them [are found in the workflow, in the `env:` section](.github/workflows/ci.yml).
 ```yaml
 jobs:
   validation:
@@ -59,13 +60,13 @@ jobs:
 versions of the configurations (`gcard` files for `gemc`, and `yaml` files for `coatjava`). Depending on the triggering workflow and trigger
 branch, `clas12-validation` needs to choose the most appropriate combination of version numbers.
 
-First of all, the input variable `matrix_config` lists the configuration file (`gcard` and `yaml`) _basenames_ that are tested; for each of these,
-we test the event generator sample defined by `matrix_evgen`. We need the `gcard` version number to match the version of `gemc` that is tested.
-For most triggers, we simply take the highest semantic-version `gcard`, for each `matrix_config` basename, and use the corresponding version of `gemc`;
-on the other hand, for example, `clas12Tags` triggers may use a new build of `clas12Tags` (`gemc`), together with the `dev` version of the `gcard` and
-`yaml` files.
+First of all, the input variable `matrix_config` (see configuration, above) lists the configuration file (`gcard` and `yaml`) _basenames_ that are tested; for each of these,
+we test simulation and reconstruction using the event generator sample defined by `matrix_evgen`.
 
-The table below shows the configuration file versions and the `gemc` version, for each triggering repository:
+In many cases we test on the latest `gcard` for a given basename, but we need to make sure the `gemc` version that is used _matches_ the `gcard` version.
+Other cases, for example `clas12Tags` triggers, may use a new CI build of `clas12Tags` (`gemc`), together with the `dev` version of the `gcard`.
+
+The following table shows the configuration file versions and repository versions, for various upstream triggering repositories:
 
 | Triggering Repository             | `clas12-config` branch | `gcard` version | `yaml` version     | `gemc` version      | `coatjava` version |
 | ---                               | ---                    | ---             | ---                | ---                 | ---                |
