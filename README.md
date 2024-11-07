@@ -64,6 +64,8 @@ First of all, the input variable `matrix_config` (see configuration, above) list
 we test simulation and reconstruction using the event generator sample defined by `matrix_evgen`.
 
 In many cases we test on the latest `gcard` for a given basename, but we need to make sure the `gemc` version that is used _matches_ the `gcard` version.
+The latest version of a `gcard` (or `yaml`) file for a given basename is determined by finding all of the `gcard` (or `yaml`) files with that
+basename, and choosing the one in the subdirectory corresponding to the highest semantic version number.
 Other cases, for example `clas12Tags` triggers, may use a new CI build of `clas12Tags` (`gemc`), together with the `dev` version of the `gcard`.
 
 The following table shows the configuration file versions and repository versions, for various upstream triggering repositories:
