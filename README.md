@@ -18,7 +18,7 @@ jobs:
 ```
 
 You may customize the called workflow with `input` variables; in general, they override the `env` variables. Below is an example which describes and uses all of them;
-the default values for all of them [are found in the workflow, in the `env:` section](.github/workflows/ci.yml).
+the default values for all of them [are found in the workflow](.github/workflows/ci.yml).
 ```yaml
 jobs:
   validation:
@@ -61,7 +61,7 @@ versions of the configurations (`gcard` files for `gemc`, and `yaml` files for `
 branch, `clas12-validation` needs to choose the most appropriate combination of version numbers.
 
 First of all, the input variable `matrix_config` (see configuration, above) lists the configuration file (`gcard` and `yaml`) _basenames_ that are tested; for each of these,
-we test simulation and reconstruction using the event generator sample defined by `matrix_evgen`.
+we test simulation and reconstruction using _each_ event generator sample defined by `matrix_evgen`.
 
 In many cases we test on the latest `gcard` for a given basename, but we need to make sure the `gemc` version that is used _matches_ the `gcard` version.
 The latest version of a `gcard` (or `yaml`) file for a given basename is determined by finding all of the `gcard` (or `yaml`) files with that
