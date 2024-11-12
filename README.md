@@ -70,16 +70,17 @@ Other cases, for example `clas12Tags` triggers, may use a new CI build of `clas1
 
 The following table shows the configuration file versions and repository versions, for various upstream triggering repositories:
 
-| Triggering Repository             | `clas12-config` branch | `gcard` version | `yaml` version     | `gemc` version      | `coatjava` version |
-| ---                               | ---                    | ---             | ---                | ---                 | ---                |
-| `clas12-validation`               | `main`                 | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
-| `coatjava`                        | `main`                 | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | triggering version |
-| `clas12Tags`                      | `dev`                  | `dev`           | latest             | CI build            | `development`      |
-| `clas12-config`, `dev` branch     | `dev`                  | `dev`           | latest             | CI build            | `development`      |
-| `clas12-config`, any other branch | triggering version     | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
+| Triggering Repository                     | `clas12-config` branch | `gcard` version | `yaml` version     | `gemc` version      | `coatjava` version |
+| ---                                       | ---                    | ---             | ---                | ---                 | ---                |
+| `clas12-validation`                       | `main`                 | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
+| `coatjava`                                | `main`                 | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | triggering version |
+| `clas12Tags`                              | `dev`                  | `dev`           | latest             | CI build            | `development`      |
+| `clas12-config`, `dev` branch<sup>3</sup> | `dev`                  | `dev`           | latest             | CI build            | `development`      |
+| `clas12-config`, any other branch         | triggering version     | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
 
 > 1. the latest `yaml` version that _is compatible_ with the `gcard` version.
 > 2. use the `gcard` version to `module switch` to the corresponding `gemc` version
+> 3. or any PR branch that _targets_ the `dev` branch
 
 ## Legacy Version
 The original version of this repository is found in [release `v0.1`](https://github.com/JeffersonLab/clas12-validation/releases/tag/v0.1).
