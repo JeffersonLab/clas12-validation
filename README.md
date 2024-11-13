@@ -52,6 +52,12 @@ jobs:
           "coatjava":      { "fork": "UserName/coatjava",          "ref": "feature-branch"   },
           "clas12-config": { "fork": "JeffersonLab/clas12-config", "ref": "new-config-files" }
         }
+      # choose which GEMC version to use, either:
+      # - "build": rebuild GEMC from clas12Tags and use that version
+      # - "match_gcard": use the version matching the gcard
+      # - "default": use the container's default
+      # - anything else will "module switch" to that version
+      gemc_version: match_gcard
 ```
 
 ## Version Handling

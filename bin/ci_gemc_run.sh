@@ -4,36 +4,34 @@
 set -e
 set -u
 
-gemcExe=$1
-gemcTag=$2
-gemcConfigFile=$3
-evgenFile=$4
-simFile=$5
+gemcVer=$1
+gemcConfigFile=$2
+evgenFile=$3
+simFile=$4
 
 ### source environment
 set +u
 source /etc/profile.d/localSetup.sh
 set -u
 
-### show available modules
-echo "=============================="
-echo "MODULE AVAIL"
-echo "=============================="
-module avail --no-pager
-echo "=============================="
-
-### switch the gemc module
-### - if we do not have a custom `gemc` build (e.g, from a `coatjava` trigger),
-###   use whatever the container's default version is
-### - if we do have a custom `gemc` build (e.g., from a `clas12Tags` trigger),
-###   this just makes sure the dependencies are resolved correctly
-### - if this command fails, e.g. if `gemc/$gemcTag` module is not available, a
-###   warning is printed and we proceed with the default version in the container
-if [ "$gemcExe" != "gemc" ]; then
-  module test gemc/$gemcTag &&
-    module switch gemc/$gemcTag ||
-    echo -e "\e[1;31m[WARNING]: proceeding with container's default GEMC version \e[0m" >&2
-fi
+### switch the gemc module, or use the CI build
+gemcExe=gemc
+case $gemcVer in
+  build)
+    gemcExe=./clas12Tags/source/gemc
+    ;;
+  default)
+    ;;
+  *)
+    echo '''
+    ==============================
+    MODULE AVAIL
+    =============================='''
+    module avail --no-pager
+    echo '=============================='
+    module switch gemc/$gemcVer
+    ;;
+esac
 
 ### run a simulation
 $gemcExe \

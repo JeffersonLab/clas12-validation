@@ -11,13 +11,6 @@ set +u
 source /etc/profile.d/localSetup.sh
 set -u
 
-### show available modules
-echo "=============================="
-echo "MODULE AVAIL"
-echo "=============================="
-module avail --no-pager
-echo "=============================="
-
 ### compile GEMC in $sourceDir
 pushd $sourceDir
 scons -j$(nproc) OPT=1

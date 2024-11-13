@@ -30,7 +30,7 @@ on:
         required: false
         type: string
       gemc_version:
-        description: 'gemc version to use; use "build" to rebuild from clas12Tags, "match_gcard" to use the version matching the gcard, "default" to use the GEMC image default; anything else will use "module switch gemc/gemc_version"'
+        description: 'gemc version to use; see README.md for details'
         required: false
         type: string
   pull_request:
@@ -223,47 +223,6 @@ jobs:
           retention-days: 3
           path: ./*.tar.zst
 
-  #############################################################################################
-  ###### TODO: stopped searchingn for /gemc/ strings here, for cleaning up unused GEMC vars
-  #############################################################################################
-
-  build_gemc:
-    name: Build GEMC
-    if: ${{ needs.dependency_info.outputs.caller_repo == 'clas12Tags' }} # only build GEMC if triggered by GEMC/clas12Tags
-    needs:
-      - dependency_info
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout clas12-validation
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
-          ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
-          clean: false
-          fetch-tags: true
-          fetch-depth: 0
-      - name: checkout clas12Tags
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
-          ref: ${{ needs.dependency_info.outputs.ref_clas12tags }}
-          path: clas12Tags
-          clean: false
-          fetch-tags: true
-          fetch-depth: 0
-      - name: build
-        uses: docker://jeffersonlab/gemc:dev-fedora36
-        with:
-          entrypoint: bin/ci_gemc_build.sh
-          args: clas12Tags/source
-      - name: tar
-        run: tar cavf clas12Tags{.tar.zst,}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: build.gemc
-          retention-days: 3
-          path: ./*.tar.zst
-
   # clas12-config configuration
   #############################################################################
 
@@ -346,14 +305,16 @@ jobs:
           for config_file in $(jq -r '.config[]' <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) ; do
             echo "find config files for config='$config_file'"
             if [ "${{ steps.version.outputs.tag_config_coatjava }}" = "latest" ] ; then
-              util/latest.rb coatjava $config_file | tee -a coatjava.ver
+              util/latest.rb coatjava $config_file both | tee -a coatjava.ver
             else
-              ls coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config_file}.yaml | tee -a coatjava.ver
+              ls   coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config_file}.yaml
+              echo coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config_file}.yaml ${{ steps.version.outputs.tag_config_coatjava }} | tee -a coatjava.ver
             fi
             if [ "${{ steps.version.outputs.tag_config_gemc }}" = "latest" ] ; then
-              util/latest.rb gemc $config_file | tee -a gemc.ver
+              util/latest.rb gemc $config_file both | tee -a gemc.ver
             else
-              ls gemc/${{ steps.version.outputs.tag_config_gemc }}/${config_file}.gcard | tee -a gemc.ver
+              ls   gemc/${{ steps.version.outputs.tag_config_gemc }}/${config_file}.gcard
+              echo gemc/${{ steps.version.outputs.tag_config_gemc }}/${config_file}.gcard ${{ steps.version.outputs.tag_config_gemc }} | tee -a gemc.ver
             fi
           done
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -428,10 +389,8 @@ jobs:
   #############################################################################
   fulltest:
     name: Run
-    if: ${{ ! failure() && ! cancelled() }} # needed since `build_gemc` may be skipped
     needs:
       - event_generation
-      - build_gemc
       - config_files
       - dependency_info
     runs-on: ubuntu-latest
@@ -478,24 +437,22 @@ jobs:
           echo simFile=sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
           echo recFile=rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
           echo anaFile=ana.${{ matrix.evgen }}.${{ matrix.config }}.txt  >> $GITHUB_OUTPUT
-          echo coatjavaConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/coatjava.ver) >> $GITHUB_OUTPUT
-          echo gemcConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/gemc.ver) >> $GITHUB_OUTPUT
+          echo coatjavaConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/coatjava.ver | awk '{print $1}') >> $GITHUB_OUTPUT
+          echo gemcConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/gemc.ver | awk '{print $1}') >> $GITHUB_OUTPUT
       - name: config files exist
         run: |
           ls ${{ steps.files.outputs.gemcConfigFile }}
           ls ${{ steps.files.outputs.coatjavaConfigFile }}
       ### set GEMC version, and rebuild if necessary
       - name: set GEMC module version
-        id: gemc_version
+        id: gemc_module_version
         run: |
-          gemc_version=${{ inputs.gemc_version || env.gemc_version }}
-          [ "$gemc_version" = "match_gcard" ] && gemc_version=$(basename $(dirname ${{ steps.files.outputs.gemcConfigFile }}))
-          echo gemc_version=$gemc_version | tee -a $GITHUB_OUTPUT
-  #############################################################################################
-  # TODO: make this gemc rebuild work
-  #############################################################################################
+          gemc_module_version=${{ inputs.gemc_version || env.gemc_version }}
+          [ "$gemc_module_version" = "match_gcard" ] && gemc_module_version=$(grep -w ${{ matrix.config }} clas12-config/gemc.ver | awk '{print $2}')
+          echo "GEMC VERSION: $gemc_module_version" >> $GITHUB_STEP_SUMMARY
+          echo gemc_module_version=$gemc_module_version | tee -a $GITHUB_OUTPUT
       - name: checkout clas12Tags
-        if: ${{ steps.gemc_version.outputs.gemc_version == 'build' }}
+        if: ${{ steps.gemc_module_version.outputs.gemc_module_version == 'build' }}
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
@@ -505,7 +462,7 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: rebuild GEMC
-        if: ${{ steps.gemc_version.outputs.gemc_version == 'build' }}
+        if: ${{ steps.gemc_module_version.outputs.gemc_module_version == 'build' }}
         uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
           entrypoint: bin/ci_gemc_build.sh
@@ -515,7 +472,7 @@ jobs:
         uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
           entrypoint: bin/ci_gemc_run.sh
-          args: ${{ needs.dependency_info.outputs.gemc_executable }} ${{ needs.dependency_info.outputs.gemc_module_tag }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
+          args: ${{ steps.gemc_module_version.outputs.gemc_module_version }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       ### run reconstruction
@@ -554,7 +511,6 @@ jobs:
   #############################################################################
   final:
     name: Final
-    if: ${{ ! failure() && ! cancelled() }} # needed since `build_gemc` may be skipped
     needs:
       - fulltest
       - config_files
