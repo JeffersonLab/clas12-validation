@@ -76,13 +76,13 @@ Other cases, for example `clas12Tags` triggers, may use a new CI build of `clas1
 
 The following table shows the configuration file versions and repository versions, for various upstream triggering repositories:
 
-| Triggering Repository                     | `clas12-config` branch   | `clas12Tags` branch | `gcard` version | `yaml` version     | `gemc` version      | `coatjava` version |
-| ---                                       | ---                      | ---                 | ---             | ---                | ---                 | ---                |
-| `clas12-validation`                       | `main`                   | highest tag         | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
-| `coatjava`                                | `main`                   | highest tag         | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | triggering version |
-| `clas12Tags`                              | `dev`                    | triggering version  | `dev`           | latest             | CI build            | `development`      |
-| `clas12-config`, `dev` branch<sup>3</sup> | `dev` (or triggering PR) | `dev`               | `dev`           | latest             | CI build            | `development`      |
-| `clas12-config`, any other branch         | triggering version       | highest tag         | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
+| Triggering Repository                     | `clas12-config` branch | `clas12Tags` branch | `gcard` version | `yaml` version     | `gemc` version      | `coatjava` version |
+| ---                                       | ---                    | ---                 | ---             | ---                | ---                 | ---                |
+| `clas12-validation`                       | `main`                 | highest tag         | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
+| `coatjava`                                | `main`                 | highest tag         | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | triggering version |
+| `clas12Tags`                              | `dev`                  | triggering version  | `dev`           | latest             | CI build            | `development`      |
+| `clas12-config`, `dev` branch<sup>3</sup> | triggering version     | `dev`               | `dev`           | latest             | CI build            | `development`      |
+| `clas12-config`, any other branch         | triggering version     | highest tag         | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
 
 > 1. the latest `yaml` version that _is compatible_ with the `gcard` version.
 > 2. use the `gcard` version to `module switch` to the corresponding `gemc` version
