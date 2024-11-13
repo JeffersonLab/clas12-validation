@@ -454,7 +454,6 @@ jobs:
         run: |
           gemc_module_version=${{ inputs.gemc_version || env.gemc_version }}
           [ "$gemc_module_version" = "match_gcard" ] && gemc_module_version=$(grep -w ${{ matrix.config }} clas12-config/gemc.ver | awk '{print $2}')
-          echo "GEMC VERSION: $gemc_module_version" >> $GITHUB_STEP_SUMMARY
           echo gemc_module_version=$gemc_module_version | tee -a $GITHUB_OUTPUT
       - name: checkout clas12Tags
         if: ${{ steps.gemc_module_version.outputs.gemc_module_version == 'build' }}
