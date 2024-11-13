@@ -74,7 +74,10 @@ The latest version of a `gcard` (or `yaml`) file for a given basename is determi
 basename, and choosing the one in the subdirectory corresponding to the highest semantic version number.
 Other cases, for example `clas12Tags` triggers, may use a new CI build of `clas12Tags` (`gemc`), together with the `dev` version of the `gcard`.
 
-The following table shows the configuration file versions and repository versions, for various upstream triggering repositories:
+The following table shows the configuration file versions and repository versions, for various upstream triggering repositories.
+
+> [!NOTE]
+> This table may not be up-to-date! Check the repositories' CI configurations for the actual versions used.
 
 | Triggering Repository                     | `clas12-config` branch | `clas12Tags` branch | `gcard` version | `yaml` version     | `gemc` version      | `coatjava` version |
 | ---                                       | ---                    | ---                 | ---             | ---                | ---                 | ---                |
