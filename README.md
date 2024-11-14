@@ -80,7 +80,7 @@ The following table shows the configuration file versions and repository version
 | ---                                       | ---                    | ---                 | ---             | ---                | ---                 | ---                |
 | `clas12-validation`                       | `main`                 | highest tag         | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
 | `coatjava`                                | `main`                 | highest tag         | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | triggering version |
-| `clas12Tags`                              | `dev`                  | triggering version  | `dev`           | latest             | CI build            | `development`      |
+| `clas12Tags`                              | `dev`                  | triggering version  | `dev`           | latest             | CI build            | latest             |
 | `clas12-config`, `dev` branch<sup>3</sup> | triggering version     | `dev`               | `dev`           | latest             | CI build            | `development`      |
 | `clas12-config`, any other branch         | triggering version     | highest tag         | latest          | latest<sup>1</sup> | `gcard`<sup>2</sup> | `development`      |
 
