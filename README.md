@@ -17,8 +17,9 @@ jobs:
     uses: JeffersonLab/clas12-validation/.github/workflows/ci.yml@main
 ```
 
-You may customize the called workflow with `input` variables; in general, they override the `env` variables. Below is an example which describes and uses all of them;
-the default values for all of them [are found in the workflow](.github/workflows/ci.yml).
+You may customize the called workflow with `input` variables; for technical reasons, the default
+values and their description are found in [the workflow file](/.github/workflows/ci.yml) in the `env:`
+section. Below is an example how to set some of them:
 ```yaml
 jobs:
   validation:
@@ -52,11 +53,7 @@ jobs:
           "coatjava":      { "fork": "UserName/coatjava",          "ref": "feature-branch"   },
           "clas12-config": { "fork": "JeffersonLab/clas12-config", "ref": "new-config-files" }
         }
-      # choose which GEMC version to use, either:
-      # - "build": rebuild GEMC from clas12Tags and use that version
-      # - "match_gcard": use the version matching the gcard
-      # - "default": use the container's default
-      # - anything else will "module switch" to that version
+      # choose which GEMC version to use
       gemc_version: match_gcard
 ```
 
