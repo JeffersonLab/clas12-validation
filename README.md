@@ -1,4 +1,4 @@
-# clas12-validation
+# clas12-validation 
 
 [![Validation Status](https://github.com/JeffersonLab/clas12-validation/actions/workflows/ci.yml/badge.svg)](https://github.com/JeffersonLab/clas12-validation/actions/workflows/ci.yml)
 
