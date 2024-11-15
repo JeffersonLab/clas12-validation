@@ -27,6 +27,10 @@ on:
       gemc_version:
         required: false
         type: string
+      gemc_image:
+        required: false
+        type: string
+        default: 'docker://jeffersonlab/gemc:dev-fedora36'
       matrix_config:
         required: false
         type: string
@@ -494,13 +498,13 @@ jobs:
           fetch-depth: 0
       - name: rebuild GEMC
         if: ${{ steps.gemc_module_version.outputs.gemc_module_version == 'build' }}
-        uses: docker://jeffersonlab/gemc:dev-fedora36
+        uses: ${{ inputs.gemc_image }}
         with:
           entrypoint: bin/ci_gemc_build.sh
           args: clas12Tags/source
       ### run simulation
       - name: simulation
-        uses: docker://jeffersonlab/gemc:dev-fedora36
+        uses: ${{ inputs.gemc_image }}
         with:
           entrypoint: bin/ci_gemc_run.sh
           args: ${{ steps.gemc_module_version.outputs.gemc_module_version }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
