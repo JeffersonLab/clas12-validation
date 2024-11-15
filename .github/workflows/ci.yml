@@ -515,13 +515,13 @@ jobs:
           entrypoint: bin/ci_gemc_build.sh
           args: clas12Tags/source
       ### run simulation
-      - name: simulation ### fedora build
+      - name: simulation - fedora ### fedora build
         if: ${{ steps.gemc_ver.outputs.gemc_image == 'fedora' }}
         uses: docker://jeffersonlab/gemc:dev-fedora36
         with:
           entrypoint: bin/ci_gemc_run.sh
           args: ${{ steps.gemc_ver.outputs.gemc_module_version }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
-      - name: simulation ### alma build
+      - name: simulation - alma ### alma build
         if: ${{ steps.gemc_ver.outputs.gemc_image == 'alma' }}
         uses: docker://jeffersonlab/gemc:dev-almalinux93
         with:
