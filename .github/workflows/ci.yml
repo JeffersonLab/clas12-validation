@@ -90,7 +90,7 @@ env:
   # GEMC Docker image to use; unfortunately we cannot simply pass the image
   # name to the CI job step, so instead we have the following aliases:
   # - "fedora": docker://jeffersonlab/gemc:dev-fedora36
-  # - "alma":   docker://jeffersonlab/gemc:dev-almalinux93
+  # - "alma":   docker://jeffersonlab/gemc:dev-almalinux94
   gemc_image: 'fedora'
 
   # GEMC version to use in the GEMC container; available choices:
@@ -510,7 +510,7 @@ jobs:
           args: clas12Tags/source
       - name: rebuild GEMC - alma ### alma build
         if: ${{ steps.gemc_ver.outputs.gemc_image == 'alma' && steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-        uses: docker://jeffersonlab/gemc:dev-almalinux93
+        uses: docker://jeffersonlab/gemc:dev-almalinux94
         with:
           entrypoint: bin/ci_gemc_build.sh
           args: clas12Tags/source
@@ -523,7 +523,7 @@ jobs:
           args: ${{ steps.gemc_ver.outputs.gemc_module_version }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
       - name: simulation - alma ### alma build
         if: ${{ steps.gemc_ver.outputs.gemc_image == 'alma' }}
-        uses: docker://jeffersonlab/gemc:dev-almalinux93
+        uses: docker://jeffersonlab/gemc:dev-almalinux94
         with:
           entrypoint: bin/ci_gemc_run.sh
           args: ${{ steps.gemc_ver.outputs.gemc_module_version }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
