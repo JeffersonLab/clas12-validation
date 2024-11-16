@@ -9,6 +9,8 @@ sourceDir=$1
 ### source environment
 set +u
 source /etc/profile.d/localSetup.sh
+module load hipo
+module load ccdb
 set -u
 
 ### compile GEMC in $sourceDir
