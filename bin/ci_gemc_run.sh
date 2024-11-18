@@ -19,6 +19,8 @@ gemcExe=gemc
 case $gemcVer in
   build)
     gemcExe=./clas12Tags/source/gemc
+    # use checked out experiment directory
+    export GEMC_DATA_DIR=$(pwd)/clas12Tags
     ;;
   default)
     ;;
@@ -32,9 +34,6 @@ case $gemcVer in
     module switch gemc/$gemcVer
     ;;
 esac
-
-# use checked out experiment directory
-export GEMC_DATA_DIR=$(pwd)/clas12Tags
 
 ### run a simulation
 $gemcExe \
