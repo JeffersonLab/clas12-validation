@@ -33,6 +33,9 @@ case $gemcVer in
     ;;
 esac
 
+# use checked out experiment directory
+export GEMC_DATA_DIR=$(pwd)/clas12Tags
+
 ### run a simulation
 $gemcExe \
   $gemcConfigFile \
