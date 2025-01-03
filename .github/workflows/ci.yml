@@ -623,6 +623,7 @@ jobs:
               cat ana.efficiency.${evgen}.${config}.txt |\
                 grep -v 'reader::' |\
                 grep -v '{' |\
+                sed 's; 0\.0000; 0     ;g' |\
                 xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
               echo '```'
             done
