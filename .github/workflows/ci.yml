@@ -620,7 +620,10 @@ jobs:
             for config in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.config[]') ; do
               echo "### config: \`$config\`" >> $GITHUB_STEP_SUMMARY
               echo '```'
-              grep -v '{' ana.efficiency.${evgen}.${config}.txt | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+              cat ana.efficiency.${evgen}.${config}.txt |\
+                grep -v 'reader::' |\
+                grep -v '{' |\
+                xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
               echo '```'
             done
           done
