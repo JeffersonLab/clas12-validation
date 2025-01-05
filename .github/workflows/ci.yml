@@ -609,7 +609,8 @@ jobs:
           for evgen in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.evgen[]') ; do
             echo "## evgen: \`$evgen\`" >> $GITHUB_STEP_SUMMARY
             for config in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.config[]') ; do
-              echo "### config: \`$config\`" >> $GITHUB_STEP_SUMMARY
+              echo '<details>' >> $GITHUB_STEP_SUMMARY
+              echo "<summary> config: $config</summary>" >> $GITHUB_STEP_SUMMARY
               echo '```' >> $GITHUB_STEP_SUMMARY
               cat ana.efficiency.${evgen}.${config}.txt |\
                 grep -v 'reader::' |\
@@ -617,5 +618,7 @@ jobs:
                 sed 's; 0\.0000;   --  ;g' |\
                 xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
               echo '```' >> $GITHUB_STEP_SUMMARY
+              echo '</details>' >> $GITHUB_STEP_SUMMARY
+              echo '' >> $GITHUB_STEP_SUMMARY
             done
           done
