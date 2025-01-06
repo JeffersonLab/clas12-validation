@@ -475,8 +475,10 @@ jobs:
         id: files
         run: |
           echo evgenFile=evgen.${{ matrix.evgen }}.dat >> $GITHUB_OUTPUT
-          echo simFile=sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
-          echo recFile=rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo >> $GITHUB_OUTPUT
+          suffix=${{ matrix.evgen }}.${{ matrix.config }}
+          echo suffix=$suffix >> $GITHUB_OUTPUT
+          echo simFile=sim.$suffix.hipo >> $GITHUB_OUTPUT
+          echo recFile=rec.$suffix.hipo >> $GITHUB_OUTPUT
           echo coatjavaConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/coatjava.ver | awk '{print $1}') >> $GITHUB_OUTPUT
           echo gemcConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/gemc.ver | awk '{print $1}') >> $GITHUB_OUTPUT
       - name: config files exist
@@ -538,16 +540,24 @@ jobs:
       - name: check if output exists
         run: ls ${{ steps.files.outputs.recFile }}
       ### run analysis
+      - name: analyze efficiency
+        run: |
+          coatjava/coatjava/bin/trutheff ${{ steps.files.outputs.recFile }} | tee ana.tmp
+          cat ana.tmp |\
+            grep -v 'reader::' |\
+            grep -v '{' |\
+            grep -vE '^$' |\
+            sed 's; 0\.0000;   --  ;g' \
+            > ana.efficiency.${{ steps.files.outputs.suffix }}.txt
       - name: analyze multiplicity
         run: |
           bankName="REC::Particle"
           [[ "${{ matrix.evgen }}" =~ FT ]] && bankName="RECFT::Particle"
-          echo "bankName = $bankName"
-          coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy ${{ steps.files.outputs.recFile }} ana.multiplicity.${{ matrix.evgen }}.${{ matrix.config }}.txt $bankName
-      - name: analyze efficiency
-        run: |
-          coatjava/coatjava/bin/trutheff ${{ steps.files.outputs.recFile }} |\
-            tee -a ana.efficiency.${{ matrix.evgen }}.${{ matrix.config }}.txt
+          echo "bank: $bankName" | tee ana.bankName.${{ steps.files.outputs.suffix }}.txt
+          coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy \
+            ${{ steps.files.outputs.recFile }} \
+            $bankName |\
+            tee ana.multiplicity.${{ steps.files.outputs.suffix }}.txt
       - uses: actions/upload-artifact@v4
         with:
           name: sim.${{ matrix.evgen }}.${{ matrix.config }}
@@ -587,12 +597,7 @@ jobs:
             for evgen in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.evgen[]') ; do
               echo "### evgen: \`$evgen\`" >> $GITHUB_STEP_SUMMARY
               echo '```' >> $GITHUB_STEP_SUMMARY
-              cat ana.efficiency.${evgen}.${config}.txt |\
-                grep -v 'reader::' |\
-                grep -v '{' |\
-                grep -vE '^$' |\
-                sed 's; 0\.0000;   --  ;g' \
-                >> $GITHUB_STEP_SUMMARY
+              cat ana.efficiency.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
               echo '```' >> $GITHUB_STEP_SUMMARY
             done
           done
@@ -619,12 +624,12 @@ jobs:
             first=true
             for config in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.config[]') ; do
               if $first ; then
-                grep -E '^bank: ' ana.multiplicity.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
+                cat ana.bankName.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
                 echo "multiplicity: |" >> $GITHUB_STEP_SUMMARY
                 printf "  %25s:  PID (multiplicity) ...    # sorted multiplicity for each PID\n" "config" >> $GITHUB_STEP_SUMMARY
                 first=false
               fi
-              printf "  %25s:  %s" $config "$(tail -n1 ana.multiplicity.${evgen}.${config}.txt)" | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+              printf "  %25s:  %s" $config "$(cat ana.multiplicity.${evgen}.${config}.txt)" | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
             done
             echo "" >> $GITHUB_STEP_SUMMARY
           done

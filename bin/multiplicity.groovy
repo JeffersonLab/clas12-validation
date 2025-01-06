@@ -2,20 +2,16 @@
 // - run with `run-groovy`
 
 import org.jlab.io.hipo.HipoDataSource
-import groovy.json.JsonOutput
 
-if(args.length<3) {
+if(args.length<2) {
   System.err.println """
-  USAGE: run-groovy ${this.class.getSimpleName()}.groovy [HIPO file from reconstruction] [output file name] [bank]
+  USAGE: run-groovy ${this.class.getSimpleName()}.groovy [HIPO file from reconstruction] [bank]
   """
   System.exit(101)
 }
 
 def inFile           = args[0]
-def outFile          = args[1]
-def particleBankName = args[2]
-def outFileH = new File(outFile)
-def outFileW = outFileH.newWriter(false)
+def particleBankName = args[1]
 
 def reader = new HipoDataSource()
 reader.open(inFile)
@@ -34,9 +30,5 @@ while(reader.hasEvent()) {
 }
 mult = mult.sort{ -it.value }
 
-outFileW << "bank: $particleBankName\n" << JsonOutput.prettyPrint(JsonOutput.toJson(mult)) << '\n'
-mult.each{ outFileW << sprintf("%14s  ", sprintf("%d (%d)", it.key, it.value)) }
-outFileW << '\n'
-outFileW.close()
-
-println "wrote $outFile"
+mult.each{ printf("%14s  ", sprintf("%d (%d)", it.key, it.value)) }
+printf("\n")
