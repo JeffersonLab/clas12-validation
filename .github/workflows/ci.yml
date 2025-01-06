@@ -67,7 +67,12 @@ env:
   matrix_evgen: >-
     [
       "e_K",
-      "e_g"
+      "e_KC",
+      "e_n",
+      "e_g",
+      "e_nC",
+      "eFT_K",
+      "e_gFT"
     ]
 
   # forks and branches (`ref`s) of the involved git repositories;
@@ -99,7 +104,11 @@ env:
   # are the 'yaml' and 'gcard' files from `clas12-config`
   matrix_config: >-
     [
+      "clas12-default",
+      "rga_spring2018",
       "rga_fall2018",
+      "rgk_fall2018_FTOn",
+      "rgb_fall2019",
       "rgc_summer2022"
     ]
 
