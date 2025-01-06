@@ -557,7 +557,8 @@ jobs:
           coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy \
             ${{ steps.files.outputs.recFile }} \
             $bankName |\
-            tee ana.multiplicity.${{ steps.files.outputs.suffix }}.txt
+            tee ana.tmp
+            tail -n1 ana.tmp > ana.multiplicity.${{ steps.files.outputs.suffix }}.txt
       - uses: actions/upload-artifact@v4
         with:
           name: sim.${{ matrix.evgen }}.${{ matrix.config }}
