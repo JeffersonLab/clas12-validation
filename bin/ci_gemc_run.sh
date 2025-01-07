@@ -35,9 +35,14 @@ case $gemcVer in
     ;;
 esac
 
-### run a simulation
+### run a simulation, with truth-matching enabled
 $gemcExe \
   $gemcConfigFile \
   -INPUT_GEN_FILE="LUND, $evgenFile" \
   -USE_GUI=0 \
-  -OUTPUT="hipo, $simFile"
+  -OUTPUT="hipo, $simFile" \
+  -RUNNO=11 \
+  -SAVE_ALL_MOTHERS=1 \
+  -SKIPREJECTEDHITS=1 \
+  -INTEGRATEDRAW="*" \
+  -NGENP=50
