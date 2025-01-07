@@ -545,9 +545,7 @@ jobs:
           coatjava/coatjava/bin/trutheff ${{ steps.files.outputs.recFile }} | tee ana.tmp
           cat ana.tmp |\
             grep -v 'reader::' |\
-            grep -v '{' |\
-            grep -vE '^$' |\
-            sed 's; 0\.0000;   --  ;g' \
+            grep -v '{' \
             > ana.efficiency.${{ steps.files.outputs.suffix }}.txt
       - name: analyze multiplicity
         run: |
