@@ -76,7 +76,7 @@ env:
     [
       "rga_fall2018",
       "rgb_fall2019",
-      "rgk_fall2018_FTOn"
+      "rgb_spring2019"
     ]
 
   # forks and branches (`ref`s) of the involved git repositories;
