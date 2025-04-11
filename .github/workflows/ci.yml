@@ -61,7 +61,7 @@ env:
   ##################################################################################
 
   # number of events to test
-  num_events: 10
+  num_events: 1000
 
   # event generation types to test;
   # see `evgen_opts` for _all_ of the available generators
@@ -86,7 +86,7 @@ env:
   #       just the repositories they want to deviate from these defaults
   git_upstream: >-
     {
-      "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "development" },
+      "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "heeeeep" },
       "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": ""            },
       "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "ref": "main"        },
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "ref": "main"        }
@@ -544,6 +544,8 @@ jobs:
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       ### run reconstruction
+      - name: cat recon-util
+        run: cat coatjava/coatjava/bin/recon-util
       - name: reconstruction
         run: |
           coatjava/coatjava/bin/recon-util \
