@@ -38,14 +38,12 @@ on:
         type: string
   pull_request:
   push:
-    branches: [ main ]
-    tags: [ '*' ]
 
 # apply cancel-in-progress to:
 # - `pull_request` triggers from the same `head_ref` (PR feature branch) and caller repo (set by `repository_id`)
 # - all other triggers: allow only the most recent of its trigger type (set by `event_name`, e.g., `push`) and caller repo
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.event_name }}-${{ github.repository_id }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.event_name }}-1-${{ github.repository_id }}
   cancel-in-progress: true
 
 defaults:
@@ -60,23 +58,31 @@ env:
   ##################################################################################
 
   # number of events to test
-  num_events: 10
+  num_events: 1000
 
   # event generation types to test;
   # see `evgen_opts` for _all_ of the available generators
   matrix_evgen: >-
     [
       "e_K",
-      "e_g"
+      "e_KC",
+      "e_n",
+      "e_g",
+      "e_nC",
+      "eFT_K",
+      "e_gFT"
     ]
 
   # list of configuration file basenames to test; these configuration files
   # are the basenames of the 'yaml' and 'gcard' files from `clas12-config`
   matrix_config: >-
     [
+      "clas12-default",
+      "rga_spring2018",
       "rga_fall2018",
+      "rgk_fall2018_FTOn",
       "rgb_fall2019",
-      "rgb_spring2019"
+      "rgc_summer2022"
     ]
 
   # forks and branches (`ref`s) of the involved git repositories;
@@ -85,7 +91,7 @@ env:
   #       just the repositories they want to deviate from these defaults
   git_upstream: >-
     {
-      "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "development" },
+      "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "mvn-0401"    },
       "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": ""            },
       "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "ref": "main"        },
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "ref": "main"        }
