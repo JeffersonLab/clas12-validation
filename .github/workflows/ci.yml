@@ -548,7 +548,7 @@ jobs:
         run: cat coatjava/coatjava/bin/recon-util
       - name: reconstruction
         run: |
-          coatjava/coatjava/bin/recon-util \
+          coatjava/coatjava/bin/recon-util -Xmx3072m \
             -y ${{ steps.files.outputs.coatjavaConfigFile }} \
             -i ${{ steps.files.outputs.simFile }} \
             -o ${{ steps.files.outputs.recFile }}
