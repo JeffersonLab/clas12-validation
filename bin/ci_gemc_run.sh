@@ -35,6 +35,11 @@ case $gemcVer in
     ;;
 esac
 
+### echo env vars
+echo """==============================
+CCDB_CONNECTION = ${CCDB_CONNECTION-}
+=============================="""
+
 ### run a simulation, with truth-matching enabled
 $gemcExe \
   $gemcConfigFile \
