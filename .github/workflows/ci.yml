@@ -53,6 +53,7 @@ defaults:
     shell: bash
 
 env:
+  CCDB_CONNECTION: 'sqlite:////cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data/ccdb/ccdb_latest.sqlite'
 
   ##################################################################################
   # the following 'env' vars may be overridden with workflow 'input' variables;    #
@@ -235,6 +236,9 @@ jobs:
         with:
           java-version: ${{ env.java_version }}
           distribution: ${{ env.java_distribution }}
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: checkout coatjava
         uses: actions/checkout@v4
         with:
@@ -393,6 +397,9 @@ jobs:
         uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: ${{ env.groovy_version }}
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: download build
         uses: actions/download-artifact@v4
         with:
@@ -449,6 +456,9 @@ jobs:
         uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: ${{ env.groovy_version }}
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: download evgen
         uses: actions/download-artifact@v4
         with:
