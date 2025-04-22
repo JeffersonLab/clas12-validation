@@ -2,8 +2,8 @@ name: Scheduled Test
 
 on:
   schedule:
-    # Wednesday and Saturday at 0830Z
-    - cron: '30 8 * * 3,6'
+    # Sun, Tue, Thu, at 0830Z
+    - cron: '30 8 * * 0,2,4'
 
 jobs:
 
