@@ -96,7 +96,7 @@ env:
   # name to the CI job step, so instead we have the following aliases:
   # - "fedora": docker://jeffersonlab/gemc:dev-fedora36
   # - "alma":   docker://jeffersonlab/gemc:dev-almalinux94
-  gemc_image: 'alma'
+  gemc_image: 'fedora'
 
   # GEMC version to use in the GEMC container; available choices:
   # - "build":        rebuild GEMC from clas12Tags and use that version
