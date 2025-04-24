@@ -507,7 +507,7 @@ jobs:
       - name: rebuild GEMC
         if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
         run: |
-          docker run
+          docker run \
             --rm \
             --mount type=bind,src=.,dst=/ci \
             --workdir=/ci \
@@ -517,7 +517,7 @@ jobs:
       ### run simulation
       - name: simulation
         run: |
-          docker run
+          docker run \
             --rm \
             --mount type=bind,ro,src=/cvmfs,dst=/cvmfs \
             --mount type=bind,src=.,dst=/ci \
