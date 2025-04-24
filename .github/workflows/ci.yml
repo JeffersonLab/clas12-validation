@@ -43,7 +43,7 @@ on:
 # - `pull_request` triggers from the same `head_ref` (PR feature branch) and caller repo (set by `repository_id`)
 # - all other triggers: allow only the most recent of its trigger type (set by `event_name`, e.g., `push`) and caller repo
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.event_name }}-23-${{ github.repository_id }}
+  group: 0401
   cancel-in-progress: true
 
 defaults:
@@ -91,7 +91,7 @@ env:
   #       just the repositories they want to deviate from these defaults
   git_upstream: >-
     {
-      "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "mvn-0323"    },
+      "coatjava":          { "fork": "JeffersonLab/coatjava",          "ref": "0401"        },
       "clas12Tags":        { "fork": "gemc/clas12Tags",                "ref": ""            },
       "clas12-config":     { "fork": "JeffersonLab/clas12-config",     "ref": "main"        },
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "ref": "main"        }
@@ -434,7 +434,7 @@ jobs:
       - dependency_info
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix: ${{ fromJson(needs.config_files.outputs.matrix_full) }}
     steps:
       ### setup
