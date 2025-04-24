@@ -92,11 +92,10 @@ env:
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "ref": "main"        }
     }
 
-  # GEMC Docker image to use; unfortunately we cannot simply pass the image
-  # name to the CI job step, so instead we have the following aliases:
-  # - "fedora": docker://jeffersonlab/gemc:dev-fedora36
-  # - "alma":   docker://jeffersonlab/gemc:dev-almalinux94
-  gemc_image: 'fedora'
+  # GEMC Docker image to use, e.g.:
+  # - docker://jeffersonlab/gemc:dev-fedora36
+  # - docker://jeffersonlab/gemc:dev-almalinux94
+  gemc_image: 'docker://jeffersonlab/gemc:dev-fedora36'
 
   # GEMC version to use in the GEMC container; available choices:
   # - "build":        rebuild GEMC from clas12Tags and use that version
@@ -505,31 +504,24 @@ jobs:
           clean: false
           fetch-tags: true
           fetch-depth: 0
-      - name: rebuild GEMC - fedora ### fedora build
-        if: ${{ steps.gemc_ver.outputs.gemc_image == 'fedora' && steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-        uses: docker://jeffersonlab/gemc:dev-fedora36
-        with:
-          entrypoint: bin/ci_gemc_build.sh
-          args: clas12Tags/source
-      - name: rebuild GEMC - alma ### alma build
-        if: ${{ steps.gemc_ver.outputs.gemc_image == 'alma' && steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-        uses: docker://jeffersonlab/gemc:dev-almalinux94
-        with:
-          entrypoint: bin/ci_gemc_build.sh
-          args: clas12Tags/source
+      - name: rebuild GEMC
+        if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
+        run: |
+          docker run --rm \
+            ${{ steps.gemc_ver.outputs.gemc_image }} \
+            bin/ci_gemc_build.sh \
+            clas12Tags/source
       ### run simulation
-      - name: simulation - fedora ### fedora build
-        if: ${{ steps.gemc_ver.outputs.gemc_image == 'fedora' }}
-        uses: docker://jeffersonlab/gemc:dev-fedora36
-        with:
-          entrypoint: bin/ci_gemc_run.sh
-          args: ${{ steps.gemc_ver.outputs.gemc_module_version }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
-      - name: simulation - alma ### alma build
-        if: ${{ steps.gemc_ver.outputs.gemc_image == 'alma' }}
-        uses: docker://jeffersonlab/gemc:dev-almalinux94
-        with:
-          entrypoint: bin/ci_gemc_run.sh
-          args: ${{ steps.gemc_ver.outputs.gemc_module_version }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
+      - name: simulation
+        run: |
+          docker run --rm \
+            -v /cvmfs:/cvmfs \
+            ${{ steps.gemc_ver.outputs.gemc_image }} \
+            bin/ci_gemc_run.sh \
+            ${{ steps.gemc_ver.outputs.gemc_module_version }} \
+            ${{ steps.files.outputs.gemcConfigFile }} \
+            ${{ steps.files.outputs.evgenFile }} \
+            ${{ steps.files.outputs.simFile }}
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       ### run reconstruction
