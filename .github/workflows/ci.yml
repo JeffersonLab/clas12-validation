@@ -93,9 +93,9 @@ env:
     }
 
   # GEMC Docker image to use, e.g.:
-  # - docker://jeffersonlab/gemc:dev-fedora36
-  # - docker://jeffersonlab/gemc:dev-almalinux94
-  gemc_image: 'docker://jeffersonlab/gemc:dev-fedora36'
+  # - jeffersonlab/gemc:dev-fedora36
+  # - jeffersonlab/gemc:dev-almalinux94
+  gemc_image: 'jeffersonlab/gemc:dev-fedora36'
 
   # GEMC version to use in the GEMC container; available choices:
   # - "build":        rebuild GEMC from clas12Tags and use that version
