@@ -515,12 +515,15 @@ jobs:
             bin/ci_gemc_build.sh \
             clas12Tags/source
       ### run simulation
-      - name: kluge CCDB_CONNECTION for CVMFS bind mount # FIXME: GEMC image has its _own_ /cvmfs, so we can't just simply bind /cvmfs:/cvmfs
-        run: echo CCDB_CONNECTION=$(echo $CCDB_CONNECTION | sed 's;cvmfs;cvmfs_ext;') | tee -a $GITHUB_ENV
+      # FIXME: need to bind host `/cvmfs` to container `/cvmfs_ext`, since
+      # container image has its OWN `/cvmfs` directory; `CCDB_CONNECTION` is
+      # modified accordingly; we can't fix this here until the image does NOT
+      # have its own `/cvmfs`
       - name: simulation
         run: |
           docker run \
             --rm \
+            --env CCDB_CONNECTION=$(echo $CCDB_CONNECTION | sed 's;cvmfs;cvmfs_ext;') \
             --mount type=bind,ro,src=/cvmfs,dst=/cvmfs_ext \
             --mount type=bind,src=.,dst=/ci \
             --workdir=/ci \
@@ -530,8 +533,6 @@ jobs:
             ${{ steps.files.outputs.gemcConfigFile }} \
             ${{ steps.files.outputs.evgenFile }} \
             ${{ steps.files.outputs.simFile }}
-      - name: revert kluge CCDB_CONNECTION for CVMFS bind mount
-        run: echo CCDB_CONNECTION=$(echo $CCDB_CONNECTION | sed 's;cvmfs_ext;cvmfs;') | tee -a $GITHUB_ENV
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       ### run reconstruction
