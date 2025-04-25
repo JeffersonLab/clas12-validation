@@ -517,9 +517,10 @@ jobs:
       ### run simulation
       - name: simulation
         run: |
+          CCDB_CONNECTION=$(echo $CCDB_CONNECTION | sed 's;cvmfs;cvmfs_ext;') \
           docker run \
             --rm \
-            --mount type=bind,ro,src=/cvmfs,dst=/cvmfs \
+            --mount type=bind,ro,src=/cvmfs,dst=/cvmfs_ext \
             --mount type=bind,src=.,dst=/ci \
             --workdir=/ci \
             ${{ steps.gemc_ver.outputs.gemc_image }} \
