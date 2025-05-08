@@ -548,10 +548,11 @@ jobs:
         run: cat coatjava/coatjava/bin/recon-util
       - name: reconstruction
         run: |
-          coatjava/coatjava/bin/recon-util -Xmx3072m \
+          coatjava/coatjava/bin/recon-util \
             -y ${{ steps.files.outputs.coatjavaConfigFile }} \
             -i ${{ steps.files.outputs.simFile }} \
-            -o ${{ steps.files.outputs.recFile }}
+            -o ${{ steps.files.outputs.recFile }} \
+            -- -Xmx3072m
       - name: check if output exists
         run: ls ${{ steps.files.outputs.recFile }}
       ### run analysis
