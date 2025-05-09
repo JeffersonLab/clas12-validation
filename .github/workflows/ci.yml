@@ -523,8 +523,8 @@ jobs:
         run: |
           docker run \
             --rm \
-            --env CCDB_CONNECTION=$(echo $CCDB_CONNECTION | sed 's;cvmfs;cvmfs_ext;') \
-            --mount type=bind,ro,src=/cvmfs,dst=/cvmfs_ext \
+            --env CCDB_CONNECTION='sqlite:////cvmfs_ccdb/ccdb_latest.sqlite' \
+            --mount type=bind,ro,src=/cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data/ccdb,dst=/cvmfs_ccdb \
             --mount type=bind,src=.,dst=/ci \
             --workdir=/ci \
             ${{ steps.gemc_ver.outputs.gemc_image }} \

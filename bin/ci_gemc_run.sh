@@ -39,26 +39,29 @@ esac
 echo """==============================
 CCDB_CONNECTION = ${CCDB_CONNECTION-}
 =============================="""
-echo "DEBUG 1"
-ls /cvmfs_ext
-echo "DEBUG 2"
-ls /cvmfs_ext/oasis.opensciencegrid.org
-echo "DEBUG 3"
-ls /cvmfs_ext/oasis.opensciencegrid.org/jlab
-echo "DEBUG 4"
-ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb
-echo "DEBUG 5"
-ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12
-echo "DEBUG 6"
-ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw
-echo "DEBUG 7"
-ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch
-echo "DEBUG 8"
-ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data
-echo "DEBUG 9"
-ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data/ccdb
-echo "DEBUG 10"
-ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data/ccdb/ccdb_latest.sqlite
+echo "DEBUG 0"
+ls /cvmfs_ccdb
+echo "DEBUG END"
+# echo "DEBUG 1"
+# ls /cvmfs_ext
+# echo "DEBUG 2"
+# ls /cvmfs_ext/oasis.opensciencegrid.org
+# echo "DEBUG 3"
+# ls /cvmfs_ext/oasis.opensciencegrid.org/jlab
+# echo "DEBUG 4"
+# ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb
+# echo "DEBUG 5"
+# ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12
+# echo "DEBUG 6"
+# ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw
+# echo "DEBUG 7"
+# ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch
+# echo "DEBUG 8"
+# ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data
+# echo "DEBUG 9"
+# ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data/ccdb
+# echo "DEBUG 10"
+# ls /cvmfs_ext/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data/ccdb/ccdb_latest.sqlite
 
 ### run a simulation, with truth-matching enabled
 $gemcExe \
