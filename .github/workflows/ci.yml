@@ -486,7 +486,7 @@ jobs:
         run: |
           ls ${{ steps.files.outputs.gemcConfigFile }}
           ls ${{ steps.files.outputs.coatjavaConfigFile }}
-      ### set GEMC version and image, and rebuild if necessary
+      ### set GEMC version and image
       - name: set GEMC versioning
         id: gemc_ver
         run: |
@@ -504,30 +504,38 @@ jobs:
           clean: false
           fetch-tags: true
           fetch-depth: 0
+      ### set GEMC docker arguments
+      # FIXME: need to bind host `/cvmfs` to container, but container image has
+      # its OWN `/cvmfs` directory
+      # - workaround: we bind to a DIFFERENT container path
+      # - we need to bind only the host directory that contains the `sqlite`
+      #   file, since just binding the host `/cvmfs` does not work at all
+      #   (possibly some issue with symlinks)
+      - name: set GEMC docker args
+        id: docker_args
+        run: |
+          ccdb_file=$(echo $CCDB_CONNECTION | sed 's;sqlite:///;;')
+          ccdb_host_dir=$(dirname $ccdb_file)
+          ccdb_cont_dir=/cvmfs_ccdb
+          docker_args=(
+            --env CCDB_CONNECTION=sqlite:///$ccdb_cont_dir/$(basename $ccdb_file)
+            --mount type=bind,ro,src=$ccdb_host_dir,dst=$ccdb_cont_dir
+            --mount type=bind,src=.,dst=/ci
+            --workdir=/ci
+            ${{ steps.gemc_ver.outputs.gemc_image }}
+          )
+          echo "docker_args=${docker_args[@]}" | tee -a $GITHUB_OUTPUT
+      ### rebuild GEMC (if necessary)
       - name: rebuild GEMC
         if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
         run: |
-          docker run \
-            --rm \
-            --mount type=bind,src=.,dst=/ci \
-            --workdir=/ci \
-            ${{ steps.gemc_ver.outputs.gemc_image }} \
+          docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
             bin/ci_gemc_build.sh \
             clas12Tags/source
       ### run simulation
-      # FIXME: need to bind host `/cvmfs` to container `/cvmfs_ext`, since
-      # container image has its OWN `/cvmfs` directory; `CCDB_CONNECTION` is
-      # modified accordingly; we can't fix this here until the image does NOT
-      # have its own `/cvmfs`
       - name: simulation
         run: |
-          docker run \
-            --rm \
-            --env CCDB_CONNECTION='sqlite:////cvmfs_ccdb/ccdb_latest.sqlite' \
-            --mount type=bind,ro,src=/cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data/ccdb,dst=/cvmfs_ccdb \
-            --mount type=bind,src=.,dst=/ci \
-            --workdir=/ci \
-            ${{ steps.gemc_ver.outputs.gemc_image }} \
+          docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
             bin/ci_gemc_run.sh \
             ${{ steps.gemc_ver.outputs.gemc_module_version }} \
             ${{ steps.files.outputs.gemcConfigFile }} \
