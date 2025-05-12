@@ -544,6 +544,7 @@ jobs:
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       ### run reconstruction
+      # NOTE: using larger heap max size (`-Xmx`) than the default, for performance
       - name: reconstruction
         run: |
           coatjava/coatjava/bin/recon-util \
