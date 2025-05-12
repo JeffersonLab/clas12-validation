@@ -544,12 +544,14 @@ jobs:
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       ### run reconstruction
+      # NOTE: using larger heap max size (`-Xmx`) than the default, for performance
       - name: reconstruction
         run: |
           coatjava/coatjava/bin/recon-util \
             -y ${{ steps.files.outputs.coatjavaConfigFile }} \
             -i ${{ steps.files.outputs.simFile }} \
-            -o ${{ steps.files.outputs.recFile }}
+            -o ${{ steps.files.outputs.recFile }} \
+            -- -Xmx3072m
       - name: check if output exists
         run: ls ${{ steps.files.outputs.recFile }}
       ### run analysis
