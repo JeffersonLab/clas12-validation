@@ -527,7 +527,7 @@ jobs:
           echo "docker_args=${docker_args[@]}" | tee -a $GITHUB_OUTPUT
       ### rebuild GEMC (if necessary)
       - name: rebuild GEMC
-        if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
+        # if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
         run: |
           docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
             bin/ci_gemc_build.sh \
