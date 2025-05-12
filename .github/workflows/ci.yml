@@ -53,6 +53,7 @@ defaults:
     shell: bash
 
 env:
+  CCDB_CONNECTION: 'sqlite:////cvmfs/oasis.opensciencegrid.org/jlab/hallb/clas12/sw/noarch/data/ccdb/ccdb_latest.sqlite'
 
   ##################################################################################
   # the following 'env' vars may be overridden with workflow 'input' variables;    #
@@ -91,11 +92,10 @@ env:
       "clas12-validation": { "fork": "JeffersonLab/clas12-validation", "ref": "main"        }
     }
 
-  # GEMC Docker image to use; unfortunately we cannot simply pass the image
-  # name to the CI job step, so instead we have the following aliases:
-  # - "fedora": docker://jeffersonlab/gemc:dev-fedora36
-  # - "alma":   docker://jeffersonlab/gemc:dev-almalinux94
-  gemc_image: 'fedora'
+  # GEMC Docker image to use, e.g.:
+  # - jeffersonlab/gemc:dev-fedora36
+  # - jeffersonlab/gemc:dev-almalinux94
+  gemc_image: 'jeffersonlab/gemc:dev-fedora36'
 
   # GEMC version to use in the GEMC container; available choices:
   # - "build":        rebuild GEMC from clas12Tags and use that version
@@ -235,6 +235,9 @@ jobs:
         with:
           java-version: ${{ env.java_version }}
           distribution: ${{ env.java_distribution }}
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: checkout coatjava
         uses: actions/checkout@v4
         with:
@@ -393,6 +396,9 @@ jobs:
         uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: ${{ env.groovy_version }}
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: download build
         uses: actions/download-artifact@v4
         with:
@@ -449,6 +455,9 @@ jobs:
         uses: wtfjoke/setup-groovy@v2
         with:
           groovy-version: ${{ env.groovy_version }}
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: download evgen
         uses: actions/download-artifact@v4
         with:
@@ -477,7 +486,7 @@ jobs:
         run: |
           ls ${{ steps.files.outputs.gemcConfigFile }}
           ls ${{ steps.files.outputs.coatjavaConfigFile }}
-      ### set GEMC version and image, and rebuild if necessary
+      ### set GEMC version and image
       - name: set GEMC versioning
         id: gemc_ver
         run: |
@@ -495,31 +504,43 @@ jobs:
           clean: false
           fetch-tags: true
           fetch-depth: 0
-      - name: rebuild GEMC - fedora ### fedora build
-        if: ${{ steps.gemc_ver.outputs.gemc_image == 'fedora' && steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-        uses: docker://jeffersonlab/gemc:dev-fedora36
-        with:
-          entrypoint: bin/ci_gemc_build.sh
-          args: clas12Tags/source
-      - name: rebuild GEMC - alma ### alma build
-        if: ${{ steps.gemc_ver.outputs.gemc_image == 'alma' && steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-        uses: docker://jeffersonlab/gemc:dev-almalinux94
-        with:
-          entrypoint: bin/ci_gemc_build.sh
-          args: clas12Tags/source
+      ### set GEMC docker arguments
+      # FIXME: need to bind host `/cvmfs` to container, but container image has
+      # its OWN `/cvmfs` directory
+      # - workaround: we bind to a DIFFERENT container path
+      # - we need to bind only the host directory that contains the `sqlite`
+      #   file, since just binding the host `/cvmfs` does not work at all
+      #   (possibly some issue with symlinks)
+      - name: set GEMC docker args
+        id: docker_args
+        run: |
+          ccdb_file=$(echo $CCDB_CONNECTION | sed 's;sqlite:///;;')
+          ccdb_host_dir=$(dirname $ccdb_file)
+          ccdb_cont_dir=/cvmfs_ccdb
+          docker_args=(
+            --env CCDB_CONNECTION=sqlite:///$ccdb_cont_dir/$(basename $ccdb_file)
+            --mount type=bind,ro,src=$ccdb_host_dir,dst=$ccdb_cont_dir
+            --mount type=bind,src=.,dst=/ci
+            --workdir=/ci
+            ${{ steps.gemc_ver.outputs.gemc_image }}
+          )
+          echo "docker_args=${docker_args[@]}" | tee -a $GITHUB_OUTPUT
+      ### rebuild GEMC (if necessary)
+      - name: rebuild GEMC
+        if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
+        run: |
+          docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
+            bin/ci_gemc_build.sh \
+            clas12Tags/source
       ### run simulation
-      - name: simulation - fedora ### fedora build
-        if: ${{ steps.gemc_ver.outputs.gemc_image == 'fedora' }}
-        uses: docker://jeffersonlab/gemc:dev-fedora36
-        with:
-          entrypoint: bin/ci_gemc_run.sh
-          args: ${{ steps.gemc_ver.outputs.gemc_module_version }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
-      - name: simulation - alma ### alma build
-        if: ${{ steps.gemc_ver.outputs.gemc_image == 'alma' }}
-        uses: docker://jeffersonlab/gemc:dev-almalinux94
-        with:
-          entrypoint: bin/ci_gemc_run.sh
-          args: ${{ steps.gemc_ver.outputs.gemc_module_version }} ${{ steps.files.outputs.gemcConfigFile }} ${{ steps.files.outputs.evgenFile }} ${{ steps.files.outputs.simFile }}
+      - name: simulation
+        run: |
+          docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
+            bin/ci_gemc_run.sh \
+            ${{ steps.gemc_ver.outputs.gemc_module_version }} \
+            ${{ steps.files.outputs.gemcConfigFile }} \
+            ${{ steps.files.outputs.evgenFile }} \
+            ${{ steps.files.outputs.simFile }}
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       ### run reconstruction
