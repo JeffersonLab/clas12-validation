@@ -252,7 +252,7 @@ jobs:
         with:
           attempt_limit: 3
           attempt_delay: 10000
-          command: 'cd coatjava ; ./build-coatjava.sh --no-progress -T4'
+          command: 'cd coatjava ; ./build-coatjava.sh --no-progress'
       - name: tree
         run: tree
       - name: tar
