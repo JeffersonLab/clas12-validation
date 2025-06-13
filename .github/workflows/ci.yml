@@ -248,7 +248,7 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: build
-      - run: coatjava/build-coatjava.sh --no-progress
+        run: coatjava/build-coatjava.sh --no-progress
       - name: tree
         run: tree
       - name: tar
