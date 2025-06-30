@@ -142,518 +142,509 @@ env:
 
 jobs:
 
-  disabled:
-    name: Validation Is Disabled
+  # context dump
+  #############################################################################
+  context:
+    name: GitHub context
     runs-on: ubuntu-latest
     steps:
-      - name: Validation Is Disabled
+      - name: dump context
         run: |
-          echo "ERROR: 'clas12-validation' is temporarily disabled"
-          exit 1
+          echo $GITHUB_CONTEXT > context.json
+          jq . context.json
+    env:
+      GITHUB_CONTEXT: ${{ toJson(github) }}
 
-  # # context dump
-  # #############################################################################
-  # context:
-  #   name: GitHub context
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: dump context
-  #       run: |
-  #         echo $GITHUB_CONTEXT > context.json
-  #         jq . context.json
-  #   env:
-  #     GITHUB_CONTEXT: ${{ toJson(github) }}
-  #
-  # # dependency and source info
-  # #############################################################################
-  # dependency_info:
-  #   name: Dependency info
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     fork_coatjava: ${{ steps.info.outputs.fork_coatjava }}
-  #     ref_coatjava: ${{ steps.info.outputs.ref_coatjava }}
-  #     fork_clas12tags: ${{ steps.info.outputs.fork_clas12tags }}
-  #     ref_clas12tags: ${{ steps.info.outputs.ref_clas12tags }}
-  #     fork_clas12config: ${{ steps.info.outputs.fork_clas12config }}
-  #     ref_clas12config: ${{ steps.info.outputs.ref_clas12config }}
-  #     fork_clas12validation: ${{ steps.info.outputs.fork_clas12validation }}
-  #     ref_clas12validation: ${{ steps.info.outputs.ref_clas12validation }}
-  #     caller_repo: ${{ steps.info.outputs.caller_repo }}
-  #   steps:
-  #     - name: checkout clas12-validation
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: JeffersonLab/clas12-validation
-  #         # ref: feature-branch # NOTE: if making a clas12-validation change that impacts this job, temporarily set the corresponding ref here
-  #     - name: get dependency info
-  #       id: info
-  #       run: |
-  #         echo '${{ env.git_upstream }}' > upstream.json
-  #         echo '${{ inputs.git_upstream || env.git_upstream }}' > caller_overrides.json
-  #         echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.event.pull_request.head.repo.full_name || github.repository }}", "ref": "${{ github.head_ref || github.ref_name }}" }}' > source.json
-  #         jq -sc add upstream.json caller_overrides.json source.json > deps.json
-  #         ### get fork names and refs
-  #         fork_coatjava=$(jq -r '."coatjava".fork' deps.json)
-  #         fork_clas12tags=$(jq -r '."clas12Tags".fork' deps.json)
-  #         fork_clas12config=$(jq -r '."clas12-config".fork' deps.json)
-  #         fork_clas12validation=$(jq -r '."clas12-validation".fork' deps.json)
-  #         ref_coatjava=$(jq -r '."coatjava".ref' deps.json)
-  #         ref_clas12tags=$(jq -r '."clas12Tags".ref' deps.json)
-  #         ref_clas12config=$(jq -r '."clas12-config".ref' deps.json)
-  #         ref_clas12validation=$(jq -r '."clas12-validation".ref' deps.json)
-  #         ### if any ref names are empty strings, use the highest tag instead
-  #         [ "$ref_coatjava" = "" ] && ref_coatjava=$(bin/get_highest_tag.rb JeffersonLab/coatjava) # NOTE: using the main forks here, since they have the semver tags
-  #         [ "$ref_clas12tags" = "" ] && ref_clas12tags=$(bin/get_highest_tag.rb gemc/clas12Tags)
-  #         [ "$ref_clas12config" = "" ] && ref_clas12config=$(bin/get_highest_tag.rb JeffersonLab/clas12-config)
-  #         [ "$ref_clas12validation" = "" ] && ref_clas12validation=$(bin/get_highest_tag.rb JeffersonLab/clas12-validation)
-  #         ### set output vars
-  #         echo fork_coatjava=$fork_coatjava >> $GITHUB_OUTPUT
-  #         echo fork_clas12tags=$fork_clas12tags >> $GITHUB_OUTPUT
-  #         echo fork_clas12config=$fork_clas12config >> $GITHUB_OUTPUT
-  #         echo fork_clas12validation=$fork_clas12validation >> $GITHUB_OUTPUT
-  #         echo ref_coatjava=$ref_coatjava >> $GITHUB_OUTPUT
-  #         echo ref_clas12tags=$ref_clas12tags >> $GITHUB_OUTPUT
-  #         echo ref_clas12config=$ref_clas12config >> $GITHUB_OUTPUT
-  #         echo ref_clas12validation=$ref_clas12validation >> $GITHUB_OUTPUT
-  #         ### get caller repository
-  #         echo caller_repo=$(echo "${{ github.repository }}" | sed 's;^.*/;;g') >> $GITHUB_OUTPUT
-  #     - name: dispatch summary
-  #       run: |
-  #         echo '| | | |' >> $GITHUB_STEP_SUMMARY
-  #         echo '| --- | --- | --- |' >> $GITHUB_STEP_SUMMARY
-  #         echo '| **Triggered By `${{ github.event_name }}`:** | <${{ github.event.pull_request.html_url || github.event.head_commit.url }}> |  |' >> $GITHUB_STEP_SUMMARY
-  #         echo '| **`coatjava` Fork and Ref:** | `${{ steps.info.outputs.fork_coatjava }}` | [`${{ steps.info.outputs.ref_coatjava }}`](https://github.com/${{ steps.info.outputs.fork_coatjava }}/tree/${{ steps.info.outputs.ref_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
-  #         echo '| **`clas12Tags` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12tags }}` | [`${{ steps.info.outputs.ref_clas12tags }}`](https://github.com/${{ steps.info.outputs.fork_clas12tags }}/tree/${{ steps.info.outputs.ref_clas12tags }}) |' >> $GITHUB_STEP_SUMMARY
-  #         echo '| **`clas12-config` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.ref_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.ref_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
-  #         echo '| **`clas12-validation` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.ref_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.ref_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
-  #         echo '| | | |' >> $GITHUB_STEP_SUMMARY
-  #         echo '' >> $GITHUB_STEP_SUMMARY
-  #         echo '- Caller repository: `${{ steps.info.outputs.caller_repo }}`' >> $GITHUB_STEP_SUMMARY
-  #
-  # # build
-  # #############################################################################
-  #
-  # build_coatjava:
-  #   name: Build coatjava
-  #   needs:
-  #     - dependency_info
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: setup java
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         java-version: ${{ env.java_version }}
-  #         distribution: ${{ env.java_distribution }}
-  #     - uses: cvmfs-contrib/github-action-cvmfs@v5
-  #       with:
-  #         cvmfs_repositories: 'oasis.opensciencegrid.org'
-  #     - name: checkout coatjava
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: ${{ needs.dependency_info.outputs.fork_coatjava }}
-  #         ref: ${{ needs.dependency_info.outputs.ref_coatjava }}
-  #         path: coatjava
-  #         clean: false
-  #         fetch-tags: true
-  #         fetch-depth: 0
-  #     - name: build
-  #       uses: Wandalen/wretry.action@v3.8.0 # using wretry.action, to mitigate sporadic maven repo connection failures
-  #       with:
-  #         attempt_limit: 3
-  #         attempt_delay: 10000
-  #         command: 'cd coatjava ; ./build-coatjava.sh --no-progress -T4'
-  #     - name: tree
-  #       run: tree
-  #     - name: tar
-  #       run: tar cavf coatjava{.tar.zst,}
-  #     - uses: actions/upload-artifact@v4
-  #       with:
-  #         name: build.coatjava
-  #         retention-days: 3
-  #         path: ./*.tar.zst
-  #
-  # # clas12-config configuration
-  # #############################################################################
-  #
-  # config_files:
-  #   name: Configuration files
-  #   needs:
-  #     - dependency_info
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     num_events: ${{ steps.num_events.outputs.num_events }}
-  #     tag_config_coatjava: ${{ steps.version.outputs.tag_config_coatjava }}
-  #     tag_config_gemc: ${{ steps.version.outputs.tag_config_gemc }}
-  #     matrix_evgen: ${{ steps.read_matrices.outputs.matrix_evgen }}
-  #     matrix_config: ${{ steps.read_matrices.outputs.matrix_config }}
-  #     matrix_full: ${{ steps.matrix_full.outputs.matrix_full }}
-  #   steps:
-  #     - name: checkout clas12-validation
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
-  #         ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
-  #         clean: false
-  #         fetch-tags: true
-  #         fetch-depth: 0
-  #     - name: checkout clas12-config
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: ${{ needs.dependency_info.outputs.fork_clas12config }}
-  #         ref: ${{ needs.dependency_info.outputs.ref_clas12config }}
-  #         path: clas12-config
-  #         clean: false
-  #         fetch-tags: true
-  #         fetch-depth: 0
-  #     - name: set number of events
-  #       id: num_events
-  #       run: |
-  #         num_events=${{ inputs.num_events || env.num_events }}
-  #         echo num_events=$num_events >> $GITHUB_OUTPUT
-  #         echo "### Number of Events:" >> $GITHUB_STEP_SUMMARY
-  #         echo "$num_events" >> $GITHUB_STEP_SUMMARY
-  #     - name: get version info
-  #       id: version
-  #       working-directory: clas12-config
-  #       run: |
-  #         tag_config_coatjava=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.coatjava')
-  #         tag_config_gemc=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.gemc')
-  #         # job summary
-  #         echo "" >> $GITHUB_STEP_SUMMARY
-  #         echo "### Versions:" >> $GITHUB_STEP_SUMMARY
-  #         echo "| Configuration File Set | Version |"      >> $GITHUB_STEP_SUMMARY
-  #         echo "| --- | --- |"                             >> $GITHUB_STEP_SUMMARY
-  #         echo "| \`coatjava\` | ${tag_config_coatjava} |" >> $GITHUB_STEP_SUMMARY
-  #         echo "| \`gemc\` | ${tag_config_gemc} |"         >> $GITHUB_STEP_SUMMARY
-  #         # output vars
-  #         echo tag_config_coatjava=$tag_config_coatjava >> $GITHUB_OUTPUT
-  #         echo tag_config_gemc=$tag_config_gemc         >> $GITHUB_OUTPUT
-  #     - name: read matrices
-  #       id: read_matrices
-  #       run: |
-  #         echo matrix_evgen=$(jq -c . <(echo '{ "evgen": ${{ inputs.matrix_evgen || env.matrix_evgen }} }')) >> $GITHUB_OUTPUT
-  #         config_list=$(jq -c . <(echo '${{ inputs.matrix_config || env.matrix_config }}'))
-  #         echo matrix_config=$(jq -c . <(echo '{ "config":' $config_list '}')) >> $GITHUB_OUTPUT
-  #     - name: make full job matrix
-  #       id: matrix_full
-  #       run: echo matrix_full=$(jq -sc add <(echo '${{ steps.read_matrices.outputs.matrix_evgen }}') <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) >> $GITHUB_OUTPUT
-  #     - name: summary
-  #       run: |
-  #         echo "" >> $GITHUB_STEP_SUMMARY
-  #         echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
-  #         echo '```json' >> $GITHUB_STEP_SUMMARY
-  #         echo '${{ steps.matrix_full.outputs.matrix_full }}' | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
-  #         echo '```' >> $GITHUB_STEP_SUMMARY
-  #     - name: find config files
-  #       working-directory: clas12-config
-  #       run: |
-  #         for config_file in $(jq -r '.config[]' <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) ; do
-  #           echo "find config files for config='$config_file'"
-  #           if [ "${{ steps.version.outputs.tag_config_coatjava }}" = "latest" ] ; then
-  #             util/latest.rb coatjava $config_file both | tee -a coatjava.ver
-  #           else
-  #             ls   coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config_file}.yaml
-  #             echo coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config_file}.yaml ${{ steps.version.outputs.tag_config_coatjava }} | tee -a coatjava.ver
-  #           fi
-  #           if [ "${{ steps.version.outputs.tag_config_gemc }}" = "latest" ] ; then
-  #             util/latest.rb gemc $config_file both | tee -a gemc.ver
-  #           else
-  #             ls   gemc/${{ steps.version.outputs.tag_config_gemc }}/${config_file}.gcard
-  #             echo gemc/${{ steps.version.outputs.tag_config_gemc }}/${config_file}.gcard ${{ steps.version.outputs.tag_config_gemc }} | tee -a gemc.ver
-  #           fi
-  #         done
-  #         echo "" >> $GITHUB_STEP_SUMMARY
-  #         echo "### Configuration Files:" >> $GITHUB_STEP_SUMMARY
-  #         echo '```' >> $GITHUB_STEP_SUMMARY
-  #         paste {coatjava,gemc}.ver | column -t | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
-  #         echo '```' >> $GITHUB_STEP_SUMMARY
-  #     - name: tar
-  #       run: tar cavf clas12-config{.tar.zst,}
-  #     - uses: actions/upload-artifact@v4
-  #       with:
-  #         name: build.config
-  #         retention-days: 3
-  #         path: ./*.tar.zst
-  #
-  # # event generation
-  # #############################################################################
-  # event_generation:
-  #   name: Event generation
-  #   needs:
-  #     - build_coatjava
-  #     - config_files
-  #     - dependency_info
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: true
-  #     matrix: ${{ fromJson(needs.config_files.outputs.matrix_evgen) }}
-  #   steps:
-  #     - name: checkout clas12-validation
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
-  #         ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
-  #         clean: false
-  #         fetch-tags: true
-  #         fetch-depth: 0
-  #     - name: setup java
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         java-version: ${{ env.java_version }}
-  #         distribution: ${{ env.java_distribution }}
-  #     - name: setup groovy
-  #       uses: wtfjoke/setup-groovy@v2
-  #       with:
-  #         groovy-version: ${{ env.groovy_version }}
-  #     - uses: cvmfs-contrib/github-action-cvmfs@v5
-  #       with:
-  #         cvmfs_repositories: 'oasis.opensciencegrid.org'
-  #     - name: download build
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         pattern: build.*
-  #         merge-multiple: true
-  #     - name: untar build
-  #       run: ls *.tar.zst | xargs -I{} tar xavf {}
-  #     - name: check if this configuration is known
-  #       run: jq -re '.${{ matrix.evgen }}' <(echo '${{ env.evgen_opts }}')
-  #     - name: event generation
-  #       run: |
-  #         coatjava/coatjava/bin/run-groovy \
-  #           coatjava/validation/advanced-tests/src/eb/scripts/gen.groovy \
-  #           $(jq -r '.${{ matrix.evgen }}' <(echo '${{ env.evgen_opts }}')) \
-  #           -n ${{ needs.config_files.outputs.num_events }}
-  #     - name: rename artifact
-  #       run: |
-  #         ls -t *.txt
-  #         mv -v $(ls -t *.txt | head -n1) evgen.${{ matrix.evgen }}.dat
-  #     - uses: actions/upload-artifact@v4
-  #       with:
-  #         name: evgen.${{ matrix.evgen }}
-  #         retention-days: 3
-  #         path: evgen.${{ matrix.evgen }}.dat
-  #
-  # # simulation, reconstruction, and analysis: combined to one step to avoid large artifact I/O overhead
-  # #############################################################################
-  # fulltest:
-  #   name: Run
-  #   needs:
-  #     - event_generation
-  #     - config_files
-  #     - dependency_info
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: true
-  #     matrix: ${{ fromJson(needs.config_files.outputs.matrix_full) }}
-  #   steps:
-  #     ### setup
-  #     - name: checkout clas12-validation
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
-  #         ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
-  #         clean: false
-  #         fetch-tags: true
-  #         fetch-depth: 0
-  #     - name: setup java
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         java-version: ${{ env.java_version }}
-  #         distribution: ${{ env.java_distribution }}
-  #     - name: setup groovy
-  #       uses: wtfjoke/setup-groovy@v2
-  #       with:
-  #         groovy-version: ${{ env.groovy_version }}
-  #     - uses: cvmfs-contrib/github-action-cvmfs@v5
-  #       with:
-  #         cvmfs_repositories: 'oasis.opensciencegrid.org'
-  #     - name: download evgen
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: evgen.${{ matrix.evgen }}
-  #     - name: download build
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         pattern: build.*
-  #         merge-multiple: true
-  #     - name: tree
-  #       run: ls -lhR
-  #     - name: untar build
-  #       run: ls *.tar.zst | xargs -I{} tar xavf {}
-  #     ### handle config files
-  #     - name: file names
-  #       id: files
-  #       run: |
-  #         echo evgenFile=evgen.${{ matrix.evgen }}.dat >> $GITHUB_OUTPUT
-  #         suffix=${{ matrix.evgen }}.${{ matrix.config }}
-  #         echo suffix=$suffix >> $GITHUB_OUTPUT
-  #         echo simFile=sim.$suffix.hipo >> $GITHUB_OUTPUT
-  #         echo recFile=rec.$suffix.hipo >> $GITHUB_OUTPUT
-  #         echo coatjavaConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/coatjava.ver | awk '{print $1}') >> $GITHUB_OUTPUT
-  #         echo gemcConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/gemc.ver | awk '{print $1}') >> $GITHUB_OUTPUT
-  #     - name: config files exist
-  #       run: |
-  #         ls ${{ steps.files.outputs.gemcConfigFile }}
-  #         ls ${{ steps.files.outputs.coatjavaConfigFile }}
-  #     ### set GEMC version and image
-  #     - name: set GEMC versioning
-  #       id: gemc_ver
-  #       run: |
-  #         gemc_module_version=${{ inputs.gemc_version || env.gemc_version }}
-  #         [ "$gemc_module_version" = "match_gcard" ] && gemc_module_version=$(grep -w ${{ matrix.config }} clas12-config/gemc.ver | awk '{print $2}')
-  #         echo gemc_module_version=$gemc_module_version | tee -a $GITHUB_OUTPUT
-  #         echo gemc_image=${{ inputs.gemc_image || env.gemc_image }} | tee -a $GITHUB_OUTPUT
-  #     - name: checkout clas12Tags
-  #       if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
-  #         ref: ${{ needs.dependency_info.outputs.ref_clas12tags }}
-  #         path: clas12Tags
-  #         clean: false
-  #         fetch-tags: true
-  #         fetch-depth: 0
-  #     ### set GEMC docker arguments
-  #     # FIXME: need to bind host `/cvmfs` to container, but container image has
-  #     # its OWN `/cvmfs` directory
-  #     # - workaround: we bind to a DIFFERENT container path
-  #     # - we need to bind only the host directory that contains the `sqlite`
-  #     #   file, since just binding the host `/cvmfs` does not work at all
-  #     #   (possibly some issue with symlinks)
-  #     - name: set GEMC docker args
-  #       id: docker_args
-  #       run: |
-  #         ccdb_file=$(echo $CCDB_CONNECTION | sed 's;sqlite:///;;')
-  #         ccdb_host_dir=$(dirname $ccdb_file)
-  #         ccdb_cont_dir=/cvmfs_ccdb
-  #         docker_args=(
-  #           --env CCDB_CONNECTION=sqlite:///$ccdb_cont_dir/$(basename $ccdb_file)
-  #           --mount type=bind,ro,src=$ccdb_host_dir,dst=$ccdb_cont_dir
-  #           --mount type=bind,src=.,dst=/ci
-  #           --workdir=/ci
-  #           ${{ steps.gemc_ver.outputs.gemc_image }}
-  #         )
-  #         echo "docker_args=${docker_args[@]}" | tee -a $GITHUB_OUTPUT
-  #     ### rebuild GEMC (if necessary)
-  #     - name: rebuild GEMC
-  #       if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-  #       run: |
-  #         docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
-  #           bin/ci_gemc_build.sh \
-  #           clas12Tags/source
-  #     ### run simulation
-  #     - name: simulation
-  #       run: |
-  #         docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
-  #           bin/ci_gemc_run.sh \
-  #           ${{ steps.gemc_ver.outputs.gemc_module_version }} \
-  #           ${{ steps.files.outputs.gemcConfigFile }} \
-  #           ${{ steps.files.outputs.evgenFile }} \
-  #           ${{ steps.files.outputs.simFile }}
-  #     - name: check if output exists
-  #       run: ls ${{ steps.files.outputs.simFile }}
-  #     ### run reconstruction
-  #     # NOTE: using larger heap max size (`-Xmx`) than the default, for performance
-  #     - name: reconstruction
-  #       run: |
-  #         coatjava/coatjava/bin/recon-util \
-  #           -y ${{ steps.files.outputs.coatjavaConfigFile }} \
-  #           -i ${{ steps.files.outputs.simFile }} \
-  #           -o ${{ steps.files.outputs.recFile }} \
-  #           -- -Xmx3072m
-  #     - name: check if output exists
-  #       run: ls ${{ steps.files.outputs.recFile }}
-  #     ### run analysis
-  #     - name: analyze efficiency
-  #       run: |
-  #         coatjava/coatjava/bin/trutheff ${{ steps.files.outputs.recFile }} | tee ana.tmp
-  #         cat ana.tmp |\
-  #           grep -v 'reader::' |\
-  #           grep -v '{' \
-  #           > ana.efficiency.${{ steps.files.outputs.suffix }}.txt
-  #     - name: analyze multiplicity
-  #       run: |
-  #         bankName="REC::Particle"
-  #         [[ "${{ matrix.evgen }}" =~ FT ]] && bankName="RECFT::Particle"
-  #         echo "bank: $bankName" | tee ana.bankName.${{ steps.files.outputs.suffix }}.txt
-  #         coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy \
-  #           ${{ steps.files.outputs.recFile }} \
-  #           $bankName |\
-  #           tee ana.tmp
-  #           tail -n1 ana.tmp > ana.multiplicity.${{ steps.files.outputs.suffix }}.txt
-  #     - uses: actions/upload-artifact@v4
-  #       with:
-  #         name: sim.${{ matrix.evgen }}.${{ matrix.config }}
-  #         retention-days: 3
-  #         path: sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo
-  #     - uses: actions/upload-artifact@v4
-  #       with:
-  #         name: rec.${{ matrix.evgen }}.${{ matrix.config }}
-  #         retention-days: 3
-  #         path: rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo
-  #     - uses: actions/upload-artifact@v4
-  #       with:
-  #         name: ana.${{ matrix.evgen }}.${{ matrix.config }}
-  #         retention-days: 3
-  #         path: ana.*
-  #
-  # # finalize
-  # #############################################################################
-  # report_efficiency:
-  #   name: Report efficiency
-  #   needs:
-  #     - fulltest
-  #     - config_files
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: download ana
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         pattern: ana.*
-  #         merge-multiple: true
-  #     - run: tree
-  #     - name: report efficiency
-  #       run: |
-  #         echo "# Efficiency Report" >> $GITHUB_STEP_SUMMARY
-  #         for config in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.config[]') ; do
-  #           echo "## config: \`$config\`" >> $GITHUB_STEP_SUMMARY
-  #           for evgen in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.evgen[]') ; do
-  #             echo "### evgen: \`$evgen\`" >> $GITHUB_STEP_SUMMARY
-  #             echo '```' >> $GITHUB_STEP_SUMMARY
-  #             cat ana.efficiency.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
-  #             echo '```' >> $GITHUB_STEP_SUMMARY
-  #           done
-  #         done
-  #
-  # report_multiplicity:
-  #   name: Report multiplicity
-  #   needs:
-  #     - fulltest
-  #     - config_files
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: download ana
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         pattern: ana.*
-  #         merge-multiple: true
-  #     - run: tree
-  #     - name: read multiplicity
-  #       run: |
-  #         echo "# Multiplicity Report" >> $GITHUB_STEP_SUMMARY
-  #         echo '```yaml' >> $GITHUB_STEP_SUMMARY
-  #         for evgen in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.evgen[]') ; do
-  #           echo "evgen: $evgen" >> $GITHUB_STEP_SUMMARY
-  #           first=true
-  #           for config in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.config[]') ; do
-  #             if $first ; then
-  #               cat ana.bankName.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
-  #               echo "multiplicity: |" >> $GITHUB_STEP_SUMMARY
-  #               printf "  %25s:  PID (multiplicity) ...    # sorted multiplicity for each PID\n" "config" >> $GITHUB_STEP_SUMMARY
-  #               first=false
-  #             fi
-  #             printf "  %25s:  %s" $config "$(cat ana.multiplicity.${evgen}.${config}.txt)" | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
-  #           done
-  #           echo "" >> $GITHUB_STEP_SUMMARY
-  #         done
-  #         echo '```' >> $GITHUB_STEP_SUMMARY
+  # dependency and source info
+  #############################################################################
+  dependency_info:
+    name: Dependency info
+    runs-on: ubuntu-latest
+    outputs:
+      fork_coatjava: ${{ steps.info.outputs.fork_coatjava }}
+      ref_coatjava: ${{ steps.info.outputs.ref_coatjava }}
+      fork_clas12tags: ${{ steps.info.outputs.fork_clas12tags }}
+      ref_clas12tags: ${{ steps.info.outputs.ref_clas12tags }}
+      fork_clas12config: ${{ steps.info.outputs.fork_clas12config }}
+      ref_clas12config: ${{ steps.info.outputs.ref_clas12config }}
+      fork_clas12validation: ${{ steps.info.outputs.fork_clas12validation }}
+      ref_clas12validation: ${{ steps.info.outputs.ref_clas12validation }}
+      caller_repo: ${{ steps.info.outputs.caller_repo }}
+    steps:
+      - name: checkout clas12-validation
+        uses: actions/checkout@v4
+        with:
+          repository: JeffersonLab/clas12-validation
+          # ref: feature-branch # NOTE: if making a clas12-validation change that impacts this job, temporarily set the corresponding ref here
+      - name: get dependency info
+        id: info
+        run: |
+          echo '${{ env.git_upstream }}' > upstream.json
+          echo '${{ inputs.git_upstream || env.git_upstream }}' > caller_overrides.json
+          echo '{ "${{ github.event.repository.name }}": { "fork": "${{ github.event.pull_request.head.repo.full_name || github.repository }}", "ref": "${{ github.head_ref || github.ref_name }}" }}' > source.json
+          jq -sc add upstream.json caller_overrides.json source.json > deps.json
+          ### get fork names and refs
+          fork_coatjava=$(jq -r '."coatjava".fork' deps.json)
+          fork_clas12tags=$(jq -r '."clas12Tags".fork' deps.json)
+          fork_clas12config=$(jq -r '."clas12-config".fork' deps.json)
+          fork_clas12validation=$(jq -r '."clas12-validation".fork' deps.json)
+          ref_coatjava=$(jq -r '."coatjava".ref' deps.json)
+          ref_clas12tags=$(jq -r '."clas12Tags".ref' deps.json)
+          ref_clas12config=$(jq -r '."clas12-config".ref' deps.json)
+          ref_clas12validation=$(jq -r '."clas12-validation".ref' deps.json)
+          ### if any ref names are empty strings, use the highest tag instead
+          [ "$ref_coatjava" = "" ] && ref_coatjava=$(bin/get_highest_tag.rb JeffersonLab/coatjava) # NOTE: using the main forks here, since they have the semver tags
+          [ "$ref_clas12tags" = "" ] && ref_clas12tags=$(bin/get_highest_tag.rb gemc/clas12Tags)
+          [ "$ref_clas12config" = "" ] && ref_clas12config=$(bin/get_highest_tag.rb JeffersonLab/clas12-config)
+          [ "$ref_clas12validation" = "" ] && ref_clas12validation=$(bin/get_highest_tag.rb JeffersonLab/clas12-validation)
+          ### set output vars
+          echo fork_coatjava=$fork_coatjava >> $GITHUB_OUTPUT
+          echo fork_clas12tags=$fork_clas12tags >> $GITHUB_OUTPUT
+          echo fork_clas12config=$fork_clas12config >> $GITHUB_OUTPUT
+          echo fork_clas12validation=$fork_clas12validation >> $GITHUB_OUTPUT
+          echo ref_coatjava=$ref_coatjava >> $GITHUB_OUTPUT
+          echo ref_clas12tags=$ref_clas12tags >> $GITHUB_OUTPUT
+          echo ref_clas12config=$ref_clas12config >> $GITHUB_OUTPUT
+          echo ref_clas12validation=$ref_clas12validation >> $GITHUB_OUTPUT
+          ### get caller repository
+          echo caller_repo=$(echo "${{ github.repository }}" | sed 's;^.*/;;g') >> $GITHUB_OUTPUT
+      - name: dispatch summary
+        run: |
+          echo '| | | |' >> $GITHUB_STEP_SUMMARY
+          echo '| --- | --- | --- |' >> $GITHUB_STEP_SUMMARY
+          echo '| **Triggered By `${{ github.event_name }}`:** | <${{ github.event.pull_request.html_url || github.event.head_commit.url }}> |  |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`coatjava` Fork and Ref:** | `${{ steps.info.outputs.fork_coatjava }}` | [`${{ steps.info.outputs.ref_coatjava }}`](https://github.com/${{ steps.info.outputs.fork_coatjava }}/tree/${{ steps.info.outputs.ref_coatjava }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12Tags` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12tags }}` | [`${{ steps.info.outputs.ref_clas12tags }}`](https://github.com/${{ steps.info.outputs.fork_clas12tags }}/tree/${{ steps.info.outputs.ref_clas12tags }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12-config` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12config }}` | [`${{ steps.info.outputs.ref_clas12config }}`](https://github.com/${{ steps.info.outputs.fork_clas12config }}/tree/${{ steps.info.outputs.ref_clas12config }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| **`clas12-validation` Fork and Ref:** | `${{ steps.info.outputs.fork_clas12validation }}` | [`${{ steps.info.outputs.ref_clas12validation }}`](https://github.com/${{ steps.info.outputs.fork_clas12validation }}/tree/${{ steps.info.outputs.ref_clas12validation }}) |' >> $GITHUB_STEP_SUMMARY
+          echo '| | | |' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '- Caller repository: `${{ steps.info.outputs.caller_repo }}`' >> $GITHUB_STEP_SUMMARY
+
+  # build
+  #############################################################################
+
+  build_coatjava:
+    name: Build coatjava
+    needs:
+      - dependency_info
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'oasis.opensciencegrid.org'
+      - name: checkout coatjava
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.dependency_info.outputs.fork_coatjava }}
+          ref: ${{ needs.dependency_info.outputs.ref_coatjava }}
+          path: coatjava
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
+      - name: build
+        uses: Wandalen/wretry.action@v3.8.0 # using wretry.action, to mitigate sporadic maven repo connection failures
+        with:
+          attempt_limit: 3
+          attempt_delay: 10000
+          command: 'cd coatjava ; ./build-coatjava.sh --no-progress -T4'
+      - name: tree
+        run: tree
+      - name: tar
+        run: tar cavf coatjava{.tar.zst,}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build.coatjava
+          retention-days: 3
+          path: ./*.tar.zst
+
+  # clas12-config configuration
+  #############################################################################
+
+  config_files:
+    name: Configuration files
+    needs:
+      - dependency_info
+    runs-on: ubuntu-latest
+    outputs:
+      num_events: ${{ steps.num_events.outputs.num_events }}
+      tag_config_coatjava: ${{ steps.version.outputs.tag_config_coatjava }}
+      tag_config_gemc: ${{ steps.version.outputs.tag_config_gemc }}
+      matrix_evgen: ${{ steps.read_matrices.outputs.matrix_evgen }}
+      matrix_config: ${{ steps.read_matrices.outputs.matrix_config }}
+      matrix_full: ${{ steps.matrix_full.outputs.matrix_full }}
+    steps:
+      - name: checkout clas12-validation
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
+      - name: checkout clas12-config
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.dependency_info.outputs.fork_clas12config }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12config }}
+          path: clas12-config
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
+      - name: set number of events
+        id: num_events
+        run: |
+          num_events=${{ inputs.num_events || env.num_events }}
+          echo num_events=$num_events >> $GITHUB_OUTPUT
+          echo "### Number of Events:" >> $GITHUB_STEP_SUMMARY
+          echo "$num_events" >> $GITHUB_STEP_SUMMARY
+      - name: get version info
+        id: version
+        working-directory: clas12-config
+        run: |
+          tag_config_coatjava=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.coatjava')
+          tag_config_gemc=$(echo '${{ inputs.config_file_versions || env.config_file_versions }}' | jq -r '.gemc')
+          # job summary
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Versions:" >> $GITHUB_STEP_SUMMARY
+          echo "| Configuration File Set | Version |"      >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |"                             >> $GITHUB_STEP_SUMMARY
+          echo "| \`coatjava\` | ${tag_config_coatjava} |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`gemc\` | ${tag_config_gemc} |"         >> $GITHUB_STEP_SUMMARY
+          # output vars
+          echo tag_config_coatjava=$tag_config_coatjava >> $GITHUB_OUTPUT
+          echo tag_config_gemc=$tag_config_gemc         >> $GITHUB_OUTPUT
+      - name: read matrices
+        id: read_matrices
+        run: |
+          echo matrix_evgen=$(jq -c . <(echo '{ "evgen": ${{ inputs.matrix_evgen || env.matrix_evgen }} }')) >> $GITHUB_OUTPUT
+          config_list=$(jq -c . <(echo '${{ inputs.matrix_config || env.matrix_config }}'))
+          echo matrix_config=$(jq -c . <(echo '{ "config":' $config_list '}')) >> $GITHUB_OUTPUT
+      - name: make full job matrix
+        id: matrix_full
+        run: echo matrix_full=$(jq -sc add <(echo '${{ steps.read_matrices.outputs.matrix_evgen }}') <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) >> $GITHUB_OUTPUT
+      - name: summary
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Configuration Job Matrix:" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.matrix_full.outputs.matrix_full }}' | jq | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+      - name: find config files
+        working-directory: clas12-config
+        run: |
+          for config_file in $(jq -r '.config[]' <(echo '${{ steps.read_matrices.outputs.matrix_config }}')) ; do
+            echo "find config files for config='$config_file'"
+            if [ "${{ steps.version.outputs.tag_config_coatjava }}" = "latest" ] ; then
+              util/latest.rb coatjava $config_file both | tee -a coatjava.ver
+            else
+              ls   coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config_file}.yaml
+              echo coatjava/${{ steps.version.outputs.tag_config_coatjava }}/${config_file}.yaml ${{ steps.version.outputs.tag_config_coatjava }} | tee -a coatjava.ver
+            fi
+            if [ "${{ steps.version.outputs.tag_config_gemc }}" = "latest" ] ; then
+              util/latest.rb gemc $config_file both | tee -a gemc.ver
+            else
+              ls   gemc/${{ steps.version.outputs.tag_config_gemc }}/${config_file}.gcard
+              echo gemc/${{ steps.version.outputs.tag_config_gemc }}/${config_file}.gcard ${{ steps.version.outputs.tag_config_gemc }} | tee -a gemc.ver
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Configuration Files:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          paste {coatjava,gemc}.ver | column -t | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+      - name: tar
+        run: tar cavf clas12-config{.tar.zst,}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build.config
+          retention-days: 3
+          path: ./*.tar.zst
+
+  # event generation
+  #############################################################################
+  event_generation:
+    name: Event generation
+    needs:
+      - build_coatjava
+      - config_files
+      - dependency_info
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJson(needs.config_files.outputs.matrix_evgen) }}
+    steps:
+      - name: checkout clas12-validation
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
+      - name: setup java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
+      - name: setup groovy
+        uses: wtfjoke/setup-groovy@v2
+        with:
+          groovy-version: ${{ env.groovy_version }}
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'oasis.opensciencegrid.org'
+      - name: download build
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build.*
+          merge-multiple: true
+      - name: untar build
+        run: ls *.tar.zst | xargs -I{} tar xavf {}
+      - name: check if this configuration is known
+        run: jq -re '.${{ matrix.evgen }}' <(echo '${{ env.evgen_opts }}')
+      - name: event generation
+        run: |
+          coatjava/coatjava/bin/run-groovy \
+            coatjava/validation/advanced-tests/src/eb/scripts/gen.groovy \
+            $(jq -r '.${{ matrix.evgen }}' <(echo '${{ env.evgen_opts }}')) \
+            -n ${{ needs.config_files.outputs.num_events }}
+      - name: rename artifact
+        run: |
+          ls -t *.txt
+          mv -v $(ls -t *.txt | head -n1) evgen.${{ matrix.evgen }}.dat
+      - uses: actions/upload-artifact@v4
+        with:
+          name: evgen.${{ matrix.evgen }}
+          retention-days: 3
+          path: evgen.${{ matrix.evgen }}.dat
+
+  # simulation, reconstruction, and analysis: combined to one step to avoid large artifact I/O overhead
+  #############################################################################
+  fulltest:
+    name: Run
+    needs:
+      - event_generation
+      - config_files
+      - dependency_info
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJson(needs.config_files.outputs.matrix_full) }}
+    steps:
+      ### setup
+      - name: checkout clas12-validation
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
+      - name: setup java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
+      - name: setup groovy
+        uses: wtfjoke/setup-groovy@v2
+        with:
+          groovy-version: ${{ env.groovy_version }}
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
+        with:
+          cvmfs_repositories: 'oasis.opensciencegrid.org'
+      - name: download evgen
+        uses: actions/download-artifact@v4
+        with:
+          name: evgen.${{ matrix.evgen }}
+      - name: download build
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build.*
+          merge-multiple: true
+      - name: tree
+        run: ls -lhR
+      - name: untar build
+        run: ls *.tar.zst | xargs -I{} tar xavf {}
+      ### handle config files
+      - name: file names
+        id: files
+        run: |
+          echo evgenFile=evgen.${{ matrix.evgen }}.dat >> $GITHUB_OUTPUT
+          suffix=${{ matrix.evgen }}.${{ matrix.config }}
+          echo suffix=$suffix >> $GITHUB_OUTPUT
+          echo simFile=sim.$suffix.hipo >> $GITHUB_OUTPUT
+          echo recFile=rec.$suffix.hipo >> $GITHUB_OUTPUT
+          echo coatjavaConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/coatjava.ver | awk '{print $1}') >> $GITHUB_OUTPUT
+          echo gemcConfigFile=clas12-config/$(grep -w ${{ matrix.config }} clas12-config/gemc.ver | awk '{print $1}') >> $GITHUB_OUTPUT
+      - name: config files exist
+        run: |
+          ls ${{ steps.files.outputs.gemcConfigFile }}
+          ls ${{ steps.files.outputs.coatjavaConfigFile }}
+      ### set GEMC version and image
+      - name: set GEMC versioning
+        id: gemc_ver
+        run: |
+          gemc_module_version=${{ inputs.gemc_version || env.gemc_version }}
+          [ "$gemc_module_version" = "match_gcard" ] && gemc_module_version=$(grep -w ${{ matrix.config }} clas12-config/gemc.ver | awk '{print $2}')
+          echo gemc_module_version=$gemc_module_version | tee -a $GITHUB_OUTPUT
+          echo gemc_image=${{ inputs.gemc_image || env.gemc_image }} | tee -a $GITHUB_OUTPUT
+      - name: checkout clas12Tags
+        if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
+          ref: ${{ needs.dependency_info.outputs.ref_clas12tags }}
+          path: clas12Tags
+          clean: false
+          fetch-tags: true
+          fetch-depth: 0
+      ### set GEMC docker arguments
+      # FIXME: need to bind host `/cvmfs` to container, but container image has
+      # its OWN `/cvmfs` directory
+      # - workaround: we bind to a DIFFERENT container path
+      # - we need to bind only the host directory that contains the `sqlite`
+      #   file, since just binding the host `/cvmfs` does not work at all
+      #   (possibly some issue with symlinks)
+      - name: set GEMC docker args
+        id: docker_args
+        run: |
+          ccdb_file=$(echo $CCDB_CONNECTION | sed 's;sqlite:///;;')
+          ccdb_host_dir=$(dirname $ccdb_file)
+          ccdb_cont_dir=/cvmfs_ccdb
+          docker_args=(
+            --env CCDB_CONNECTION=sqlite:///$ccdb_cont_dir/$(basename $ccdb_file)
+            --mount type=bind,ro,src=$ccdb_host_dir,dst=$ccdb_cont_dir
+            --mount type=bind,src=.,dst=/ci
+            --workdir=/ci
+            ${{ steps.gemc_ver.outputs.gemc_image }}
+          )
+          echo "docker_args=${docker_args[@]}" | tee -a $GITHUB_OUTPUT
+      ### rebuild GEMC (if necessary)
+      - name: rebuild GEMC
+        if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
+        run: |
+          docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
+            bin/ci_gemc_build.sh \
+            clas12Tags/source
+      ### run simulation
+      - name: simulation
+        run: |
+          docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
+            bin/ci_gemc_run.sh \
+            ${{ steps.gemc_ver.outputs.gemc_module_version }} \
+            ${{ steps.files.outputs.gemcConfigFile }} \
+            ${{ steps.files.outputs.evgenFile }} \
+            ${{ steps.files.outputs.simFile }}
+      - name: check if output exists
+        run: ls ${{ steps.files.outputs.simFile }}
+      ### run reconstruction
+      # NOTE: using larger heap max size (`-Xmx`) than the default, for performance
+      - name: reconstruction
+        run: |
+          coatjava/coatjava/bin/recon-util \
+            -y ${{ steps.files.outputs.coatjavaConfigFile }} \
+            -i ${{ steps.files.outputs.simFile }} \
+            -o ${{ steps.files.outputs.recFile }} \
+            -- -Xmx3072m
+      - name: check if output exists
+        run: ls ${{ steps.files.outputs.recFile }}
+      ### run analysis
+      - name: analyze efficiency
+        run: |
+          coatjava/coatjava/bin/trutheff ${{ steps.files.outputs.recFile }} | tee ana.tmp
+          cat ana.tmp |\
+            grep -v 'reader::' |\
+            grep -v '{' \
+            > ana.efficiency.${{ steps.files.outputs.suffix }}.txt
+      - name: analyze multiplicity
+        run: |
+          bankName="REC::Particle"
+          [[ "${{ matrix.evgen }}" =~ FT ]] && bankName="RECFT::Particle"
+          echo "bank: $bankName" | tee ana.bankName.${{ steps.files.outputs.suffix }}.txt
+          coatjava/coatjava/bin/run-groovy bin/multiplicity.groovy \
+            ${{ steps.files.outputs.recFile }} \
+            $bankName |\
+            tee ana.tmp
+            tail -n1 ana.tmp > ana.multiplicity.${{ steps.files.outputs.suffix }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sim.${{ matrix.evgen }}.${{ matrix.config }}
+          retention-days: 3
+          path: sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rec.${{ matrix.evgen }}.${{ matrix.config }}
+          retention-days: 3
+          path: rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ana.${{ matrix.evgen }}.${{ matrix.config }}
+          retention-days: 3
+          path: ana.*
+
+  # finalize
+  #############################################################################
+  report_efficiency:
+    name: Report efficiency
+    needs:
+      - fulltest
+      - config_files
+    runs-on: ubuntu-latest
+    steps:
+      - name: download ana
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ana.*
+          merge-multiple: true
+      - run: tree
+      - name: report efficiency
+        run: |
+          echo "# Efficiency Report" >> $GITHUB_STEP_SUMMARY
+          for config in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.config[]') ; do
+            echo "## config: \`$config\`" >> $GITHUB_STEP_SUMMARY
+            for evgen in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.evgen[]') ; do
+              echo "### evgen: \`$evgen\`" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              cat ana.efficiency.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            done
+          done
+
+  report_multiplicity:
+    name: Report multiplicity
+    needs:
+      - fulltest
+      - config_files
+    runs-on: ubuntu-latest
+    steps:
+      - name: download ana
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ana.*
+          merge-multiple: true
+      - run: tree
+      - name: read multiplicity
+        run: |
+          echo "# Multiplicity Report" >> $GITHUB_STEP_SUMMARY
+          echo '```yaml' >> $GITHUB_STEP_SUMMARY
+          for evgen in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.evgen[]') ; do
+            echo "evgen: $evgen" >> $GITHUB_STEP_SUMMARY
+            first=true
+            for config in $(echo '${{ needs.config_files.outputs.matrix_full }}' | jq -r '.config[]') ; do
+              if $first ; then
+                cat ana.bankName.${evgen}.${config}.txt >> $GITHUB_STEP_SUMMARY
+                echo "multiplicity: |" >> $GITHUB_STEP_SUMMARY
+                printf "  %25s:  PID (multiplicity) ...    # sorted multiplicity for each PID\n" "config" >> $GITHUB_STEP_SUMMARY
+                first=false
+              fi
+              printf "  %25s:  %s" $config "$(cat ana.multiplicity.${evgen}.${config}.txt)" | xargs -0 -I{} echo {} >> $GITHUB_STEP_SUMMARY
+            done
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+          echo '```' >> $GITHUB_STEP_SUMMARY
