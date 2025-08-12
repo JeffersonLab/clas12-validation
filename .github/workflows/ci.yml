@@ -172,7 +172,7 @@ jobs:
       caller_repo: ${{ steps.info.outputs.caller_repo }}
     steps:
       - name: checkout clas12-validation
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: JeffersonLab/clas12-validation
           # ref: feature-branch # NOTE: if making a clas12-validation change that impacts this job, temporarily set the corresponding ref here
@@ -239,7 +239,7 @@ jobs:
         with:
           cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: checkout coatjava
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ needs.dependency_info.outputs.fork_coatjava }}
           ref: ${{ needs.dependency_info.outputs.ref_coatjava }}
@@ -280,7 +280,7 @@ jobs:
       matrix_full: ${{ steps.matrix_full.outputs.matrix_full }}
     steps:
       - name: checkout clas12-validation
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
           ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
@@ -288,7 +288,7 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       - name: checkout clas12-config
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12config }}
           ref: ${{ needs.dependency_info.outputs.ref_clas12config }}
@@ -380,7 +380,7 @@ jobs:
       matrix: ${{ fromJson(needs.config_files.outputs.matrix_evgen) }}
     steps:
       - name: checkout clas12-validation
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
           ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
@@ -439,7 +439,7 @@ jobs:
     steps:
       ### setup
       - name: checkout clas12-validation
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12validation }}
           ref: ${{ needs.dependency_info.outputs.ref_clas12validation }}
@@ -496,7 +496,7 @@ jobs:
           echo gemc_image=${{ inputs.gemc_image || env.gemc_image }} | tee -a $GITHUB_OUTPUT
       - name: checkout clas12Tags
         if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
           ref: ${{ needs.dependency_info.outputs.ref_clas12tags }}
