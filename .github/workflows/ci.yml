@@ -400,7 +400,7 @@ jobs:
         with:
           cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: download build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: build.*
           merge-multiple: true
@@ -459,11 +459,11 @@ jobs:
         with:
           cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: download evgen
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: evgen.${{ matrix.evgen }}
       - name: download build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: build.*
           merge-multiple: true
@@ -598,7 +598,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download ana
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: ana.*
           merge-multiple: true
@@ -624,7 +624,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download ana
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: ana.*
           merge-multiple: true
