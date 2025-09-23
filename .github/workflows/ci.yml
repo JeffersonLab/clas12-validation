@@ -393,7 +393,7 @@ jobs:
           java-version: ${{ env.java_version }}
           distribution: ${{ env.java_distribution }}
       - name: setup groovy
-        uses: wtfjoke/setup-groovy@v2
+        uses: wtfjoke/setup-groovy@v3
         with:
           groovy-version: ${{ env.groovy_version }}
       - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -452,7 +452,7 @@ jobs:
           java-version: ${{ env.java_version }}
           distribution: ${{ env.java_distribution }}
       - name: setup groovy
-        uses: wtfjoke/setup-groovy@v2
+        uses: wtfjoke/setup-groovy@v3
         with:
           groovy-version: ${{ env.groovy_version }}
       - uses: cvmfs-contrib/github-action-cvmfs@v5
