@@ -235,6 +235,10 @@ jobs:
         with:
           java-version: ${{ env.java_version }}
           distribution: ${{ env.java_distribution }}
+      - name: Setup Maven
+        uses: actionctl/setup-maven-cli@v1
+        with:
+          maven_version: '3.9.9'
       - uses: cvmfs-contrib/github-action-cvmfs@v5
         with:
           cvmfs_repositories: 'oasis.opensciencegrid.org'
