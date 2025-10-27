@@ -257,7 +257,7 @@ jobs:
         run: tree
       - name: tar
         run: tar cavf coatjava{.tar.zst,}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: build.coatjava
           retention-days: 3
@@ -360,7 +360,7 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
       - name: tar
         run: tar cavf clas12-config{.tar.zst,}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: build.config
           retention-days: 3
@@ -418,7 +418,7 @@ jobs:
         run: |
           ls -t *.txt
           mv -v $(ls -t *.txt | head -n1) evgen.${{ matrix.evgen }}.dat
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: evgen.${{ matrix.evgen }}
           retention-days: 3
@@ -572,17 +572,17 @@ jobs:
             $bankName |\
             tee ana.tmp
             tail -n1 ana.tmp > ana.multiplicity.${{ steps.files.outputs.suffix }}.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: sim.${{ matrix.evgen }}.${{ matrix.config }}
           retention-days: 3
           path: sim.${{ matrix.evgen }}.${{ matrix.config }}.hipo
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: rec.${{ matrix.evgen }}.${{ matrix.config }}
           retention-days: 3
           path: rec.${{ matrix.evgen }}.${{ matrix.config }}.hipo
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: ana.${{ matrix.evgen }}.${{ matrix.config }}
           retention-days: 3
