@@ -432,7 +432,7 @@ jobs:
       - event_generation
       - config_files
       - dependency_info
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     container:
       image: codecr.jlab.org/hallb/clas12/container-forge/simulation:MR-318-97
     strategy:
