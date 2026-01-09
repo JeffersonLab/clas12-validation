@@ -438,6 +438,10 @@ jobs:
       matrix: ${{ fromJson(needs.config_files.outputs.matrix_full) }}
     steps:
       ### setup
+      - name: deps
+        run: |
+          sudo apt -y update
+          sudo apt -y install docker
       - name: checkout clas12-validation
         uses: actions/checkout@v6
         with:
