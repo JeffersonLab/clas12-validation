@@ -432,7 +432,7 @@ jobs:
       - event_generation
       - config_files
       - dependency_info
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     strategy:
       fail-fast: true
       matrix: ${{ fromJson(needs.config_files.outputs.matrix_full) }}
