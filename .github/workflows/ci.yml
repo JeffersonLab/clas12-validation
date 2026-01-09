@@ -95,7 +95,7 @@ env:
   # GEMC Docker image to use, e.g.:
   # - jeffersonlab/gemc:dev-fedora36
   # - jeffersonlab/gemc:dev-almalinux94
-  gemc_image: 'jeffersonlab/gemc:dev-fedora36'
+  gemc_image: 'codecr.jlab.org/hallb/clas12/container-forge/simulation:MR-318-97'
 
   # GEMC version to use in the GEMC container; available choices:
   # - "build":        rebuild GEMC from clas12Tags and use that version
@@ -514,33 +514,26 @@ jobs:
       - name: set GEMC docker args
         id: docker_args
         run: |
-          ccdb_file=$(echo $CCDB_CONNECTION | sed 's;sqlite:///;;')
-          ccdb_host_dir=$(dirname $ccdb_file)
-          ccdb_cont_dir=/cvmfs_ccdb
           docker_args=(
-            --env CCDB_CONNECTION=sqlite:///$ccdb_cont_dir/$(basename $ccdb_file)
-            --mount type=bind,ro,src=$ccdb_host_dir,dst=$ccdb_cont_dir
             --mount type=bind,src=.,dst=/ci
             --workdir=/ci
             ${{ steps.gemc_ver.outputs.gemc_image }}
           )
           echo "docker_args=${docker_args[@]}" | tee -a $GITHUB_OUTPUT
-      ### rebuild GEMC (if necessary)
-      - name: rebuild GEMC
-        if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-        run: |
-          docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
-            bin/ci_gemc_build.sh \
-            clas12Tags/source
       ### run simulation
       - name: simulation
         run: |
           docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
-            bin/ci_gemc_run.sh \
-            ${{ steps.gemc_ver.outputs.gemc_module_version }} \
-            ${{ steps.files.outputs.gemcConfigFile }} \
-            ${{ steps.files.outputs.evgenFile }} \
-            ${{ steps.files.outputs.simFile }}
+            gemc \
+              ${{ steps.files.outputs.gemcConfigFile }} \
+              -INPUT_GEN_FILE="LUND, ${{ steps.files.outputs.evgenFile }}" \
+              -USE_GUI=0 \
+              -OUTPUT="hipo, ${{ steps.files.outputs.simFile }}" \
+              -RUNNO=11 \
+              -SAVE_ALL_MOTHERS=1 \
+              -SKIPREJECTEDHITS=1 \
+              -INTEGRATEDRAW="*" \
+              -NGENP=50
       - name: check if output exists
         run: ls ${{ steps.files.outputs.simFile }}
       ### run reconstruction
