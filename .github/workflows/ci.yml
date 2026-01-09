@@ -432,16 +432,14 @@ jobs:
       - event_generation
       - config_files
       - dependency_info
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
+    container:
+      image: codecr.jlab.org/hallb/clas12/container-forge/simulation:MR-318-97
     strategy:
       fail-fast: true
       matrix: ${{ fromJson(needs.config_files.outputs.matrix_full) }}
     steps:
       ### setup
-      - name: deps
-        run: |
-          sudo apt -y update
-          sudo apt -y install docker
       - name: checkout clas12-validation
         uses: actions/checkout@v6
         with:
@@ -450,18 +448,6 @@ jobs:
           clean: false
           fetch-tags: true
           fetch-depth: 0
-      - name: setup java
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ env.java_version }}
-          distribution: ${{ env.java_distribution }}
-      - name: setup groovy
-        uses: wtfjoke/setup-groovy@v3
-        with:
-          groovy-version: ${{ env.groovy_version }}
-      - uses: cvmfs-contrib/github-action-cvmfs@v5
-        with:
-          cvmfs_repositories: 'oasis.opensciencegrid.org'
       - name: download evgen
         uses: actions/download-artifact@v7
         with:
@@ -490,44 +476,9 @@ jobs:
         run: |
           ls ${{ steps.files.outputs.gemcConfigFile }}
           ls ${{ steps.files.outputs.coatjavaConfigFile }}
-      ### set GEMC version and image
-      - name: set GEMC versioning
-        id: gemc_ver
-        run: |
-          gemc_module_version=${{ inputs.gemc_version || env.gemc_version }}
-          [ "$gemc_module_version" = "match_gcard" ] && gemc_module_version=$(grep -w ${{ matrix.config }} clas12-config/gemc.ver | awk '{print $2}')
-          echo gemc_module_version=$gemc_module_version | tee -a $GITHUB_OUTPUT
-          echo gemc_image=${{ inputs.gemc_image || env.gemc_image }} | tee -a $GITHUB_OUTPUT
-      - name: checkout clas12Tags
-        if: ${{ steps.gemc_ver.outputs.gemc_module_version == 'build' }}
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ needs.dependency_info.outputs.fork_clas12tags }}
-          ref: ${{ needs.dependency_info.outputs.ref_clas12tags }}
-          path: clas12Tags
-          clean: false
-          fetch-tags: true
-          fetch-depth: 0
-      ### set GEMC docker arguments
-      # FIXME: need to bind host `/cvmfs` to container, but container image has
-      # its OWN `/cvmfs` directory
-      # - workaround: we bind to a DIFFERENT container path
-      # - we need to bind only the host directory that contains the `sqlite`
-      #   file, since just binding the host `/cvmfs` does not work at all
-      #   (possibly some issue with symlinks)
-      - name: set GEMC docker args
-        id: docker_args
-        run: |
-          docker_args=(
-            --mount type=bind,src=.,dst=/ci
-            --workdir=/ci
-            ${{ steps.gemc_ver.outputs.gemc_image }}
-          )
-          echo "docker_args=${docker_args[@]}" | tee -a $GITHUB_OUTPUT
       ### run simulation
       - name: simulation
         run: |
-          docker run --rm ${{ steps.docker_args.outputs.docker_args }} \
             gemc \
               ${{ steps.files.outputs.gemcConfigFile }} \
               -INPUT_GEN_FILE="LUND, ${{ steps.files.outputs.evgenFile }}" \
