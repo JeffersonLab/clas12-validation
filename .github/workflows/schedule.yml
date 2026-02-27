@@ -3,6 +3,9 @@ name: Scheduled Test
 on:
   schedule:
     # Thursday at 0830Z
+    #
+    # DEPRECATION NOTICE: this workflow was disabled on the GitHub webpage on 27 February 2026
+    #
     - cron: '30 8 * * 4'
 
 jobs:

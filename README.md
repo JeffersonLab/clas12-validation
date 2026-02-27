@@ -1,3 +1,9 @@
+:rotating_light: **This repository has been deprecated as of 27 February 2026. :rotating_light:
+
+See [`orca`](https://code.jlab.org/hallb/clas12/orca), which may eventually be a suitable replacement for `clas12-validation` workflows.
+
+---
+
 # clas12-validation
 
 [![Validation Status](https://github.com/JeffersonLab/clas12-validation/actions/workflows/ci.yml/badge.svg)](https://github.com/JeffersonLab/clas12-validation/actions/workflows/ci.yml)
